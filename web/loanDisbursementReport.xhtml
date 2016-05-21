@@ -1,0 +1,174 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:f="http://java.sun.com/jsf/core">
+
+    <ui:composition template="adminTemplate.xhtml">
+
+        <ui:define name="title">Home</ui:define>
+
+        <ui:define name="scripts">
+            <script type="text/javascript">
+                function setBedCrump() {
+                    menuElement = document.getElementById("menu1");
+                    menuElement.className = "limenu select";
+
+                }
+
+            </script>
+        </ui:define>
+        <ui:define name="separator">
+           
+            <span style="position:relative;font-weight:bold;font-size: 15px;">Loans Disbursement Report</span><br/>
+           
+        </ui:define>
+
+        <ui:define name="adminContent">
+            <p:fieldset legend="Filter Report">
+                <h:form id="filterReport">
+                    <h:panelGrid cellpadding="5" cellspacing="5" columns="19">
+                        <h:outputLabel for="filterBy" value="Filter By"/>
+                        <h:selectOneMenu id="filterBy" value="#{disbursementController.filterType}" >
+                            <p:ajax listener="#{disbursementController.onchangefilter()}" process="filterBy" event="change"/>
+                            <f:selectItem itemLabel="Select" itemValue=""/>
+                            <f:selectItem itemLabel="Date" itemValue="date"/>
+                            <f:selectItem itemLabel="Date Range" itemValue="dateRange"/>
+                            <f:selectItem itemLabel="Month" itemValue="month"/>
+                             <f:selectItem itemLabel="Year" itemValue="year"/>
+                            <f:selectItem itemLabel="Cheque Number" itemValue="cheque"/>
+                            
+                        </h:selectOneMenu>
+                        <h:outputLabel rendered="#{disbursementController.renderDate}" for="dateSelect" value="Select Date"/>
+                        <p:calendar pattern="yyyy-MM-dd" navigator="true" value="#{disbursementController.dateSelect}" rendered="#{disbursementController.renderDate}" id="dateSelect" />
+                        <h:outputLabel rendered="#{disbursementController.renderMonth}" for="monthSelect" value="Select Month"/>
+                        <h:selectOneMenu   rendered="#{disbursementController.renderMonth}"  value="#{disbursementController.month}"  id="monthSelect">
+                     <f:selectItem itemLabel="Select" />
+                     <f:selectItem itemLabel="January" itemValue="01"/>
+                     <f:selectItem itemLabel="February" itemValue="02"/>
+                     <f:selectItem itemLabel="March" itemValue="03"/>
+                     <f:selectItem itemLabel="April" itemValue="04"/>
+                     <f:selectItem itemLabel="May" itemValue="05"/>
+                     <f:selectItem itemLabel="June" itemValue="06"/>
+                     <f:selectItem itemLabel="July" itemValue="07"/>
+                     <f:selectItem itemLabel="August" itemValue="08"/>
+                     <f:selectItem itemLabel="September" itemValue="09"/>
+                     <f:selectItem itemLabel="October" itemValue="10"/>
+                     <f:selectItem itemLabel="November" itemValue="11"/>
+                     <f:selectItem itemLabel="December" itemValue="12"/>
+                 </h:selectOneMenu>
+                        <h:outputLabel rendered="#{disbursementController.renderYear}" for="yearSelect" value="Select Year"/>
+                        <h:selectOneMenu value="#{disbursementController.year}" rendered="#{disbursementController.renderYear}" id="yearSelect">
+                    <f:selectItem itemLabel="Select Year" /> 
+                    <f:selectItems var="year" value="#{disbursementController.genYears()}" itemLabel="#{year}" itemValue="#{year}" />
+                 </h:selectOneMenu>
+                        <h:outputLabel  rendered="#{disbursementController.renderChequeNo}" for="chequeNumber" value="Cheque Number"/>
+                        <h:inputText value="#{disbursementController.chequeSearch}" rendered="#{disbursementController.renderChequeNo}" id="chequeNumber"/>
+                          <h:outputLabel rendered="#{disbursementController.renderDateRange}"  for="dateFrom" value="From"/>
+                          <p:calendar rendered="#{disbursementController.renderDateRange}" navigator="true" value="#{disbursementController.dateRangeFrom}" id="dateFrom" pattern="yyyy-MM-dd">
+                     <p:ajax update="dateTo" event="dateSelect" listener="#{disbursementController.updateDateTo()}" process="dateFrom" />
+                </p:calendar>
+                 <h:outputLabel rendered="#{disbursementController.renderDateRange}"  for="dateTo" value="To"/>
+                 <p:calendar rendered="#{disbursementController.renderDateRange}"  mindate="#{disbursementController.dateRangeFrom}" navigator="true" value="#{disbursementController.dateRangeTo}"  id="dateTo" pattern="yyyy-MM-dd">
+                    
+                </p:calendar>
+                        
+                        <h:outputLabel rendered="#{disbursementController.renderBank}" value="Select Bank" for="selectBank"/>
+                  
+                         
+                         <h:selectOneMenu rendered="#{disbursementController.renderBank}" id="selectBank" value="#{disbursementController.filterBankId}">
+                        <p:ajax event="change" process="selectBank" listener="#{disbursementController.onselectFilterBank()}" update="selectBranch"/>
+                      
+                        <f:selectItem itemLabel="Select Bank" itemValue=""/>
+                        <f:selectItems value="#{disbursementController.allSaccoBanks}" var="selBank" itemLabel="#{selBank.bankName}" itemValue="#{selBank.id}" />
+                    
+                    </h:selectOneMenu>
+                     <h:outputLabel rendered="#{disbursementController.renderBank}" for="selectBranch" value="Select Branch"/>
+                     <h:selectOneMenu rendered="#{disbursementController.renderBank}" id="selectBranch" value="#{disbursementController.filterBranchId}">
+                        <f:selectItem itemLabel="Select Branch" itemValue=""/>
+                        <f:selectItems value="#{disbursementController.bankBranches}" var="selectBranch" itemLabel="#{selectBranch.branchName}" itemValue="#{selectBranch.id}"/>
+                    </h:selectOneMenu>
+                     <p:commandButton id="cmdGenerate" actionListener="#{disbursementController.generateDisbursementReport()}" rendered="#{disbursementController.renderBank or disbursementController.renderChequeNo or disbursementController.renderYear or disbursementController.renderMonth or disbursementController.renderDate }" value="Generate Report"/>
+                     <p:blockUI trigger="cmdGenerate" block=":reportSet">
+                         <p:graphicImage value="images/ajax-loader.gif"/>
+                     </p:blockUI>
+                    
+                    </h:panelGrid>
+                   
+                </h:form>
+                
+                
+            </p:fieldset>
+            <br/>
+            <p:fieldset id="reportSet" legend="Report">
+                <h:form>
+                <p:dataTable paginator="true" paginatorAlwaysVisible="false" rows="40"  value="#{disbursementController.disbursementsDM}" var="disbursement" id="reportTBL" >
+                    <p:column >
+                        <f:facet name="header">Date</f:facet>
+                        <h:outputText value="#{disbursement.disburseDate}">
+                            <f:convertDateTime pattern="yyyy-MM-dd"/>
+                        </h:outputText>
+                    </p:column>
+                    <p:column >
+                        <f:facet name="header">Loan Number</f:facet>
+                        <h:outputText style="position:relative;left:35%;" value="#{disbursementController.loadLoan(disbursement.loanId).loanNUmber}"/>
+                    </p:column>
+                    <p:column >
+                        <f:facet name="header">Member Number</f:facet>
+                        <h:outputText style="position:relative;left:35%;" value="#{disbursementController.loadMember(disbursement.memberId).memberNumber}"/>
+                    </p:column>
+                    <p:column >
+                        <f:facet name="header">Full Name</f:facet>
+                        <h:outputText value="#{disbursementController.loadMember(disbursement.memberId).fullName}"/>
+                    </p:column>
+                     <p:column >
+                        <f:facet name="header">Amount</f:facet>
+                        <h:outputText value="#{disbursement.amount}"/>
+                    </p:column>
+                     <p:column >
+                        <f:facet name="header">Cheque Number</f:facet>
+                        <h:outputText value="#{disbursement.chequeNumber}"/>
+                    </p:column>
+                     <p:column >
+                        <f:facet name="header">Bank</f:facet>
+                        <h:outputText value="#{disbursementController.loadBank(disbursement.bankId).bankName}"/>
+                    </p:column>
+                    <p:column >
+                        <f:facet name="header">Branch</f:facet>
+                        <h:outputText value="#{disbursementController.loadBankBranch(disbursement.bankBranchId).branchName}"/>
+                    </p:column>
+                     <p:column >
+                        <f:facet name="header">Account Number</f:facet>
+                        <h:outputText value="#{disbursement.accountNumber}"/>
+                    </p:column>
+                        <p:column >
+                        <f:facet name="header">Disbursed By</f:facet>
+                        <h:outputText value="#{disbursementController.loadDisbursedBy(disbursement.disbursedBy)}"/>
+                    </p:column>
+                    
+                </p:dataTable>
+                    <br/>
+                     <div  style="position: relative;width:100%;left: 0%">
+                <p:fieldset id="revPanel" legend="Export Report">
+               
+                    <h:panelGrid cellpadding="5"  style="position: relative; left: 30%;width:10%;" columns="2">
+                        <p:commandLink  ajax="false"  >
+                                            <h:graphicImage value="/images/excel.png"/>
+                                            <p:dataExporter target="reportTBL" type="xls" fileName="disbursementReport"/>
+                                        </p:commandLink>  
+                                      
+                                    </h:panelGrid>
+                               
+                </p:fieldset>
+                     </div>
+                </h:form>
+            </p:fieldset>
+ 
+
+        </ui:define>
+        
+    </ui:composition>
+</html>
+

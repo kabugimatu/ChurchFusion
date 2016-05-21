@@ -1,0 +1,116 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:f="http://java.sun.com/jsf/core">
+    <h:head>
+
+        <f:event type="preRenderView" listener="#{mainController.checkTellerLoggedIn()}" />
+      
+        <title>
+        <ui:insert name="title">
+             
+        </ui:insert>
+            </title>
+        <link rel="shortcut icon" type="image/ico" href="images/favicon2.html" />     
+        <link rel="stylesheet" type="text/css" href="css/style.css"/>
+        <link rel="stylesheet" type="text/css" href="css/jqueryCSS.css"/>
+        <link rel="stylesheet" type="text/css" href="css/icon.css"/>
+
+        <script type="text/javascript" src="js/jquery.cookie.js"/>
+
+        <ui:insert name="scripts">
+
+        </ui:insert>
+
+    </h:head>
+    <h:body class="dashborad"  onload="setBedCrump();">
+
+        <div id="header" >
+            <h:form>
+                <div id="account_info" > 
+
+                    <div class="setting" title="Profile Setting"><b>Welcome,</b> <b class="red">#{mainController.userLogged.fullName}</b><img src="images/gear.png" class="gear"  alt="Profile Settings"/> </div>
+                    <div class="logot" title="Disconnect"><p:commandLink value="LOG-OUT" ajax="false" action="#{mainController.logout()}"  >
+                            <p:graphicImage value="images/connect.png" name="connect"  alt="disconnect"
+/>                        </p:commandLink></div> 
+                </div>
+            </h:form>    
+        </div> <!--//  header -->
+        <div id="shadowhead"></div>
+        <div id="hide_panel"> 
+            <a class="butAcc" rel="0" id="show_menu"></a>
+            <a class="butAcc" rel="1" id="hide_menu"></a>
+            <a class="butAcc" rel="0" id="show_menu_icon"></a>
+            <a class="butAcc" rel="1" id="hide_menu_icon"></a>
+        </div>           
+ 
+        <div id="left_menu">
+            <h:form>
+                <ul id="main_menu" class="main_menu">
+                    
+                    <li class="limenu" id="menu1" ><a href="tellerIndex.xhtml"><span class="ico gray shadow home" ></span><b>Home</b></a></li>
+                    
+                    
+                     
+                    <li class="limenu" id="menu2" ><a href="#"><span class="ico gray shadow users"></span><b>Members</b> </a>
+                        <ul>
+                            <li><a href="newMember.xhtml" >New Member</a></li>                                                                                    
+                        </ul>
+                    </li>
+
+
+                    <li class="limenu" id="menu3" ><a href="#"><span class="ico gray shadow loans"></span><b>Loans</b> </a>
+                        <ul>
+                            <li><a href="loanApplication.xhtml"><b>Application</b> </a></li>  
+                             <li><a href="loanStatus.xhtml"><b>Status</b> </a></li> 
+                             
+                        </ul>
+                    </li>
+                                      
+                    <li class="limenu" id="menu4"><a href="statements.xhtml"><span class="ico gray shadow statements"></span><b>Statements</b> </a>
+                       
+                    </li>
+                    
+                    <li class="limenu" id="menu5"><a href="loanReport.xhtml"><span class="ico gray shadow reports"></span><b>Reports</b> </a>
+                       
+                    </li>
+                    
+                
+                </ul>
+            </h:form>
+         
+        </div>
+  
+
+        <div id="content"  >
+            <div class="inner" style=" min-height: 550px;">
+                <ui:insert name="topBar" class="topcolumn" >
+                    
+                </ui:insert>
+                
+                <div class="clear"></div>
+                
+                <ui:insert name="separator">
+
+                </ui:insert>
+                <ui:insert name="tellerContent">
+
+                </ui:insert>
+
+                <div class="clear"></div>
+            </div> <!--// End inner -->
+            <div id="footer" > &copy; Copyright 2014 #{settingsController.saccoDetails.name}. Powered By : 
+                 <span class="tip">
+                    <a  href="http://www.pearlsoftke.com" target="http://www.pearlsoftke.com" title="Web &amp; Mobile Apps Developers" >PearlSoft Technologies</a> 
+                </span>  
+            </div>
+
+        </div>
+
+    </h:body>
+</html>
+
+ 

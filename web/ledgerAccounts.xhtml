@@ -1,0 +1,137 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:f="http://java.sun.com/jsf/core"> 
+    <ui:composition template="adminTemplate.xhtml">
+        <ui:define name="title">Sacco Fusion - Accounts</ui:define>
+        <ui:define name="scripts">
+            <script type="text/javascript">
+                function setBedCrump() {
+                    menuElement = document.getElementById("menu6");
+                    menuElement.className = "limenu select";
+
+                }
+
+            </script>
+            <style>                 
+
+                .ui-datatable thead th, .ui-datatable tbody td, .ui-datatable tfoot td 
+                {
+                    white-space: normal !important;
+                }
+            </style>
+        </ui:define>
+
+        <ui:define name="separator">
+            
+            <span style="position:relative;font-weight:bold;font-size: 18px;">Accounts | Ledger Accounts</span>
+          
+        </ui:define>
+
+        <ui:define name="adminContent">
+
+            <p:dialog widgetVar="addSubAccountDLG" header="New Sub-Account" modal="true" resizable="false">
+                <h:form id="addSubAccFRM">
+                    <p:messages closable="true"/>
+                    <h:panelGrid columns="2" cellpadding="5">
+
+                        <h:outputLabel value="Parent Account" for="parentAccount"/>
+                        <h:inputText readonly="true" id="parentAccount" value="#{accountingController.accounts.name}" />
+
+                        <h:outputLabel value="Name *" for="name"/>
+                        <h:inputText id="name" value="#{accountingController.newSubAccount.name}" required="true" requiredMessage="Enter the sub-account name"/>     
+
+
+                    </h:panelGrid>
+                    <br/>
+                    <h:panelGrid style="position: relative; left: 35%;" columns="2" cellpadding="5">
+                        <p:commandButton value="Save" id="saveSub" actionListener="#{accountingController.createSubAccount()}" update=":accReportTabs:accFRM:subAccountsFS, addSubAccFRM"/>
+
+                        <p:commandButton value="Close" onclick="addSubAccountDLG.hide();" />
+
+                        <p:blockUI trigger="saveSub" block="addSubAccFRM">
+                            <p:graphicImage value="/images/ajax-loader.gif"/>
+
+                        </p:blockUI>
+
+                    </h:panelGrid>
+
+                </h:form>
+            </p:dialog>
+            <p:tabView rendered="#{mainController.userLevelLogged.loadLedgerAccounts}" id="accReportTabs">
+                <p:tab title="Ledger Accounts">
+                    <h:form id="accFRM">               
+                        <p:fieldset legend="Main Account">
+                            <h:panelGrid columns="2" style="position:relative;left:25%;">
+                                <h:outputLabel for="selectAcc" value="Select Account " >
+
+                                </h:outputLabel>
+                                <h:selectOneMenu id="selectAcc" value="#{accountingController.accountID}" >
+                                    <p:ajax event="change" onstart="waitDLG.show()" oncomplete="waitDLG.hide()" listener="#{accountingController.loadSubAccounts()}" update=":accReportTabs:accFRM:subAccountsFS" />
+                                    <f:selectItem itemLabel="Select" itemValue="0"/>
+                                    <f:selectItems value="#{accountingController.allParentAccounts}" var="account" itemLabel="#{account.name}" itemValue="#{account.id}"/>
+                                </h:selectOneMenu>
+                                <p:dialog modal="true" resizable="false" widgetVar="waitDLG" header="Please wait" closable="false">
+                                    <p:graphicImage style="position:relative;left:35%;" value="/images/ajax-loader.gif"/>
+
+                                </p:dialog>
+                            </h:panelGrid>
+                        </p:fieldset><br/><br/>
+
+                        <p:fieldset id="subAccountsFS" legend="Sub - Accounts">
+                            <p:commandButton value="New Sub-Account"  oncomplete="addSubAccountDLG.show();"  update=":addSubAccFRM" style="position:relative; left: 75%;"/>
+
+                            <br/><br/>
+                            <p:dataTable  id="subAccounts" paginator="true" paginatorAlwaysVisible="false" rows="10"  value="#{accountingController.subAccDM}" var="subAcc">
+                                <f:facet name="header">#{accountingController.accounts.name.toUpperCase()}</f:facet>
+
+                                <p:column headerText="Name">
+                                    <h:outputText value="#{subAcc.name}" style="position: relative; left: 35%; ">
+                                         <f:convertNumber pattern="###,###,###,###,###,###" /> 
+                                    </h:outputText>
+
+                                </p:column>
+
+                                <p:column headerText="Balance">
+                                    <h:outputText value="#{subAcc.balance}" style="position: relative; left: 35%;">
+                                         <f:convertNumber pattern="###,###,###,###,###,###" /> 
+                                    </h:outputText>
+                                </p:column>
+
+                                <p:column headerText="Actions">
+                                    <p:commandLink value="View Ledger" ajax="false" action="#{accountingController.selectSubAccounts()}" style="position: relative; left: 35%; font-weight: bold; color: green;"/>
+                                </p:column>
+
+                                <p:columnGroup type="footer" rendered="#{accountingController.allSubAccounts.size()!=0}">
+                                    <p:row>
+                                        <p:column footerText="Total Balance"  style="text-align: left;"/>
+                                        <p:column  footerText="#{accountingController.accounts.balance}" >
+                                             
+                                        </p:column>
+                                        <p:column  />
+                                    </p:row>
+                                </p:columnGroup>
+
+                            </p:dataTable>
+                            <br/>
+                        </p:fieldset>
+                    </h:form>
+                </p:tab>
+               
+            </p:tabView>
+  
+            <h:outputText rendered="#{!mainController.userLevelLogged.loadLedgerAccounts}"  style="font-weight: bold;font-size: 24px;color:red;position:relative;left:20%;" value="Access Denied : You do not have enough privileges to access this feature"/>
+
+
+
+
+
+        </ui:define>
+
+
+    </ui:composition>
+</html>
+

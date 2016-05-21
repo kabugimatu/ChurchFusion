@@ -1,0 +1,181 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:f="http://java.sun.com/jsf/core">
+    <ui:composition template="adminTemplate.xhtml">
+        <ui:define name="title">Loan Settings</ui:define>
+
+        <ui:define name="separator">
+
+            <span style="position:relative;font-weight:bold;font-size: 18px;">Edit Loan Setting</span><br/>
+
+        </ui:define>
+
+        <ui:define name="adminContent">
+
+
+            <p:dialog modal="true" widgetVar="newApprovalLevelDLG" resizable="false" header="New Approver">
+                <h:form id="newApproverFRM">
+                    <p:messages id="messages" closable="true"/>
+                    <h:panelGrid columns="2" cellpadding="4">
+                        <h:outputLabel value="Organization Level" for="orgLevel"/>
+                        <h:selectOneMenu id="orgLevel" value="#{loansController.levelid}">
+                            <f:selectItem itemLabel="Select" itemValue=""/>
+                            <f:selectItems value="#{loansController.orgLevelsList}" var="lvlAdd" itemLabel="#{lvlAdd.levelname}" itemValue="#{lvlAdd.levelid}"/>
+                        </h:selectOneMenu>
+
+                        <h:outputLabel value="No. of Approvers"/>
+                        <h:inputText value="#{loansController.approversCount}" required="true" validatorMessage="Invalid no. of approvers">
+                            <f:validateDoubleRange minimum="1" />
+                        </h:inputText>
+                    </h:panelGrid>
+                    <br/>
+                    <h:panelGrid columns="2" cellpadding="4">
+                        <p:commandButton value="Save" actionListener="#{loansController.addDBLoanApprover()}" update="newApproverFRM,newApproverFRM:messages, :loanSettingsFRM:approversLevelsTBL"/>
+                        <p:commandButton value="Close" onclick="newApprovalLevelDLG.hide();"/>
+                    </h:panelGrid>                            
+                </h:form>
+            </p:dialog>    
+
+            <p:dialog modal="true" widgetVar="newApproverDLG" header="Add Approver" resizable="false">
+                <h:form id="newUserFRM">
+                    <p:messages id="approverMessages" closable="true"/>
+                    <h:panelGrid columns="2" cellpadding="5">
+                        <h:outputLabel value="Level" for="level"/>
+                        <h:selectOneMenu id="level" value="#{loansController.approverLevel}">
+                            <p:ajax event="change" listener="#{loansController.onChangeApproverLevel()}" update="users"/>
+                            <f:selectItem itemLabel="Select" itemValue="select"/>
+                            <f:selectItems value="#{loansController.orgLevelsList}" var="userLevel" itemLabel="#{userLevel.levelname}" itemValue="#{userLevel.levelid}"/>
+                        </h:selectOneMenu>
+
+                        <h:outputLabel value="User Name" for="users"/>
+                        <h:selectOneMenu id="users" value="#{loansController.approverID}">                                    
+                            <f:selectItem itemLabel="Select" itemValue="select"/>
+                            <f:selectItems value="#{loansController.allUsers}" var="user" itemLabel="#{user.fullName}" itemValue="#{user.id}"/>
+                        </h:selectOneMenu>
+                    </h:panelGrid>
+                    <br/>
+                    <h:panelGrid cellpadding="5" columns="2">
+                        <p:commandButton value="Save" actionListener="#{loansController.addDBLoanTypeLoanApprover()}" update="approverMessages, :loanSettingsFRM:approversTBL"/>
+                        <p:commandButton value="Close" onclick="newApproverDLG.hide();"/>
+                    </h:panelGrid>
+                </h:form>
+            </p:dialog>
+
+            <h:form id="loanSettingsFRM">
+                <p:messages id="settingsMessages" closable="true"/>
+
+                <h:panelGrid cellpadding="5" columns="2">
+                    <p:commandButton value="Save and Close" action="#{loansController.updateLoanType}" ajax="false" update="settingsMessages"/>
+                    <p:commandButton value="Close" action="#{loansController.backSettings}" ajax="false"/>
+                </h:panelGrid>
+
+                <h:panelGrid columns="2" cellpadding="5">
+                    <h:panelGrid columns="2" cellpadding="5">
+                        <h:outputLabel  for="typeName" value="Loan Type *"/>
+                        <p:inputText required="true" requiredMessage="Please enter Loan Type." id="typeName" value="#{loansController.editLoanType.loanType}" size="20"/>                                                                                  
+
+                        <h:outputLabel for="insuranceFee" value="Insurance Fee (%) *"/>
+                        <h:inputText id="insuranceFee" value="#{loansController.editLoanType.insuranceFee}" label="Insurance Fee" validatorMessage="Insurance fee % must be btw 0 and 100" >
+                            <f:validateDoubleRange minimum="0" maximum="100"/>
+                        </h:inputText>
+
+                        <h:outputLabel for="interestRate" value="Interest Rate (%) *"/>
+                        <h:inputText id="interestRate" value="#{loansController.editLoanType.interestRate}" label="Interest %" validatorMessage="Interest % value must be btw 0 and 100">
+                            <f:validateDoubleRange minimum="0" maximum="100"/>
+                        </h:inputText>
+
+                        <h:outputLabel for="loanLimit" value="Loan Limit *"/>
+                        <h:inputText id="loanLimit" value="#{loansController.editLoanType.loanLimit}" label="Loan Limit" validatorMessage="ERROR : Invalid Value , Try again">
+                            <f:validateDoubleRange minimum="0" />
+                        </h:inputText>
+
+                        <h:outputLabel for="maxRepaymentPeriod" value="Max. Repayment Period (Months) *"/>
+                        <h:inputText id="maxRepaymentPeriod" value="#{loansController.editLoanType.maxRepaymentPeriod}" label="Max. repayment period" validatorMessage="Invalid value for max. repayment period" >
+                            <f:validateDoubleRange minimum="0" />
+                        </h:inputText>
+
+                        <h:outputLabel for="minMembershipPeriod" value="Min. Membership Period (months) *"/>
+                        <h:inputText id="minMembershipPeriod" value="#{loansController.editLoanType.minMembershipPeriod}" label="Min membership period" validatorMessage="Invalid value for min membership period" >
+                            <f:validateDoubleRange minimum="0" />
+                        </h:inputText>
+                    </h:panelGrid>
+
+                    <h:panelGrid columns="2" cellpadding="5" >
+                        <h:outputLabel for="loansCount" value="Max. Number of Loans *"/>
+                        <h:inputText id="loansCount" value="#{loansController.editLoanType.maxLoansCount}" label="Max. Loans" validatorMessage="Invalid max. number of loans" >
+                            <f:validateDoubleRange minimum="0" />
+                        </h:inputText>
+
+                        <h:outputLabel for="loanratio" value="Loan Salary Ratio (%) *"/>
+                        <h:inputText id="loanratio" value="#{loansController.editLoanType.loanSalaryRatio}" label="Loan Salary Ratio" validatorMessage="invalid value for loan salary ratio">
+                            <f:validateDoubleRange minimum="0" maximum="100"/>
+                        </h:inputText>
+
+                        <h:outputLabel for="loanTimes" value="Loan Factor = (X * Savings )*"/>
+                        <h:inputText id="loanTimes" value="#{loansController.editLoanType.loanTimes}" label="Loan Factor" validatorMessage="invalid value for loan factor">
+                            <f:validateDoubleRange minimum="0" />
+                        </h:inputText>
+
+                        <h:outputLabel for="maxiGuarantees" value="Minimum Guarantors"/>
+                        <h:inputText id="maxiGuarantees"    value="#{loansController.editLoanType.maxGuarantees}" label="Max. guarantees" validatorMessage="invalid value for max guarantees">
+                            <f:validateDoubleRange minimum="0" />
+                        </h:inputText>
+
+                        <h:outputLabel for="security" value="Should Security Cover Loan  "/>
+                        <h:selectOneRadio id="security" value="#{loansController.editLoanType.securityCoverLoan}">
+                            <f:selectItem itemLabel="Yes" itemValue="true"/>
+                            <f:selectItem itemLabel="No" itemValue="false"/>
+                        </h:selectOneRadio>
+                    </h:panelGrid>
+                </h:panelGrid>
+
+                <div style="float: left; width: 48%; font-size: 13px">
+                    <br/>
+                    <p:commandButton value="New Approval Level" onclick="newApprovalLevelDLG.show();"/>
+                    <br/>
+                    <br/>
+                    <p:dataTable id="approversLevelsTBL" value="#{loansController.orgLevelsDM}" var="orgLevel" paginator="true" paginatorAlwaysVisible="false" rows="5">
+                        <f:facet name="header">Approval Levels</f:facet>
+                        <p:column headerText="Level">
+                            <h:outputText value="#{orgLevel.levelAlias}" style="margin-left: 20%"/>
+                        </p:column>
+
+                        <p:column headerText="Approvers Required">
+                            <h:outputText value="#{orgLevel.approversCount}" style="margin-left: 20%"/>
+                        </p:column>
+
+                        <p:column headerText="Operations">                            
+                            <p:commandLink value="Delete" process="@this" actionListener="#{loansController.deleteApprovalLevel()}" update="approversLevelsTBL" style="font-weight: bold; color: red; margin-left: 10%;"/>
+                        </p:column>
+                    </p:dataTable>
+
+                </div>
+
+                <div style="float: left; width: 48%; font-size: 13px; margin-left: 3%;">
+                    <br/>
+                    <p:commandButton value="Add Approver" onclick="newApproverDLG.show();"/>
+                    <br/>
+                    <br/>
+                    <p:dataTable id="approversTBL" value="#{loansController.usersDM}" var="user" rows="5" paginatorAlwaysVisible="false" paginator="true">                           
+                        <f:facet name="header">Approvers</f:facet>
+                        <p:column headerText="Name">
+                            <h:outputText value="#{user.fullName}" style="margin-left: 10%"/>
+                        </p:column>
+                        <p:column headerText="Organization Level">
+                            <h:outputText value="#{user.userDomain}" style="margin-left: 10%"/>
+                        </p:column>
+                        <p:column headerText="Operation">
+                            <p:commandLink value="Remove" style="margin-left: 20%; color: red; font-weight: bold" actionListener="#{loansController.removeLoanApprover()}" update="approversTBL"/> 
+                        </p:column>
+                    </p:dataTable>
+                </div>
+
+            </h:form>
+        </ui:define>
+    </ui:composition>
+</html>
+

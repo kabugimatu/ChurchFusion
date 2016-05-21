@@ -1,0 +1,60 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:f="http://java.sun.com/jsf/core">
+    <ui:composition template="adminTemplate.xhtml">
+        <ui:define name="title">Member Contribution</ui:define>
+        <ui:define name="scripts">
+            <script type="text/javascript">
+                function setBedCrump()
+                {
+                    menuElement = document.getElementById("menu2");
+                    menuElement.className = "limenu select";
+                }
+            </script>
+        </ui:define>
+        <ui:define name="separator">           
+            <span style="position:relative;font-weight:bold;font-size: 18px;">Audit Trail</span><br/><br/>           
+        </ui:define>
+        <ui:define name="adminContent">  
+            <h:form id="auditTrailFRM">
+                <p:dataTable id="auditTrailTBL" value="#{settingsController.auditTrailDM}" var="auditTrail" paginator="true" paginatorAlwaysVisible="false" rows="30"
+                             paginatorTemplate="{CurrentPageReport}  {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+                             rowsPerPageTemplate="15, 25">
+                    <f:facet name="header">System Data Audit Trail</f:facet>
+                    <p:column headerText="Record Type" filterBy="#{auditTrail.entity}">
+                        <h:outputText value="#{auditTrail.entity}"/>
+                    </p:column>
+                    <p:column headerText="Field Name">
+                        <h:outputText value="#{auditTrail.fieldName}"/>
+                    </p:column>
+                    <p:column headerText="Date">
+                        <h:outputText value="#{auditTrail.auditDate}">
+                            <f:convertDateTime pattern="yyyy-MM-dd hh:mm"/>
+                        </h:outputText>
+                    </p:column>
+                    <p:column headerText="Pre Value">
+                        <h:outputText value="#{auditTrail.oldValue}">
+                            <f:convertNumber pattern="#.##"/>
+                        </h:outputText>
+                    </p:column>
+                    <p:column headerText="Post Value">
+                        <h:outputText value="#{auditTrail.newValue}">
+                            <f:convertNumber pattern="#.##"/>
+                        </h:outputText>
+                    </p:column>
+                    <p:column headerText="User">
+                        <h:outputText value="#{auditTrail.userID}"/>
+                    </p:column>                    
+                    <p:column headerText="Record ID">
+                        <h:outputText value="#{auditTrail.recordID}"/>
+                    </p:column>
+                </p:dataTable>
+            </h:form>
+        </ui:define>
+    </ui:composition>
+</html>
+

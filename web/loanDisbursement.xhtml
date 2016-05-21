@@ -1,0 +1,153 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:f="http://java.sun.com/jsf/core">
+
+    <ui:composition template="adminTemplate.xhtml">
+
+        <ui:define name="title">Home</ui:define>
+
+        <ui:define name="scripts">
+            <script type="text/javascript">
+                function setBedCrump() {
+                    menuElement = document.getElementById("menu1");
+                    menuElement.className = "limenu select";
+
+                }
+
+            </script>
+        </ui:define>
+        <ui:define name="separator">
+           
+            <span style="position:relative;font-weight:bold;font-size: 15px;">Loan Disbursements </span><br/>
+           
+        </ui:define>
+
+        <ui:define name="adminContent">
+            <p:fieldset legend="Filter Options">
+            <h:form id="searchFRM">
+                <h:panelGrid columns="5" cellpadding="5" cellspacing="5">
+                    <h:outputLabel value="Select Bank" for="selectBank"/>
+                    <h:selectOneMenu id="selectBank" value="#{disbursementController.filterBankId}">
+                        <p:ajax event="change" process="selectBank" listener="#{disbursementController.onselectFilterBank()}" update="selectBranch"/>
+                      
+                        <f:selectItem itemLabel="Select Bank" itemValue=""/>
+                        <f:selectItems value="#{disbursementController.allSaccoBanks}" var="selBank" itemLabel="#{selBank.bankName}" itemValue="#{selBank.id}" />
+                    
+                    </h:selectOneMenu>
+                     <h:outputLabel for="selectBranch" value="Select Branch"/>
+                     <h:selectOneMenu id="selectBranch" value="#{disbursementController.filterBranchId}">
+                        <f:selectItem itemLabel="Select Branch" itemValue=""/>
+                        <f:selectItems value="#{disbursementController.bankBranches}" var="selectBranch" itemLabel="#{selectBranch.branchName}" itemValue="#{selectBranch.id}"/>
+                    </h:selectOneMenu>
+                     <p:commandButton id="cmdGenerate" value="Generate" actionListener="#{disbursementController.generateDisbursements()}"/>
+                     <p:blockUI trigger="cmdGenerate" block=":pendingSet">
+                         <p:graphicImage value="images/ajax-loader.gif"/>
+                     </p:blockUI>
+                </h:panelGrid>
+            </h:form>
+            </p:fieldset>
+            <br/> <br/>
+            <p:fieldset id="pendingSet" legend="Pending Disbursement">
+            <h:form id="disburseFRM">
+                <p:dataTable id="disburseTBL" selection="#{disbursementController.disburseLoans}" rowKey="#{loans.id}" value="#{disbursementController.undisbursedLoansDM}" var="loans" paginator="true" paginatorAlwaysVisible="false" rows="35"  emptyMessage="No Loan Disbursements yet">
+                    <f:facet name="header" >Select Undisbursed Loans</f:facet>
+                    <p:column selectionMode="multiple" style="width:16px;text-align:center"/>
+                   
+                    <p:column>
+                        <f:facet name="header">Loan Number</f:facet>
+                        <h:outputText style="position:relative;left:35%;" value="#{loans.loanNUmber}"/>
+                        
+                    </p:column>
+                     <p:column>
+                        <f:facet name="header">Applied Amount</f:facet>
+                        <h:outputText style="position:relative;left:35%;" value="#{loans.appliedAmount}"/>
+                        
+                    </p:column>
+                        <p:column>
+                        <f:facet name="header">Approved Amount</f:facet>
+                        <h:outputText style="position:relative;left:35%;" value="#{loans.approvedAmount}"/>
+                        
+                    </p:column>
+                    
+                    <p:column>
+                        <f:facet name="header">Member Number</f:facet>
+                        <h:outputText style="position:relative;left:35%;" value="#{loans.memberNumber}"/>
+                        
+                    </p:column>
+                     <p:column>
+                        <f:facet name="header">Full Name</f:facet>
+                        <h:outputText style="position:relative;left:20%;" value="#{membersController.loadMemberByNumber(loans.memberNumber).fullName}"/>
+                        
+                    </p:column>
+                      <p:column>
+                        <f:facet name="header">Account Number</f:facet>
+                        <h:outputText style="position:relative;left:35%;" value="#{membersController.loadMemberByNumber(loans.memberNumber).bankAccountNumber}"/>
+                        
+                    </p:column>
+                
+                    
+                   
+                   
+                </p:dataTable>
+                <br/><br/>
+               <p:fieldset legend="Options">
+                <br/>
+                <p:commandButton    style="position: relative;left:0%;" actionListener="#{disbursementController.prepareDisburseLoans()}"  value="Make Disbursement"/> 
+                
+            <br/><br/><br/>
+            </p:fieldset> 
+                 <br/><br/>
+            </h:form>
+            </p:fieldset>
+            <p:dialog id="dlgDisburse" widgetVar="disburseDLG" header="Disburse Loans" modal="true" resizable="false">
+                <h:form id="frmDisburse">
+                <p:messages/>
+                <h:panelGrid style="position:relative;left:10%;" rendered="#{!disbursementController.checkFailed}"  cellpadding="5" cellspacing="2" columns="2">
+                    <h:outputLabel value="Total" for="totalDis"/>
+                    <h:outputText id="totalDis" style="font-weight: bold;color: red;" value="#{disbursementController.totalDisbursement}"/>
+                     <h:outputLabel for="dateSelect" value="Select Date"/>
+                     <p:calendar pattern="yyyy-MM-dd" navigator="true" value="#{disbursementController.disburseDate}"  id="dateSelect" />
+                        
+                     <h:outputLabel value="Cheque No." for="chequeNumber"/>
+                     <h:inputText size="25" id="chequeNumber" value="#{disbursementController.chequeNumber}" requiredMessage="Enter Cheque Number !"/>
+                </h:panelGrid>
+                <p:dataTable rendered="#{disbursementController.checkFailed}" value="#{disbursementController.checkFailedMembersDM}" var="member" paginator="true" paginatorAlwaysVisible="false" rows="35" >
+                    <p:column headerText="Full Name">
+                        <h:outputText value="#{member.fullName}" style="position:relative;left:0%;"/>
+                    </p:column>
+                     <p:column headerText="Member Number">
+                         <h:outputText value="#{member.memberNumber}" style="position:relative;left:15%;"/>
+                    </p:column>
+                      <p:column headerText="Member ID">
+                          <h:outputText value="#{member.memberId}" style="position:relative;left:15%;"/>
+                    </p:column>
+                      <p:column headerText="Member Tel">
+                          <h:outputText value="#{member.phoneNumber}" style="position:relative;left:5%;"/>
+                    </p:column>
+                    
+                </p:dataTable>
+                 <br/> 
+                <h:panelGrid rendered="#{disbursementController.checkFailed}" style="position:relative;left:45%;" cellpadding="5" cellspacing="5" columns="2">
+              <p:commandButton style="color:red;" type="button" ajax="false" onclick="disburseDLG.hide();" value="Okay"/>
+                </h:panelGrid>
+                
+                <h:panelGrid rendered="#{!disbursementController.checkFailed}" style="position:relative;left:20%;" cellpadding="5" cellspacing="5" columns="2">
+                    <p:commandButton actionListener="#{disbursementController.makeLoanDisbursement()}" id="cmdDisburse" style="color:blue;" value="Disburse"/> <p:commandButton style="color:red;" type="button" ajax="false" onclick="disburseDLG.hide();" value="Cancel"/>
+                    <p:blockUI block="frmDisburse" trigger="cmdDisburse">
+                        <p:graphicImage value="images/ajax-loader.gif"/>
+                    </p:blockUI>
+                </h:panelGrid>
+               
+                </h:form>
+                
+            </p:dialog>
+
+
+        </ui:define>
+    </ui:composition>
+</html>
+

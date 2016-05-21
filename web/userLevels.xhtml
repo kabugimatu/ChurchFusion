@@ -1,0 +1,558 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:f="http://java.sun.com/jsf/core">    
+    <ui:composition template="adminTemplate.xhtml">
+        <ui:define name="separator">           
+            <span style="position:relative;font-weight:bold;font-size: 15px;">System User Levels</span><br/>            
+        </ui:define>
+        <ui:define name="adminContent">                       
+            <p:dialog widgetVar="paramDLG" resizable="false" modal="true" header="New Parameter ">
+                <!-- Add org parameter Dialog-->
+                <h:form rendered="#{mainController.userLevelLogged.manageUsers}" id="paramFRM">                    
+                    <h:panelGrid columns="2" cellpadding="5" >
+                        <h:outputLabel for="paramName" value="Parameter Name"/>
+                        <p:inputText required="true" value="#{orgController.newOrgParam.parametername}" requiredMessage="Enter Parameter Name" id="paramName" />
+                        <h:outputLabel for="paramVal" value="Parameter Value"/>
+                        <p:inputText required="true" value="#{orgController.newOrgParam.parametervalue}" requiredMessage="Enter Parameter Value" id="paramVal" />
+                        <h:outputLabel for="req" value="Required"/>
+                        <p:selectBooleanButton id="req" offLabel="No" onLabel="Yes" value="#{orgController.newOrgParam.required}"/>
+                    </h:panelGrid><br/>
+                    <h:panelGrid columns="2" style="position:relative;left:30%;">
+                        <p:commandButton value="Save" update=":tabFRM:orgTabs:paramTBL,paramFRM,:messages" oncomplete="PF('paramDLG').hide()" actionListener="#{orgController.addOrgParameter()}" id="cmdSaveParam"  process="@form" />
+                        <p:commandButton value="Cancel" type="button" onclick="PF('paramDLG').hide()"/>
+
+                        <p:blockUI trigger="cmdSaveParam" block="paramFRM">
+                            <p:graphicImage value="images/ajax-loader.gif"/>
+                        </p:blockUI>
+                    </h:panelGrid>
+                </h:form>
+            </p:dialog>
+            <p:dialog id="editdlgParam" widgetVar="editParamDLG" resizable="false" modal="true" header="Edit Parameter ">
+                <!-- edit org parameter Dialog-->
+                <h:form id="editParamFRM">
+
+                    <h:panelGrid columns="2" cellpadding="5">
+                        <h:outputLabel for="editParamName" value="Parameter Name"/>
+                        <p:inputText required="true" value="#{orgController.editOrgParam.parametername}" requiredMessage="Enter Parameter Name" id="editParamName" />
+                        <h:outputLabel for="editParamVal" value="Parameter Value"/>
+                        <p:inputText required="true" value="#{orgController.editOrgParam.parametervalue}" requiredMessage="Enter Parameter Value" id="editParamVal" />
+                        <h:outputLabel for="editReq" value="Required"/>
+                        <p:selectBooleanButton id="editReq" offLabel="No" onLabel="Yes" value="#{orgController.editOrgParam.required}"/>
+                    </h:panelGrid><br/>
+                    <h:panelGrid columns="2" style="position:relative;left:30%;">
+                        <p:commandButton value="Update" update=":tabFRM:orgTabs:paramTBL,editParamFRM,:messages" oncomplete="PF('editParamDLG').hide()" actionListener="#{orgController.editOrgParameter()}" id="editCmdSaveParam"  process="@form" />
+                        <p:commandButton value="Cancel" type="button" onclick="PF('editParamDLG').hide()"/>
+
+                        <p:blockUI trigger="editCmdSaveParam" block="editParamFRM">
+                            <p:graphicImage value="images/ajax-loader.gif"/>
+                        </p:blockUI>
+                    </h:panelGrid>
+                </h:form>
+            </p:dialog>
+            <p:dialog id="delParam" widgetVar="delParamDLG" resizable="false" modal="true" header="Delete Parameter ">
+                <!--Delete Parameter-->
+                <h:form id="delParamFRM">
+                    <h:panelGrid columns="1">
+                        <h:outputText style="font-weight: bold;font-size: 15px;color: red;" value="Delete ' #{orgController.selectOrgParams.parametername} ' parameter ?"/>
+
+                    </h:panelGrid><br/>
+                    <p:commandButton  value="Yes" id="cmdYesDel" actionListener="#{orgController.deleteParameter()}" oncomplete="PF('delParamDLG').hide()" update=":tabFRM:orgTabs:paramTBL,delParamFRM,:messages" style="position:relative;left:35%;"/><p:commandButton type="button" ajax="false" onclick="PF('delParamDLG').hide()" value="No" style="position:relative;left:40%;"/>
+                    <p:blockUI block="delParamFRM" trigger="cmdYesDel">
+                        <p:graphicImage value="images/ajax-loader.gif"/>
+                    </p:blockUI>
+
+                </h:form>
+            </p:dialog>
+
+
+            <p:dialog widgetVar="gradeDLG" resizable="false" modal="true" header="New Organization Grade ">
+                <h:form id="gradeFRM">
+                    <!-- Add Organization Grades -->
+                    <h:panelGrid columns="2">
+                        <h:outputLabel for="gradeVal" value="Grade Name"/>
+                        <p:inputText required="true" requiredMessage="Enter Grade Name" id="gradeVal" value="#{orgController.newOrgGrade.gradename}" />
+                    </h:panelGrid><br/>
+                    <h:panelGrid columns="2" style="position:relative;left:30%;">
+                        <p:commandButton value="Save" id="cmdSaveGrade" actionListener="#{orgController.addOrgGrades()}" update=":tabFRM:orgTabs:gradeTBL,gradeFRM,:messages" process="@form" />
+                        <p:commandButton value="Cancel" type="button" onclick="PF('gradeDLG').hide()"/>
+                        <p:blockUI trigger="cmdSaveGrade" block="gradeFRM">
+                            <p:graphicImage value="images/ajax-loader.gif"/>
+                        </p:blockUI>
+                    </h:panelGrid>
+                </h:form>
+            </p:dialog>
+            <p:dialog widgetVar="gradeEditDLG" id="editGrade" resizable="false" modal="true" header="Edit Organization Grade ">
+                <h:form id="gradeEditFRM">
+                    <!-- Update/Edit Organization Grades -->
+                    <h:panelGrid columns="2">
+                        <h:outputLabel for="gradeEditVal" value="Grade Name"/>
+                        <p:inputText required="true" requiredMessage="Enter Grade Name" id="gradeEditVal" value="#{orgController.editOrgGrade.gradename}" />
+                    </h:panelGrid><br/>
+                    <h:panelGrid columns="2" style="position:relative;left:30%;">
+                        <p:commandButton value="Update" id="cmdEditGrade" oncomplete="PF('gradeEditDLG').hide()" actionListener="#{orgController.updateOrgGrade()}" update=":tabFRM:orgTabs:gradeTBL,gradeEditFRM,:messages" process="@form" />
+                        <p:commandButton value="Cancel" type="button" onclick="PF('gradeEditDLG').hide()"/>
+                        <p:blockUI trigger="cmdEditGrade" block="gradeEditFRM">
+                            <p:graphicImage value="images/ajax-loader.gif"/>
+                        </p:blockUI>
+                    </h:panelGrid>
+                </h:form>
+            </p:dialog>
+
+            <p:dialog id="delOrgGrade" widgetVar="delGradeDLG" resizable="false" modal="true" header="Delete Org Grade ?  ">
+                <!--Delete Org Grade-->
+                <h:form id="delOrgFRM">
+                    <h:panelGrid columns="1">
+                        <h:outputText style="font-weight: bold;font-size: 15px;color: red;" value="Delete ' #{orgController.selectOrgGrade.gradename} ' Grade ?"/>
+
+                    </h:panelGrid><br/>
+                    <p:commandButton  value="Yes" id="cmdDelUnit" actionListener="#{orgController.deleteOrgGrade()}" oncomplete="PF('delGradeDLG').hide()" update=":tabFRM:orgTabs:gradeTBL,delOrgFRM,:messages" style="position:relative;left:30%;"/><p:commandButton type="button" ajax="false" onclick="PF('delGradeDLG').hide()" value="No" style="position:relative;left:35%;"/>
+                    <p:blockUI block="delOrgFRM" trigger="cmdDelUnit">
+                        <p:graphicImage value="images/ajax-loader.gif"/>
+                    </p:blockUI>
+
+                </h:form>
+            </p:dialog>
+            <p:dialog width="700" id="logoDLG" widgetVar="dlgLogo" resizable="false" modal="true" header="Change Logo ">
+                <h:form id="upFRM" enctype="multipart/form-data">  
+                    <p:fileUpload auto="true" oncomplete="PF('dlgLogo').hide()" fileUploadListener="#{orgController.handleFileUpload}" update=":tabFRM:orgTabs"  dragDropSupport="true" id="orgLogo"    mode="advanced"  required="true"  sizeLimit="1000000" allowTypes="/(\.|\/)(gif|jpe?g|png)$/" >
+
+                    </p:fileUpload> 
+                </h:form>
+            </p:dialog>
+            <p:dialog header="Edit #{orgController.selectOrglevels.levelname} Level " widgetVar="dlgEditLVL" id="lvlEdit" modal="true" resizable="false">
+                <h:form id="editdlgFRM">
+
+                    <h:panelGrid columns="2" cellpadding="5">
+
+                        <h:outputLabel for="dlgVal" value="Level Name"/>
+                        <p:inputText required="true" value="#{orgController.selectOrglevels.levelname}" requiredMessage="Enter Level Name" id="dlgVal" />
+
+
+                    </h:panelGrid><br/>
+                    <h:panelGrid cellpadding="7" columns="2">
+                        <p:fieldset legend="Members Management">
+                            <h:panelGrid cellpadding="5" columns="4">
+                                <h:outputLabel for="addEditMember" value="Can Add Member"/>
+                                <p:selectBooleanCheckbox value="#{orgController.selectOrglevels.addMember}" id="addEditMember" />
+                                <h:outputLabel for="viewEditMember" value="Can View Member"/>
+                                <p:selectBooleanCheckbox value="#{orgController.selectOrglevels.loadMember}" id="viewEditMember" />
+                                <h:outputLabel for="delEditMember" value="Can Delete Member"/>
+                                <p:selectBooleanCheckbox value="#{orgController.selectOrglevels.deleteMember}" id="delEditMember" />
+
+                                <h:outputLabel for="makeEditCont" value="Can Make Contribution"/>
+                                <p:selectBooleanCheckbox value="#{orgController.selectOrglevels.makeContribution}" id="makeEditCont" />
+
+                                <h:outputLabel for="generateStatements" value="Generate Member Statements"/>
+                                <p:selectBooleanCheckbox value="#{orgController.selectOrglevels.loadMemberStatement}" id="generateStatements" />
+
+                                <h:outputLabel for="generateSharesEdit" value="Transfer Shares"/>
+                                <p:selectBooleanCheckbox value="#{orgController.selectOrglevels.transferSharers}" id="generateSharesEdit" />
+
+                            </h:panelGrid>
+                        </p:fieldset>
+
+
+                        <p:fieldset rendered="false" legend="Loans Management">
+
+                            <h:panelGrid cellpadding="5" columns="4">
+                                <h:outputLabel for="loanEditApp" value="Make Loan Application"/>
+                                <p:selectBooleanCheckbox value="#{orgController.selectOrglevels.applyLoan}" id="loanEditApp" />
+                                <h:outputLabel for="approveEditLoan" value="Can Approve Loan"/>
+                                <p:selectBooleanCheckbox value="#{orgController.selectOrglevels.approveLoans}" id="approveEditLoan" />
+
+                                <h:outputLabel for="generateLoanStatements" value="Generate Loan Statements"/>
+                                <p:selectBooleanCheckbox value="#{orgController.selectOrglevels.loadLoanStatement}" id="generateLoanStatements" />
+
+                                <h:outputLabel for="loadLoans" value="View Loans"/>
+                                <p:selectBooleanCheckbox value="#{orgController.selectOrglevels.loadLoans}" id="loadLoans" />
+                                <h:outputLabel for="disburseLoans" value="Can Disburse Loans"/>
+                                <p:selectBooleanCheckbox value="#{orgController.selectOrglevels.disburseLoans}" id="disburseLoans" />
+
+                                 <h:outputLabel for="editlastApprover" value="Last Approver"/>
+                                 <p:selectBooleanCheckbox value="#{orgController.selectOrglevels.lastApprover}" id="editlastApprover" />
+
+                                <br/>
+                            </h:panelGrid>
+
+                        </p:fieldset>
+
+                        <p:fieldset legend="Accounts Management">
+
+                            <h:panelGrid cellpadding="5" columns="4">
+                                <h:outputLabel for="loadEditFinancial" value=" Generate Financial Statements"/>
+                                <p:selectBooleanCheckbox value="#{orgController.selectOrglevels.loadFinacialStatements}" id="loadEditFinancial" />
+                                <h:outputLabel for="loadEditLedger" value="Manage Ledger Accounts"/>
+                                <p:selectBooleanCheckbox value="#{orgController.selectOrglevels.loadLedgerAccounts}" id="loadEditLedger" />
+                                <h:outputLabel for="loadEditReports" value="Generate System Reports"/>
+                                <p:selectBooleanCheckbox value="#{orgController.selectOrglevels.loadReports}" id="loadEditReports" />
+
+                            </h:panelGrid>
+                        </p:fieldset>
+
+
+                        <p:fieldset legend="System Settings Management">
+
+                            <h:panelGrid cellpadding="5" columns="4">
+                                <h:outputLabel for="modifyEditSettings" value="Can Modify System Settings"/>
+                                <p:selectBooleanCheckbox value="#{orgController.selectOrglevels.loadSettings}" id="modifyEditSettings" />
+                                <h:outputLabel for="manageEditUsers" value="Manage System Users"/>
+                                <p:selectBooleanCheckbox value="#{orgController.selectOrglevels.manageUsers}" id="manageEditUsers" />
+                                <h:outputLabel for="manageTransactions" value="ManageTransactions"/>
+                                <p:selectBooleanCheckbox value="#{orgController.selectOrglevels.manageTransactions}" id="manageTransactions" />
+                                
+                                <br/>
+                            </h:panelGrid>
+                        </p:fieldset>
+                    </h:panelGrid>
+                    <br/>
+                    <h:panelGrid columns="2" style="position:relative;left:45%;">
+                        <p:commandButton value="Update" oncomplete="PF('dlgEditLVL').hide()" update=":tabFRM:orgTabs:lvlTBL,editdlgFRM,:messages" actionListener="#{orgController.updateOrgLevel()}" id="cmdUpdateLevel"  process="@form" />
+                        <p:commandButton value="Cancel" type="button" onclick="PF('dlgEditLVL').hide()"/>
+
+                        <p:blockUI trigger="cmdUpdateLevel" block="editdlgFRM">
+                            <p:graphicImage value="images/ajax-loader.gif"/>
+                        </p:blockUI>
+                    </h:panelGrid>
+                </h:form>
+            </p:dialog>
+            <p:dialog width="550" widgetVar="editOrg" id="orgEdit" resizable="false" modal="true" header="Edit Organization Details ">
+                <h:form id="editOrgFRM">
+
+                    <!-- Edit Organization Details  -->
+                    <h:panelGrid cellspacing="3" cellpadding="2"  columns="2" style="position:relative;left:4%;">
+                        <h:outputLabel style="font-weight: bold;font-size: 14px;" for="orgEditName" value="Org Name"/>
+                        <h:inputText size="35" id="orgEditName" value="#{orgController.loadOrganization.orgname}"/>
+
+                        <h:outputLabel style="font-weight: bold;font-size: 14px;" for="postaEdit" value="Postal Address"/>
+                        <h:inputText id="postaEdit" value="#{orgController.loadOrganization.postaladdress}"/>
+                        <h:outputLabel style="font-weight: bold;font-size: 14px;" for="buildingEdit" value="Building"/>
+                        <h:inputText id="buildingEdit" value="#{orgController.loadOrganization.building}"/>
+                        <h:outputLabel style="font-weight: bold;font-size: 14px;" for="emailEdit" value="Email"/>
+                        <h:inputText size="25" id="emailEdit" value="#{orgController.loadOrganization.email}"/>
+                        <h:outputLabel style="font-weight: bold;font-size: 14px;" for="tel1Edit" value="Telephone 1"/>
+                        <h:inputText id="tel1Edit" value="#{orgController.loadOrganization.telephone}"/>
+                        <h:outputLabel style="font-weight: bold;font-size: 14px;" for="tel2Edit" value="Telephone 2"/>
+                        <h:inputText id="tel2Edit" value="#{orgController.loadOrganization.telephone2}"/>
+                        <h:outputLabel for="country" value="Country"/> 
+                        <h:selectOneMenu id="country" value="#{orgController.subOrgCountryID}" label="country" validatorMessage="Invalid country value" >
+
+
+                            <f:selectItems value="#{orgController.allCountries}"  var="country" itemLabel="#{country.country}" itemValue="#{country.countryid}"/>
+                        </h:selectOneMenu>
+                        <h:outputLabel style="font-weight: bold;font-size: 14px;" for="streetEdit" value="Street"/>
+                        <h:inputText id="streetEdit" value="#{orgController.loadOrganization.street}"/>
+
+                        <h:outputLabel style="font-weight: bold;font-size: 14px;" for="websiteEdit" value="website"/>
+                        <h:inputText id="websiteEdit" value="#{orgController.loadOrganization.website}"/>
+
+                    </h:panelGrid>
+                    <br/>
+                    <p:commandButton id="cmdUpdateOrg" actionListener="#{orgController.updateOrganization()}" oncomplete="PF('editOrg').hide()" update=":tabFRM:orgTabs" style="position:relative;left:35%;" value="Update"/><p:commandButton type="button" onclick="PF('editOrg').hide()" style="position:relative;left:40%;" value="Cancel"/>
+                    <p:blockUI block="editOrgFRM" trigger="cmdUpdateOrg">
+                        <p:graphicImage value="images/ajax-loader.gif"/>
+                    </p:blockUI>
+                </h:form>
+            </p:dialog>
+
+            <p:dialog width="600" widgetVar="addOrgDLG"  id="orgAddDLG" resizable="false" modal="true" header="New Company ">
+                <h:form id="addOrgFRM">
+
+                    <!-- Edit Organization Details  -->
+                    <h:panelGrid cellspacing="3" cellpadding="2"  columns="2" style="position:relative;left:4%;">
+                        <h:outputLabel  for="orgEditName" value="Org Name"/>
+                        <h:inputText size="35" required="true" requiredMessage="Enter Org Name" id="orgEditName" value="#{orgController.subOrganization.orgname}"/>
+
+                        <h:outputLabel  for="postaEdit" value="Postal Address"/>
+                        <h:inputText id="postaEdit" required="true" requiredMessage="Enter postal address" value="#{orgController.subOrganization.postaladdress}"/>
+                        <h:outputLabel  for="buildingEdit" value="Building"/>
+                        <h:inputText id="buildingEdit" required="true" requiredMessage="Enter Building" value="#{orgController.subOrganization.building}"/>
+                        <h:outputLabel  for="emailEdit" value="Email"/>
+                        <h:inputText size="25" id="emailEdit" required="true" requiredMessage="Enter Email address" value="#{orgController.subOrganization.email}"/>
+                        <h:outputLabel  for="tel1Edit" value="Telephone 1"/>
+                        <h:inputText id="tel1Edit" required="true" requiredMessage="Enter Telephone 1" value="#{orgController.subOrganization.telephone}"/>
+                        <h:outputLabel  for="tel2Edit" value="Telephone 2"/>
+                        <h:inputText id="tel2Edit" value="#{orgController.subOrganization.telephone2}"/>
+                        <h:outputLabel for="country" value="Country"/> 
+                        <h:selectOneMenu id="country" value="#{orgController.subOrgCountryID}" label="country" validatorMessage="Invalid country value" >
+
+
+                            <f:selectItems value="#{orgController.allCountries}"  var="country" itemLabel="#{country.country}" itemValue="#{country.countryid}"/>
+                        </h:selectOneMenu>
+                        <h:outputLabel  for="streetEdit" value="Street"/>
+                        <h:inputText id="streetEdit" required="true" requiredMessage="Enter Street Address" value="#{orgController.subOrganization.street}"/>
+
+                        <h:outputLabel  for="websiteEdit" value="website"/>
+                        <h:inputText id="websiteEdit"  value="#{orgController.subOrganization.website}"/>
+
+                    </h:panelGrid>
+                    <br/>
+                    <p:commandButton id="cmdAddOrg" actionListener="#{orgController.addToLoadedTree()}" oncomplete="PF('addOrgDLG').hide()" update=":tabFRM:orgTabs:orgTBL,addOrgFRM" style="position:relative;left:35%;" value="Add"/><p:commandButton type="button" onclick="PF('addOrgDLG').hide()" style="position:relative;left:40%;" value="Cancel"/>
+                    <p:blockUI block="addOrgFRM" trigger="cmdAddOrg">
+                        <p:graphicImage value="images/ajax-loader.gif"/>
+                    </p:blockUI>
+                </h:form>
+            </p:dialog>
+            <p:dialog widgetVar="lvlDLG" id="dlgLevel" header="New User Level " modal="true" resizable="false" >
+                <h:form id="dlgFRM">
+
+                    <h:panelGrid style="position:relative;left:35%;" columns="2" cellpadding="5">
+
+                        <h:outputLabel for="dlgVal" value="Level Name"/>
+                        <p:inputText required="true" value="#{orgController.newOrgLevel.levelname}" requiredMessage="Enter Level Name" id="dlgVal" />
+                    </h:panelGrid>
+                    <br/>
+                    <h:panelGrid cellpadding="7" columns="2">
+                        <p:fieldset legend="Members Management">
+
+                            <h:panelGrid cellpadding="10" columns="4">
+                                <h:outputLabel for="addMember" value="Can Add Member"/>
+                                <p:selectBooleanCheckbox value="#{orgController.newOrgLevel.addMember}" id="addMember" />
+                                <h:outputLabel for="viewMember" value="Can View Member"/>
+                                <p:selectBooleanCheckbox value="#{orgController.newOrgLevel.loadMember}" id="viewMember" />
+                                <h:outputLabel for="delMember" value="Can Delete Member"/>
+                                <p:selectBooleanCheckbox value="#{orgController.newOrgLevel.deleteMember}" id="delMember" />
+
+                                <h:outputLabel for="makeCont" value="Can Make Contribution"/>
+                                <p:selectBooleanCheckbox value="#{orgController.newOrgLevel.makeContribution}" id="makeCont" />
+                                <h:outputLabel for="generateSetStatements" value="Generate Member Statements"/>
+                                <p:selectBooleanCheckbox value="#{orgController.newOrgLevel.loadMemberStatement}" id="generateSetStatements" />
+
+
+                                <h:outputLabel rendered="false" for="generateShares" value="Transfer Shares"/>
+                                <p:selectBooleanCheckbox rendered="false" value="#{orgController.newOrgLevel.transferSharers}" id="generateShares" />
+
+
+                            </h:panelGrid>
+                        </p:fieldset>
+
+
+                        <p:fieldset rendered="false" legend="Loans Management">
+
+                            <h:panelGrid cellpadding="10" columns="4">
+                                <h:outputLabel for="loanApp" value="Make Loan Application"/>
+                                <p:selectBooleanCheckbox value="#{orgController.newOrgLevel.applyLoan}" id="loanApp" />
+                                <h:outputLabel for="approveLoan" value="Can Approve Loan"/>
+                                <p:selectBooleanCheckbox value="#{orgController.newOrgLevel.approveLoans}" id="approveLoan" />
+                                <h:outputLabel for="generateSetLoanStatements" value="Generate Loan Statements"/>
+                                <p:selectBooleanCheckbox value="#{orgController.newOrgLevel.loadLoanStatement}" id="generateSetLoanStatements" />
+
+                                <h:outputLabel for="loadSetLoans" value="View Loans"/>
+                                <p:selectBooleanCheckbox value="#{orgController.newOrgLevel.loadLoans}" id="loadSetLoans" />
+                                <h:outputLabel for="disburseLoansAdd" value="Can Disburse Loans"/>
+                                <p:selectBooleanCheckbox value="#{orgController.newOrgLevel.disburseLoans}" id="disburseLoansAdd" />
+
+                                 <h:outputLabel for="lastApprover" value="Last Approver"/>
+                                 <p:selectBooleanCheckbox value="#{orgController.newOrgLevel.lastApprover}" id="lastApprover" />
+
+
+                                <br/>
+                            </h:panelGrid>
+
+                        </p:fieldset>
+
+                        <p:fieldset legend="Accounts Management">
+
+                            <h:panelGrid cellpadding="10" columns="4">
+                                <h:outputLabel for="loadFinancial" value=" Generate Financial Statements"/>
+                                <p:selectBooleanCheckbox value="#{orgController.newOrgLevel.loadFinacialStatements}" id="loadFinancial" />
+                                <h:outputLabel for="loadLedger" value="Manage Ledger Accounts"/>
+                                <p:selectBooleanCheckbox value="#{orgController.newOrgLevel.loadLedgerAccounts}" id="loadLedger" />
+                                <h:outputLabel for="loadReports" value="Generate System Reports"/>
+                                <p:selectBooleanCheckbox value="#{orgController.newOrgLevel.loadReports}" id="loadReports" />
+
+                            </h:panelGrid>
+                        </p:fieldset>
+
+
+                        <p:fieldset legend="System Settings Management">
+
+                            <h:panelGrid cellpadding="10" columns="4">
+                                <h:outputLabel for="modifySettings" value="Can Modify System Settings"/>
+                                <p:selectBooleanCheckbox value="#{orgController.newOrgLevel.loadSettings}" id="modifySettings" />
+                                <h:outputLabel for="manageUsers" value="Manage System Users"/>
+                                <p:selectBooleanCheckbox value="#{orgController.newOrgLevel.manageUsers}" id="manageUsers" />
+                                <br/>
+                            </h:panelGrid>
+                        </p:fieldset>
+                    </h:panelGrid>
+                    <br/>
+                    <h:panelGrid columns="2" cellpadding="5" style="position:relative;left:40%;">
+                        <p:commandButton oncomplete="PF('lvlDLG').hide()" value="Save" update=":tabFRM:orgTabs:lvlTBL,dlgFRM,:messages" actionListener="#{orgController.addOrgLevel()}" id="cmdSaveLevel"  process="@form" />
+                        <p:commandButton value="Cancel" type="button" onclick="PF('lvlDLG').hide()"/>
+
+                        <p:blockUI trigger="cmdSaveLevel" block="dlgFRM">
+                            <p:graphicImage value="images/ajax-loader.gif"/>
+                        </p:blockUI>
+                    </h:panelGrid>
+                </h:form>
+
+            </p:dialog>
+            <p:dialog widgetVar="delLVL" id="lvlDel" header="Delete Level ?" modal="true" width="450" resizable="false">
+                <h:form id="delLVLFRM">
+                    <h:outputText value="Delete #{orgController.selectOrglevels.levelname} ?"/>
+                    <br/><br/>
+                    <p:commandButton update=":messages,:tabFRM:orgTabs:lvlTBL" oncomplete="PF('delLVL').hide();" id="cmdYes" style="position:relative;left:35%;" value="Yes" actionListener="#{orgController.deleteLevel()}" /><p:commandButton type="button" onclick="PF('delLVL').hide()" style="position:relative;left:40%;" value="No"/>
+                    <p:blockUI block="delLVLFRM" trigger="cmdYes">
+                        <p:graphicImage value="images/ajax-loader.gif"/>
+                    </p:blockUI>
+                </h:form>
+
+            </p:dialog>
+            <h:form id="messages"><p:messages closable="true"/></h:form>
+
+
+            <h:form id="tabFRM">
+                <p:tabView id="orgTabs">
+                    <p:tab rendered="false" title="Details">
+                        <p:commandLink value="Edit Basic Details" type="button" onclick="PF('editOrg').show()"  style="position:relative;left:85%;color:blue;margin-bottom: 4px;"/>
+                        <p:messages closable="true"/>
+                        <div style="float: left;width: 25%;position:relative;left:5%;">
+
+                            <h:panelGrid cellspacing="5" cellpadding="4"  columns="2" style="position:relative;left:4%;">
+                                <h:outputLabel style="font-weight: bold;font-size: 14px;" for="orgId" value="Org Id"/>
+                                <h:outputText id="orgId" value="#{orgController.loadOrganization.orgid}"/>
+                                <h:outputLabel style="font-weight: bold;font-size: 14px;" for="orgName" value="Org Name"/>
+                                <h:outputText id="orgName" value="#{orgController.loadOrganization.orgname}"/>
+                                <h:outputLabel style="font-weight: bold;font-size: 14px;" for="orgType" value="Org Type"/>
+                                <h:outputText id="orgType" value="#{orgController.loadOrganization.orgtype}"/>
+                                <h:outputLabel style="font-weight: bold;font-size: 14px;" for="parOrg" value="Parent Org ID:"/>
+                                <h:outputText id="parOrg" value="#{orgController.loadOrganization.parentOrgid.orgid}"/>
+                                <h:outputLabel style="font-weight: bold;font-size: 14px;" for="street" value="Street"/>
+                                <h:outputText id="street" value="#{orgController.loadOrganization.street}"/>
+                                <h:outputLabel style="font-weight: bold;font-size: 14px;" for="building" value="Building"/>
+                                <h:outputText id="building" value="#{orgController.loadOrganization.building}"/>
+                            </h:panelGrid>
+                        </div>
+                        <div style="float: left;width: 30%;position:relative;left:5%;">
+                            <h:panelGrid columns="2" cellspacing="5" cellpadding="4" style="position:relative;left:5%;" >
+
+
+                                <h:outputLabel style="font-weight: bold;font-size: 14px;" for="email" value="Email"/>
+                                <h:outputText id="email" value="#{orgController.loadOrganization.email}"/>
+                                <h:outputLabel style="font-weight: bold;font-size: 14px;" for="website" value="website"/>
+                                <h:outputText id="website" value="#{orgController.loadOrganization.website}"/>
+                                <h:outputLabel style="font-weight: bold;font-size: 14px;" for="tel1" value="Telephone 1"/>
+                                <h:outputText id="tel1" value="#{orgController.loadOrganization.telephone}"/>
+                                <h:outputLabel style="font-weight: bold;font-size: 14px;" for="tel2" value="Telephone 2"/>
+                                <h:outputText id="tel2" value="#{orgController.loadOrganization.telephone2}"/>
+
+                                <h:outputLabel style="font-weight: bold;font-size: 14px;" for="posta" value="Postal Address"/>
+                                <h:outputText id="posta" value="#{orgController.loadOrganization.postaladdress}"/>
+
+                            </h:panelGrid>
+                            <h:panelGrid cellspacing="5" cellpadding="4" columns="4" style="position:relative;left:5%;">
+                                <h:outputLabel style="font-weight: bold;font-size: 14px;" for="cCode" value="Country Code"/>
+                                <h:outputText id="cCode" value="#{orgController.loadOrganization.countryId.dialingcode}"/>
+                                <h:outputLabel style="font-weight: bold;font-size: 14px;" for="country" value="Country "/>
+                                <h:outputText id="country" value="#{orgController.loadOrganization.countryId.country}"/>
+                            </h:panelGrid>
+
+                        </div>
+                        <div style="float: left;width: 30%;margin-left: 5%;">
+                            <h:panelGrid columns="2" cellspacing="5" cellpadding="4" style="position:relative;"  >
+                                <h:outputLabel style="font-weight: bold;font-size: 14px;" for="logo" value="Logo"/>
+                                <p:graphicImage cache="false" id="logo" height="150" width="150"  value="#{orgController.image}"/>
+                                <br/>
+                                <p:commandLink type="button"  onclick="PF('dlgLogo').show()" style="color:blue;position:relative;left:25%;" value="Change Logo"/>
+                            </h:panelGrid>
+                        </div>
+                        <div style="clear: both;"></div>
+                    </p:tab>
+                    <p:tab rendered="false" title="Parameters">
+                        <p:commandButton value="New Paramater" style="position:relative;left:85%;" type="button" onclick="PF('paramDLG').show()"/><br/><br/>
+                        <p:dataTable id="paramTBL" sortBy="#{orgPar.parameterid}" resizableColumns="true" value="#{orgController.loadParametersDM}" var="orgPar" emptyMessage="No Org Parameters yet" rows="7" paginator="true" paginatorAlwaysVisible="false">
+
+                            <p:column headerText="Parameter Name">
+                                <h:outputText value="#{orgPar.parametername}" style="position:relative;left:25%;"/>
+                            </p:column>
+                            <p:column headerText="Parameter Value">
+                                <h:outputText value="#{orgPar.parametervalue}" style="position:relative;left:25%;"/>
+                            </p:column>
+                            <p:column headerText="Required">
+                                <h:outputText value="#{orgPar.required}" style="position:relative;left:40%;"/>
+                            </p:column>
+                            <p:column headerText="Actions">
+                                <p:commandLink value="Edit Parameter" actionListener="#{orgController.selectDeleteParam()}" update=":editdlgParam" oncomplete="PF('editParamDLG').show()" style="position:relative;left:20%;color:blue;text-decoration: none"/>
+                                <p:commandLink value="Delete " actionListener="#{orgController.selectDeleteParam()}" oncomplete="PF('delParamDLG').show()" update=":delParam" style="position:relative;left:25%;color:red;text-decoration: none"/>
+                            </p:column>
+
+                        </p:dataTable>
+                    </p:tab>
+
+
+                    <p:tab rendered="false" title="Grades">
+                        <p:commandButton value="New Grade" ajax="false" type="button" onclick="PF('gradeDLG').show()" style="position:relative;left:80%;"/><br/><br/>
+                        <p:dataTable sortBy="#{orgGrade.gradename}" id="gradeTBL" resizableColumns="true" value="#{orgController.loadGradeDM}" var="orgGrade" emptyMessage="No Org Grades yet" rows="7" paginator="true" paginatorAlwaysVisible="false">
+
+                            <p:column headerText="Grade Name">
+                                <h:outputText value="#{orgGrade.gradename}" style="position:relative;left:35%;"/>
+                            </p:column>
+                            <p:column headerText="From Date">
+                                <h:outputText value="" style="position:relative;left:25%;"/>
+                            </p:column>
+                            <p:column headerText="To Date">
+                                <h:outputText value="" style="position:relative;left:25%;"/>
+                            </p:column>
+                            <p:column headerText="Actions">
+                                <p:commandLink value="Edit "  update=":editGrade" actionListener="#{orgController.selectOrgGrade()}" oncomplete="PF('gradeEditDLG').show()" style="position:relative;left:25%;color:blue;text-decoration: none"/>
+                                <p:commandLink value="Delete "  update=":delOrgGrade" actionListener="#{orgController.selectOrgGrade()}" oncomplete="PF('delGradeDLG').show()" style="position:relative;left:30%;color:red;text-decoration: none"/>
+                            </p:column>
+
+                        </p:dataTable>
+                    </p:tab>
+                    <p:tab title="User Levels">
+                        <p:commandButton value="New Level" ajax="false" type="button" onclick="PF('lvlDLG').show()" style="position:relative;left:80%;"/><br/><br/>
+                        <p:dataTable id="lvlTBL" value="#{orgController.orgLevelDM}" var="lvl" paginator="true" paginatorAlwaysVisible="false" rows="7">
+
+                            <p:column headerText="Level Name">
+                                <h:outputText value="#{lvl.levelname}" style="position: relative;left:40%;"/>
+                            </p:column>
+
+                            <p:column headerText="Actions">
+                                <p:commandLink  value="Edit" actionListener="#{orgController.selectOrgLevel()}" update=":lvlEdit" oncomplete="PF('dlgEditLVL').show();" style="position:relative;left:25%;color: blue;text-decoration: none;"/><p:commandLink value="Delete" actionListener="#{orgController.selectOrgLevel()}" update=":lvlDel" oncomplete="PF('delLVL').show();" style="position:relative;left:30%;color: red;text-decoration: none;"/>
+                            </p:column>
+                        </p:dataTable>
+                    </p:tab>
+                    <p:tab title="Companies" rendered="false">
+                        <p:commandButton value="New Company" ajax="false" type="button" onclick="PF('addOrgDLG').show()" style="position:relative;left:80%;"/><br/><br/>
+                        <p:dataTable id="orgTBL" value="#{orgController.subOrganizationDM}" var="subOrg" paginator="true" paginatorAlwaysVisible="false" rows="7">
+
+                            <p:column width="50" headerText="Org ID">
+                                <h:outputText value="#{subOrg.orgid}" style="position:relative;left:35%;"/>
+                            </p:column>
+
+
+
+                            <p:column width="250"  headerText="Name">
+                                <h:outputText value="#{subOrg.orgname}"/>
+                            </p:column>
+                            <p:column headerText="Org Type">
+                                <h:outputText style="position:relative;left:35%" value="#{subOrg.orgtype}"/>
+                            </p:column> 
+                            <p:column width="250" headerText="Email">
+                                <h:outputText value="#{subOrg.email}"/>
+                            </p:column> 
+                            <p:column headerText="Telephone">
+                                <h:outputText value="#{subOrg.telephone}"/>
+                            </p:column>
+                            <p:column  width="100" headerText="Parent Org">
+                                <h:outputText value="#{subOrg.parentOrgid.orgid}" style="position:relative;left:35%;"/>
+                            </p:column> 
+                        </p:dataTable>
+                    </p:tab>
+
+                </p:tabView>
+
+            </h:form>
+
+            <h:outputText rendered="#{!mainController.userLevelLogged.manageUsers}"  style="font-weight: bold;font-size: 24px;color:red;position:relative;left:20%;" value="Access Denied : You do not have enough privileges to access this feature"/>
+
+
+        </ui:define>
+    </ui:composition>
+</html>
+

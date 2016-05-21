@@ -1,0 +1,88 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:f="http://java.sun.com/jsf/core">
+
+    <ui:composition template="adminTemplate.xhtml">
+        <ui:define name="title">Sacco Settings</ui:define>
+        <ui:define name="scripts">
+            <script type="text/javascript">
+                function setBedCrump() {
+                    menuElement = document.getElementById("menu5");
+                    menuElement.className = "limenu select";
+
+                }
+
+            </script>
+
+            <style>
+
+                .ui-growl
+                {
+
+                    top: 70px;
+                }
+                .ui-datatable thead th, .ui-datatable tbody td, .ui-datatable tfoot td 
+                {
+                    white-space: normal !important;
+                }
+            </style>
+        </ui:define>
+
+        <ui:define name="separator">
+
+            <span style="position:relative;font-weight:bold;font-size: 20px;">#{settingsController.editBank.bankName} Branches</span><br/>
+
+        </ui:define>
+
+        <ui:define name="adminContent">  
+            <p:dialog widgetVar="addBranchDLG" modal="true" showEffect="flip"  resizable="false" header="New Branch">
+                <h:form id="branchFRM">
+                    <h:panelGrid columns="2" cellpadding="5" cellspacing="5">
+                        <h:outputLabel value="Branch Name" for="branchName"/>
+                        <h:inputText value="#{settingsController.bankBranch.branchName}" required="true" requiredMessage="Enter Branch Name" id="branchName" />
+                        <h:outputLabel value="Location" for="location"/>
+                        <h:inputText value="#{settingsController.bankBranch.location}" required="true" requiredMessage="Enter Location" id="location" />
+                    </h:panelGrid>
+                    <br/>
+                    <p:commandButton oncomplete="addBranchDLG.hide()" update="branchFRM,:branchTBL" style="position: relative;left:40%;color: blue;" id="cmdAddBranch" actionListener="#{settingsController.addBankBranch()}" value="Save"/>
+                    <p:commandButton onclick="addBranchDLG.hide();" type="button" style="position: relative;left:45%;color: red;"  value="Cancel"/>
+                   
+                    <p:blockUI trigger="cmdAddBranch" block="branchFRM">
+                        <p:graphicImage value="images/ajax-loader.gif"/>
+                    </p:blockUI>
+                </h:form>
+            </p:dialog>
+            
+            <h:form id="branchTBL">
+                          <p:messages id="branchMessage" closable="true"/>
+                   <br/>
+                        <p:commandButton value="Add Branch" type="button"  style="position: relative; left: 80%" onclick="addBranchDLG.show();"/>
+                        <br/>
+                        <br/>
+                <p:dataTable value="#{settingsController.bankBranchDM}" var="branch" paginator="true" paginatorAlwaysVisible="false" rows="10">
+                    <p:column headerText="Branch">
+                        
+                        <h:outputText style="position: relative;left:45%;" value="#{branch.branchName}"/>
+                    </p:column>
+                    
+                    <p:column headerText="Location">
+                       <h:outputText style="position: relative;left:45%;" value="#{branch.location}"/>
+                    </p:column>
+                    <p:column headerText="Actions">
+                       
+                        <p:commandLink style="color:red;position: relative;left:45%;" update=":branchTBL" actionListener="#{settingsController.removeBranch()}" value="Remove Branch"/>
+                        
+                    </p:column>
+                
+                </p:dataTable>
+                
+            </h:form>
+            
+        </ui:define>
+    </ui:composition>
+</html>
+

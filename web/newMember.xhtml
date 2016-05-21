@@ -1,0 +1,444 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:f="http://java.sun.com/jsf/core">
+    <ui:composition template="adminTemplate.xhtml">
+        
+         
+        <ui:define name="title">New Member</ui:define>
+        <ui:define name="scripts">
+            <script type="text/javascript">
+                function setBedCrump() {
+                    menuElement = document.getElementById("menu2");
+                    menuElement.className = "limenu select";
+
+                }
+
+            </script>
+            <style>                 
+                .ui-growl
+                {
+
+                    top: 270px;
+                }
+                .ui-datatable thead th, .ui-datatable tbody td, .ui-datatable tfoot td 
+                {
+                    white-space: normal !important;
+                }
+            </style>
+            
+        </ui:define>
+        <ui:define name="separator">
+            
+                
+            <span style="position:relative;font-weight:bold;font-size: 20px;">New Sacco Member</span>
+          
+          
+        </ui:define>
+
+        <ui:define name="adminContent">
+
+            <p:dialog widgetVar="chargesDLG" id="charges" header="Add Membership charges" resizable="false" modal="true">
+                <h:form id="chargesFRM">
+                    <p:messages/>
+                    <h:panelGrid columns="2" cellpadding="5">
+                        <h:outputLabel value="Select" for="allCharges"/>
+                        <h:selectOneMenu id="allCharges" value="#{membersController.chargeId}">
+                            <p:ajax event="change" listener="#{membersController.onSelectCharges}" update=":chargesFRM"/>
+                            <f:selectItem itemLabel="Select" itemValue=""/>
+                            <f:selectItems value="#{membersController.allCharges}" var="charge" itemLabel="#{charge.name}" itemValue="#{charge.id}"/>
+
+                        </h:selectOneMenu>
+                        </h:panelGrid>
+                    <br/>
+                    <h:panelGrid columns="2" cellpadding="5" style="position: relative; left: 3%;" rendered="#{membersController.showchargesPG}">
+                        <h:outputLabel value="Charge " for="chargeName"/>
+                        <h:outputText id="chargeName" value="#{membersController.selectedCharge.name}"/>
+
+                        <h:outputLabel value="Cost " for="chargeCost"/>
+                        <h:outputText id="chargeCost" value="#{membersController.selectedCharge.cost}">
+                            <f:convertNumber pattern="0.00"/>
+                        </h:outputText>
+                    </h:panelGrid>
+                <br/>
+                    <h:panelGrid columns="2" cellpadding="5" style="position: relative; left: 18%">
+                        <p:commandButton value="Add" actionListener="#{membersController.addMembershipCharges()}" update=":memberFRM:chargesTBL, :chargesFRM, :memberFRM" style="margin-right: 10px;"/>
+                        <p:commandButton value="Close" onclick="chargesDLG.hide();" />
+                    </h:panelGrid>
+                </h:form>
+            </p:dialog>
+
+
+            <p:dialog widgetVar="addRefereeDLG" id="addReferee" modal="true" resizable="false" header="Add Referee">
+                <p:ajax event="close" listener="#{membersController.clearReferee()}" update=":addRefereeFRM"/>
+                <h:form id="addRefereeFRM">
+                    <p:messages id="refmsgs" closable="true"/>
+                    <h:panelGrid columns="3">
+                        <h:outputLabel value="Member ID / Number " for="refSearch"/>
+                        <p:inputText id="refSearch" required="true" value="#{membersController.searchRefMember}" requiredMessage="Enter Member Number or Id"/>
+                        <p:commandButton value="Search Member" actionListener="#{membersController.searchReferee()}" update="addRefereeFRM"/>
+                    </h:panelGrid>
+                    
+                    <h:panelGrid id="refGrid" rendered="#{membersController.refFound}" columns="2" cellpadding="3">
+ 
+                        <h:outputLabel value="Name " for="refName"/>
+                        <h:inputText readonly="true" id="refName" value="#{membersController.refMember.fullName}" required="true" requiredMessage="Enter Referee's Name">
+                          
+                        </h:inputText>
+
+                        <h:outputLabel value="Branch/ Work Place " for="refBusiness"/>
+                        <h:inputText readonly="true" id="refBusiness" value="#{membersController.refMember.branch}" required="true" requiredMessage="Enter Referee's Business"/>
+
+                        <h:outputLabel value="Address " for="refAddress"/>
+                        <h:inputText readonly="true" id="refAddress" value="#{membersController.refMember.homeAddress}" required="true" requiredMessage="Enter Referee's Address"/>
+
+                        <h:outputLabel value="Telephone " for="refTelephone"/>
+                        <h:inputText readonly="true" id="refTelephone" value="#{membersController.refMember.phoneNumber}" required="true" requiredMessage="Enter Referee's Telephone Number"/>
+                         
+                    </h:panelGrid>
+                       <br/>
+                       <h:panelGrid rendered="#{membersController.refFound}" columns="2" cellpadding="5" style="position: relative; left: 30%;">
+                        <p:commandButton value="Add" actionListener="#{membersController.addReferee()}" update=":memberFRM:refereesTBL, :addRefereeFRM, :addRefereeFRM:refmsgs" style="margin-right: 10px;"/>
+                        <p:commandButton value="Close" onclick="addRefereeDLG.hide();" />
+                    </h:panelGrid>
+
+                </h:form>
+            </p:dialog>
+
+            <p:dialog widgetVar="addKinDLG" id="addKin" modal="true" resizable="false" header="Add Next of Kin">
+                <p:ajax event="close" listener="#{membersController.clearKin()}" update=":addKinFRM"/>
+                <h:form id="addKinFRM">
+                    <p:messages id="kinMsgs" closable="true"/>
+                    <h:panelGrid columns="2" cellpadding="3">
+                        <h:outputLabel value="Name *" for="kinName"/>
+                        <h:inputText id="kinName" style="text-transform: uppercase;" value="#{membersController.kin.name}" required="true" requiredMessage="Enter Kin  Name">
+                            <p:ajax event="keyup" process="@this, kinName" listener="#{membersController.checkFullName(membersController.kin.name)}" update=":addKinFRM:kinMsgs"/>
+                        </h:inputText>
+
+                        <h:outputLabel value="Relationship" for="kinRel"/>
+                        <h:selectOneMenu id="kinRel" value="#{membersController.kin.relationship}" required="true" requiredMessage="Enter Relationship">
+                            <f:selectItem itemLabel="Son" itemValue="son"/>
+                            <f:selectItem itemLabel="Daughter" itemValue="daughter"/>
+                           
+                            <f:selectItem itemLabel="Sister" itemValue="sister"/>
+                            <f:selectItem itemLabel="Wife" itemValue="Wife"/>
+                            <f:selectItem itemLabel="Husband" itemValue="Husband"/>
+                            <f:selectItem itemLabel="Brother" itemValue="Brother"/>
+                            <f:selectItem itemLabel="Mother" itemValue="Mother"/>
+                            <f:selectItem itemLabel="Father" itemValue="Father"/>
+                            <f:selectItem itemLabel="Grand Father" itemValue="GrandFather"/> 
+                            <f:selectItem itemLabel="Grand Mother" itemValue="GrandMother"/> 
+                            <f:selectItem itemLabel="Cousin" itemValue="Cousin"/>
+                            <f:selectItem itemLabel="Grandchild" itemValue="Grandchild"/>
+                            <f:selectItem itemLabel="Other" itemValue="Others"/> 
+
+                        </h:selectOneMenu>
+
+                        <h:outputLabel value="ID Number " for="kinIdNum"/>
+                        <h:inputText id="kinIdNum" value="#{membersController.kin.idNumber}">
+                          <p:ajax event="keyup" process="@this, kinIdNum" listener="#{membersController.validateID(membersController.kin.idNumber)}" update=":addKinFRM:kinMsgs"/>
+                        </h:inputText>
+
+                        
+                        <h:outputLabel rendered="false" value="Shares (%) *" for="kinShares"/>
+                        <h:inputText rendered="false" id="kinShares" label="Shares" value="#{membersController.kin.sharesPercentage}" required="true" requiredMessage="Enter Shares for this kin">
+                        <p:ajax event="keyup" process="@this, kinShares" listener="#{membersController.validatePercentage(membersController.kin.sharesPercentage)}" update=":addKinFRM:kinMsgs"/>
+                        </h:inputText>
+
+                        <h:outputLabel value="Address *" for="kinAddress"/>
+                        <h:inputText id="kinAddress" value="#{membersController.kin.address}" required="true" requiredMessage="Enter Kin Address"/>
+                    </h:panelGrid>
+                    <br/>
+                    <h:panelGrid columns="2" cellpadding="5" style="position: relative; left: 30%">
+                        <p:commandButton value="Add" actionListener="#{membersController.addKin()}" update=":memberFRM:kinsTBL, :addKinFRM, :memberFRM" style="margin-right: 10px"/>
+                        <p:commandButton value="Close" onclick="addKinDLG.hide();"/>
+                    </h:panelGrid>
+
+                </h:form>
+            </p:dialog>
+            <p:dialog resizable="false" widgetVar="idUploadDLG" position="center" height="350" width="750" modal="true" header="Upload ID">
+                <br/>
+                <h:form enctype="multipart/form-data">
+                    <b> Choose file or drag drop member's scanned id here</b>
+                     <br/>
+                     <br/>
+                     <p:fileUpload auto="true" fileUploadListener="#{membersController.uploadMemberId}" mode="advanced" sizeLimit="1000000" required="true"
+                                   requiredMessage="upload member's scanned id" oncomplete="idUploadDLG.hide()" update=":memberFRM:idscanPG" 
+                                   allowTypes="/(\.|\/)(gif|jpe?g|png)$/"  />
+                </h:form>
+            </p:dialog>
+            
+            <p:dialog widgetVar="picDLG" height="350" width="750" header="Upload Photo" modal="true" resizable="false" position="center" >
+                <h:form enctype="multipart/form-data">
+                    <h2>Choose file or drag drop your photos here to upload !</h2>
+                    <p:fileUpload auto="true" fileUploadListener="#{membersController.uploadMemberPhoto}" oncomplete="picDLG.hide()"  mode="advanced" required="true" requiredMessage="Please choose your photo!" update=":memberFRM:photoGrid" sizeLimit="1000000" allowTypes="/(\.|\/)(gif|jpe?g|png)$/" >
+
+                    </p:fileUpload> 
+
+                </h:form>
+            </p:dialog>
+            <p:dialog  id="capDLG" widgetVar="captureDLG" height="350" width="350" header="Upload Photo" modal="true" resizable="false" position="center" >
+                <h:form id="captureFRM" enctype="multipart/form-data">
+                    <h6>Make sure face fits then press capture !</h6>
+                    <p:photoCam widgetVar="cam" listener="#{membersController.onCapture}" update=":memberFRM:photoGrid,:capDLG" /><br/>
+                    <p:commandButton id="captureCMD" type="button" value="CAPTURE" onclick="cam.capture();"  style="width: 100%;"/>
+                   
+                </h:form>
+                
+            </p:dialog>
+          
+           
+
+            <h:form rendered="#{mainController.userLevelLogged.addMember}" id="memberFRM">
+
+                <p:wizard id="memberWIZ"  widgetVar="memberWiz" showNavBar="true" backLabel="Previous" nextLabel="Next" flowListener="#{membersController.wizardListener}"  >
+                    <p:tab title="General Info" id="step1">
+                        <br/>
+                        <p style=" position: relative; left: 3%; font-weight: bold; color: red;">
+                            Note : All fields marked with * must be filled before proceeding to the next step 
+                        </p>
+                        
+                        <p:messages id="message" closable="true"/>
+                        <div style="float: left;width: 44%;margin-right: 3%; position: relative; left: 3%;">
+
+                            <h:panelGrid columns="2" cellpadding="4" >
+
+                                <h:outputLabel for="mNum" value="Member #{membersController.newMemberNumber} *"/>
+                                <h:inputText id="mNum" value="#{membersController.memberInt}"  label="Member Number *" style="text-transform: uppercase;">
+                                    <p:ajax event="keyup" process="@this, mNum" update=":memberFRM:photoGrid,:memberFRM:idscanPG, :memberFRM:message" listener="#{membersController.prepareUploadDLG()}" />
+                                   
+                                    
+                                </h:inputText>
+                                
+
+                                <h:outputLabel for="fName" value="Full Name * "/>
+                                <h:inputText   style="text-transform: uppercase;" id="fName" required="true" size="25" requiredMessage="Enter Member Name" value="#{membersController.newMember.fullName}" validatorMessage="Invalid full name!"  >
+                                    
+                                    <p:ajax event="keyup" update=":memberFRM:message"  listener="#{membersController.checkFullName(membersController.newMember.fullName)}"/>
+                                
+                                </h:inputText>
+                               
+                                <h:outputLabel for="idNum" value="ID Number * "/>
+                                <h:inputText size="25" id="idNum" required="true" requiredMessage="Enter ID Number" value="#{membersController.newMember.idNumber}">
+                                    <p:ajax event="keyup" update=":memberFRM:message" listener="#{membersController.validateID(membersController.newMember.idNumber)}"/>
+                                </h:inputText>
+
+                                <h:outputLabel for="gender" value="Gender *" />
+                                <h:selectOneMenu id="gender" value="#{membersController.newMember.gender}">
+                                     <f:selectItem itemLabel="Select Gender" itemValue="select"/>
+                                    <f:selectItem itemLabel="Male" itemValue="Male"/>
+                                    <f:selectItem itemLabel="Female" itemValue="Female"/>
+
+                                </h:selectOneMenu>
+                                 <h:outputLabel for="spouse" value="Spouse  "/>
+                                 <h:inputText   style="text-transform: uppercase;" id="spouse"  size="25"  value="#{membersController.newMember.spouse}"  />
+                                  
+
+                                <h:outputLabel for="DOB" value="Date Of Birth  "/>
+                                <p:calendar pattern="dd/MMM/yyyy" size="25" id="DOB"  value="#{membersController.newMember.dateOfBirth}" navigator="true" maxdate="#{membersController.maxDOB}"  />
+
+                                <h:outputLabel  for="telNum" value="Tel Number * "/>
+                                <h:inputText size="25" id="telNum" required="true" requiredMessage="Enter Telephone Number" value="#{membersController.newMember.phoneNumber}">
+                                    <p:ajax event="keyup" update=":memberFRM:message" listener="#{membersController.validateTel(membersController.newMember.phoneNumber)}"/>
+                                </h:inputText>   
+                                
+                                <h:outputLabel for="occupation" value="Occupation  "/>
+                                <h:inputText id="occupation"  value="#{membersController.newMember.occupation}"  />
+                                <h:outputLabel for="occupationCat" value="Occupation Category  "/>
+                                <h:inputText id="occupationCat"  value="#{membersController.newMember.occupationCategory}"  />
+                                
+                                <h:outputLabel for="email" value="Email Address  " />
+                                <h:inputText size="25" id="email" value="#{membersController.newMember.email}"   />
+                                
+                            
+                                <h:outputLabel for="residence" value="Residence  "/>
+                                <h:inputText size="25" id="residence" value="#{membersController.newMember.residence}"/>
+                            
+                                <h:outputLabel for="dateReg" value="Date Registered *"/>
+                                <p:calendar  pattern="dd/MMM/yyyy" size="25" id="dateReg" required="true" requiredMessage="Select Date Registered" value="#{membersController.newMember.registrationDate}" navigator="true" maxdate="#{membersController.today}"  />
+                            
+                            </h:panelGrid>
+
+
+                        </div>
+                        <div style="float: left;width: 40%; position: relative; left: 4%;">
+                            <h:panelGrid columns="4">
+                            <h:panelGrid id="photoGrid" columns="1" cellpadding="3" style="position: relative;left:5%;">
+                                <h:outputLabel for="memberPhoto" value="Photo * "/>
+                                <p:graphicImage rendered="#{membersController.newMember.memberPhoto!=null }" id="memberPhoto" value="/ImageServlet/#{membersController.newMember.memberPhoto}" style="width: 150px;height: 150px;"/>
+                                <p:graphicImage rendered="#{membersController.newMember.memberPhoto==null}"  id="memberPhotoDev" value="/images/addPhoto.jpg" style="width: 150px;height: 150px;"/>
+  
+                                 <p:commandButton rendered="#{membersController.showButton}" value="Upload Passport" process=":memberFRM:mNum" actionListener="#{membersController.prepareUploadDLG()}"  oncomplete="picDLG.show();" style="margin-right: 15px;"/>
+                              
+                            </h:panelGrid>
+                           
+                            
+                          
+                            <h:panelGrid id="idscanPG" columns="1" cellpadding="5" style="position: relative; left: 5%">
+                                <h:outputLabel  for="memberId" value="ID Scan  "/>
+                                <p:graphicImage rendered="#{membersController.newMember.memberId != null}" style="margin-bottom :10px;" id="memberId" width="300" height="150"  value="/ImageServlet/#{membersController.newMember.memberId}" />
+                                <p:graphicImage rendered="#{membersController.newMember.memberId == null}"  id="memberIDNull" alt="ID Scan" style="width: 250px;height: 150px;"/>
+  
+                                <p:commandButton rendered="#{membersController.showButton}" value="Upload ID" oncomplete="idUploadDLG.show()" />
+                            
+                            </h:panelGrid>
+
+                            </h:panelGrid>
+                        </div>
+                        <div style="clear: both;"/>
+                    </p:tab>
+                    <p:tab title="Member Info &amp; Referees" id="step2" >
+
+                        <br/>
+                        <p style="font-weight: bold; color: red;">
+                            Note : All fields marked with * must be filled before proceeding to the next step 
+                        </p>
+                        <br/>
+                        <br/>
+                        <div style="float: left;  width: 41%; margin-right: 1%;  ">
+
+                            <p:messages id="licenseMsgs" closable="true"/>
+                            <p:fieldset legend="Member Info">
+                                <h:panelGrid columns="2" cellpadding="5" cellspacing="5">
+                                    
+                                    <h:outputLabel for="branch" value="#{props.chouse}"/>
+                                <h:selectOneMenu id="branch" value="#{membersController.newMember.branchId}">
+                                    <f:selectItem itemLabel="Select #{props.chouse}" itemValue="" />
+                                    <f:selectItems value="#{membersController.allCompanyBranches}" var="branch" itemLabel="#{branch.branchname}" itemValue="#{branch.id}"/>
+                                </h:selectOneMenu>
+                                 <h:outputLabel for="dateJoined" value="Date Joined"/>
+                                 <p:calendar  pattern="dd/MMM/yyyy" size="25" id="dateJoined" required="true" requiredMessage="Select Date Date Joined" value="#{membersController.newMember.employmentDate}" navigator="true" maxdate="#{membersController.today}"  /> 
+                                 <h:outputLabel rendered="false" for="payRollNum" value="PayRoll No."/>
+                                <h:inputText rendered="false" id="payRollNum" required="true" requiredMessage="Enter Payroll Number" value="#{membersController.newMember.payRollNumber}" />
+                                <h:outputLabel rendered="false" for="salary" value="Monthly Salary"/>
+                                <h:inputText rendered="false" id="salary" required="true" requiredMessage="Enter Monthly Salary" value="#{membersController.newMember.monthlySalary}" />
+                                
+                                
+                                
+                                
+                                </h:panelGrid>
+                            </p:fieldset>
+                          
+
+                            <br/>
+
+                        </div> 
+
+                        <div style="float: left; width: 57%; ">
+
+                            <p:fieldset legend="Referees">
+                            <p:commandButton value="Add Referee" onclick="addRefereeDLG.show();" style="position: relative; left: 75%"/>
+                            <br/>
+                            <br/>
+                            <p:dataTable id="refereesTBL"  value="#{membersController.tempRefereesDM}" var="referee" paginator="true" rows="4"
+                                         emptyMessage="No referee added" paginatorAlwaysVisible="false" style="width: 100%;">
+                                <f:facet name="header" >Church Member Referees</f:facet>
+                                <p:column headerText="Name">
+                                    <h:outputText value="#{referee.name}"/>
+                                </p:column>
+
+                                <p:column headerText="Member Number">
+                                    <h:outputText value="#{referee.memberNumber}"/>
+                                </p:column>
+                                <p:column headerText="Branch">
+                                    <h:outputText value="#{referee.branch}"/>
+                                </p:column>
+
+                                <p:column headerText="Address">
+                                    <h:outputText value="#{referee.address}"/>
+                                </p:column>
+
+                                <p:column headerText="Telephone">
+                                    <h:outputText value="#{referee.telephoneNumber}"/>
+                                </p:column>
+
+                                <p:column headerText="Actions" >
+                                    <p:commandLink id="rmvRef" value="Remove" process="@this, rmvRef" actionListener="#{membersController.removeReferee()}" update=":memberFRM:refereesTBL" style="color: red; font-weight: bold;"/>
+                                </p:column>
+                            </p:dataTable>
+                            </p:fieldset>
+                            <br/><br/><br/>
+
+                        </div>
+
+                        <div style="clear: both;"/>
+
+                    </p:tab>
+
+                    <p:tab title="Next Of Kin &amp; Charges" id='step3' >
+                        <br/><br/>
+
+                        <p:commandButton value="Add Kin" onclick="addKinDLG.show();" style="position: relative; left: 85%"/>
+                        <br/>
+                        <br/>
+                        <p:dataTable id="kinsTBL" value="#{membersController.kinsDM}" var="kin" paginator="true" rows="4" emptyMessage="No kin added" paginatorAlwaysVisible="false">
+                            <f:facet name="header">Next of Kin</f:facet>
+                            <p:column headerText="Name">
+                                <h:outputText value="#{kin.name}" style="text-transform: uppercase;"/>
+                            </p:column>
+
+                            <p:column headerText="Relationship" style="width: 8%;">
+                                <h:outputText value="#{kin.relationship}" style="position: relative; left: 20%;"/>
+                            </p:column>
+
+                            <p:column headerText="Id Number">
+                                <h:outputText value="#{kin.idNumber}" style="position: relative; left: 20%;"/>
+                            </p:column>
+
+                           
+
+                            <p:column headerText="Address">
+                                <h:outputText value="#{kin.address}" style="position: relative; left: 20%;"/>
+                            </p:column>
+                            <p:column headerText="Actions">
+                                <p:commandLink value="Remove" actionListener="#{membersController.removeKin()}" style="color:red; font-weight: bold; position: relative; left: 20%;" update=":memberFRM:kinsTBL, :memberFRM"/>
+                            </p:column>
+                        </p:dataTable>
+
+                        <br/><br/>
+                        <p:separator/>
+                        <br/><br/>
+
+                        <p:commandButton value="Add Charges" onclick="chargesDLG.show();" style="position: relative; left: 85%"/>
+
+                        <br/><br/>
+                        <p:dataTable id="chargesTBL" value="#{membersController.chargesDM}" var="charge" paginator="true" paginatorAlwaysVisible="false" rows="5" emptyMessage="No requirement added yet">
+                            <f:facet name="header">Requirements for New Membership</f:facet>
+
+                            
+                            <p:column headerText="Name">
+                                <h:outputText value="#{charge.name}" style="position: relative; left: 35%;"/>
+                            </p:column>
+
+                            <p:column headerText="Cost (Kshs)">
+                                <h:outputText value="#{charge.cost}" style="position: relative; left: 35%;">
+                                     <f:convertNumber pattern="0.00"/>
+                        </h:outputText>
+                            </p:column>
+                            
+                            <p:column headerText="Actions">
+                                <p:commandLink value="Remove" rendered="#{!charge.mandatory}" actionListener="#{membersController.removeCharges()}" style="color:red; font-weight: bold; position: relative; left: 35%;" update=":memberFRM:chargesTBL, :memberFRM"/>
+                             
+                            </p:column>
+                        </p:dataTable>
+
+
+                        <br/><br/>
+                        <p:commandButton id="finishCMD" ajax="false" value="Finished"  action="finishedMember.xhtml"  style="position: relative;left: 85%;top: 35px;"/>
+                    </p:tab>
+                </p:wizard>
+
+            </h:form>
+
+            <h:outputText rendered="#{!mainController.userLevelLogged.addMember}"  style="font-weight: bold;font-size: 24px;color:red;position:relative;left:20%;" value="Access Denied : You do not have enough privileges to access this feature"/>
+
+
+
+        </ui:define>
+
+    </ui:composition>
+</html>
+

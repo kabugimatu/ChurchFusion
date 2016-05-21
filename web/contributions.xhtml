@@ -1,0 +1,194 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:f="http://java.sun.com/jsf/core">
+    <ui:composition template="adminTemplate.xhtml">
+        <ui:define name="title">Member Contribution</ui:define>
+        <ui:define name="scripts">
+            <script type="text/javascript">
+                function setBedCrump() {
+                    menuElement = document.getElementById("menu2");
+                    menuElement.className = "limenu select";
+
+                }
+
+            </script>
+        </ui:define>
+        <ui:define name="separator">
+
+            <span style="position:relative;font-weight:bold;font-size: 18px;">Member Contribution</span><br/><br/>
+
+        </ui:define>
+
+        <ui:define name="adminContent">
+
+            <p:dialog widgetVar="addDLG" id="contDLG"  header="Contribution for #{membersController.dbMember.fullName}"  resizable="false" modal="true" closable="false">
+                <h:form id="quesFRM">
+                    <h:panelGrid rendered="#{membersController.transactionComplete}" style="position:relative;left:5%;">
+                        <p:messages/>
+                        <p:commandButton value="Okay" ajax="false" action="#{membersController.finishContribution()}"   style="position: relative; left: 35%; margin-top: 10px;"/>
+                    </h:panelGrid>
+
+                    <h:panelGrid columns="1" rendered="#{!membersController.dataValid and !membersController.transactionComplete}">
+                        <h:outputLabel value="Correct these errors to complete this transaction" style="position: relative; left: 1%;"/>
+                        <p:messages id="contributionMessages"/>
+                        <p:commandButton value="OK" onclick="addDLG.hide();"   style="position: relative; left: 45%; margin-top: 10px;"/>
+                    </h:panelGrid>
+
+                    <h:panelGrid columns="2" style="position:relative;left:4%;" rendered="#{membersController.dataValid and !membersController.transactionComplete}">
+                        <h:outputLabel value="You are about to complete this transaction"/><br/>
+                        <h:outputLabel value="Ensure that all details are correct"/><br/>
+                        <h:outputLabel style="position: relative;left:40%;" value="Continue ?"/><br/>
+                    </h:panelGrid>
+                    <br/>
+                    <h:panelGrid id="printers" columns="2" cellpadding="5" style="position:relative;left:0%;" rendered="#{membersController.dataValid and !membersController.transactionComplete and !membersController.tellerLogged.userDomain.equalsIgnoreCase('DEVELOPER')}">
+                        <h:outputLabel value="Print Reciept" for="printReciept"/>
+                        <p:selectBooleanButton id="printReciept" onLabel="YES" offLabel="NO" value="#{membersController.printRecieptOK}">
+                            <p:ajax event="change" listener="#{membersController.onChangePrintOK()}" update=":quesFRM"/>
+                        </p:selectBooleanButton>
+
+                        <h:outputLabel rendered="#{membersController.printRecieptOK}" value="Select Printer" for="allprinters" />
+
+                        <h:selectOneMenu id="allprinters" rendered="#{membersController.printRecieptOK}" value="#{membersController.serviceName}">
+
+                            <f:selectItems value="#{membersController.printServices}" var="pService" itemLabel="#{pService.name}" itemValue="#{pService}"/>
+                        </h:selectOneMenu>
+
+                    </h:panelGrid>
+                    <br/>
+                    <h:panelGrid columns="2" cellpadding="5" style="position:relative;left:30%;" rendered="#{membersController.dataValid and !membersController.transactionComplete}">
+                        <p:commandButton style="font-weight: bold; color: green; " id="yesSave" value="Save" actionListener="#{membersController.newMemberContribution()}" 
+                                         update=":contributionFRM,quesFRM,:memberDetailsFRM" />
+                        <p:commandButton value="Close" type="button" ajax='false' onclick="addDLG.hide();" style="position:relative;left:20%; font-weight: bold; color: red;"/>
+                    </h:panelGrid>   
+
+
+                    <p:blockUI trigger="yesSave" block="quesFRM">
+                        <p:graphicImage value="/images/ajax-loader.gif"/>
+
+                    </p:blockUI>
+                </h:form>
+            </p:dialog>
+
+
+            <br/>
+            <h:form id="memberDetailsFRM"  >
+                <p:fieldset legend="Member Information" rendered="#{membersController.dbMemberFound}">
+                    <h:panelGrid cellpadding="15" cellspacing="5"  columns="3">
+                        <h:panelGrid columns="2"  cellpadding="3" style="position: relative; ">
+
+                            <h:outputLabel value="Member Number " for="memberNumber"/>
+
+                            <h:outputText id="memberNumber" value="#{membersController.dbMember.memberNumber}" />
+
+                            <h:outputLabel value="Name " for='memberName'/>
+                            <h:outputText id='memberName' value="#{membersController.dbMember.fullName}"  style="text-transform: uppercase;" />
+
+                            <h:outputLabel value="ID Number " for="idNumber"/>
+                            <h:outputText id="idNumber" value="#{membersController.dbMember.idNumber}" />
+
+                            <h:outputLabel value="Total ThanksGiving " for="totalShares"/>
+                            <h:outputText id="totalShares" value="#{membersController.dbAccount.shares}" >
+                                <f:convertNumber pattern="0.00"/>
+                            </h:outputText>
+
+                            <h:outputLabel value="Total Tithe " for="totalDeposit"/>
+                            <h:outputText id='totalDeposit' value="#{membersController.dbAccount.deposit}" >
+                                <f:convertNumber pattern="0.00"/>
+                            </h:outputText>
+                        </h:panelGrid>
+                        <h:panelGrid  style="position: relative; ">
+                            <p:graphicImage cache="false" value="#{membersController.memberPhotoDB}" style="width: 200px;height: 200px;"/>
+                        </h:panelGrid>
+                        <h:panelGrid columns="1" cellpadding="5" id="idGrid"  style="position: relative; ">
+                            <p:graphicImage cache="false" value="#{membersController.memberIDScanDB}" style="width: 350px;height: 200px;"/>
+                        </h:panelGrid>
+                    </h:panelGrid>
+
+                </p:fieldset>
+            </h:form>
+            <br/><br/>
+
+            <h:form id="contributionFRM" >
+                <h:panelGrid cellpadding="10" columns="2" >
+                    <h:outputLabel  for="dateReg" value="CONTRIBUTION DATE"/>
+                    <p:calendar pattern="dd-MMM-yyyy" size="25" id="dateReg"  value="#{membersController.contribDate}" navigator="true"  maxdate="#{membersController.today}"  />
+                </h:panelGrid><br/><br/>
+                <p:fieldset legend="Tithes &amp; Thanksgiving" rendered="#{membersController.dbMemberFound}" style="position: relative; left:2%; float: left; width: 40%; margin-right: 3%;">
+                    <h:panelGrid columns="2" cellpadding="5"  style="position:relative;left:35%;" >
+
+
+                        <h:outputLabel   value="Thanksgiving" for="shares" />
+                        <h:inputText   size="10"  value="#{membersController.shares}" id="shares" required="true" requiredMessage="Please enter shares contribution." label="Shares" validatorMessage="Shares must be greater than 0">
+                            <f:validateDoubleRange minimum="0" />
+                            <f:convertNumber pattern="0.00"/>
+                        </h:inputText>
+
+                        <h:outputLabel value="Tithe " for="deposit" />
+                        <h:inputText size="10" value="#{membersController.deposits}" id="deposit" required="true" requiredMessage="Please enter deposit contribution." label="Deposits" validatorMessage="Deposits must be greater than 0" >
+                            <f:validateDoubleRange minimum="0" />
+
+                            <f:convertNumber pattern="0.00"/>
+                        </h:inputText>
+                    </h:panelGrid>
+                    <br/>
+                </p:fieldset>
+
+                <p:fieldset   legend="Loan Repayment" rendered="false" style="position: relative; left:2%; float: left; width: 45%;">
+                    <h:panelGrid id="loanPG" columns="2" cellpadding="5"  >
+
+                        <h:outputLabel value="Select Loan" for="loan" rendered="#{membersController.unclearedLoans.size()>1}"/>
+                        <h:selectOneMenu id="loan" value="#{membersController.loanNumber}"  rendered="#{membersController.unclearedLoans.size()>1}" >
+                            <p:ajax event="change" listener="#{membersController.onChangeLoanNumber()}" update="loanPG"/>
+
+                            <f:selectItem itemLabel="Select" itemValue="select"/>
+                            <f:selectItems value="#{membersController.unclearedLoans}" var="loan" itemLabel="#{loan.loanNUmber}" itemValue="#{loan.loanNUmber}"/>
+                        </h:selectOneMenu>
+
+                        <h:outputLabel rendered="#{!membersController.dbLoan.approvalStatus and membersController.dbLoan.loanNUmber!=null }" for="status" value="Approval Status"/><h:outputText rendered="#{!membersController.dbLoan.approvalStatus and membersController.dbLoan.loanNUmber!=null}" id="status" value="Not Approved"/>
+
+                        <h:outputLabel value="Loan Number " for="loanNumber" rendered="#{membersController.dbLoan.balance >0 and membersController.dbLoan.approvalStatus}" />
+                        <h:outputText id="loanNumber" value="#{membersController.dbLoan.loanNUmber} " rendered="#{membersController.dbLoan.balance >0 and membersController.dbLoan.approvalStatus}" /> 
+
+                        <h:outputLabel rendered="#{membersController.dbLoan.balance >0 and membersController.dbLoan.approvalStatus}" for="loanType" value="Loan Type"/>
+                        <h:outputText rendered="#{membersController.dbLoan.balance >0 and membersController.dbLoan.approvalStatus}" value="#{membersController.dbLoan.purpose}" id="loanType"/>
+
+                        <h:outputLabel value="Loan Balance" for="loanBalance" rendered="#{membersController.dbLoan.balance >0 and membersController.dbLoan.approvalStatus}" />
+                        <h:outputText id="loanBalance" value="#{membersController.dbLoan.balance}" rendered="#{membersController.dbLoan.balance >0 and membersController.dbLoan.approvalStatus}" >
+
+                            <f:convertNumber pattern="0.00"/>
+                        </h:outputText>
+
+                        <h:outputLabel value="Loan Re-Payment" for="loanprincipal" rendered="#{membersController.dbLoan.balance > 0 and membersController.dbLoan.approvalStatus}" />
+                        <h:inputText id="loanprincipal" size="10" value="#{membersController.serviceLoan}" rendered="#{membersController.dbLoan.balance > 0 and membersController.dbLoan.approvalStatus}" label="Principal" validatorMessage="Loan principal must be greater than 0">
+                            <f:validateDoubleRange minimum="0" /> 
+                            <f:convertNumber pattern="0.00"/>
+                        </h:inputText>
+
+                        <h:outputLabel value="Pay from deposits" for="payfromdepo" rendered="#{membersController.dbLoan.approvalStatus}"/>
+                        <h:selectBooleanCheckbox id="payfromdepo" value="#{membersController.payFromDeposit}" rendered="#{membersController.dbLoan.approvalStatus}"  />
+                    </h:panelGrid>
+
+                </p:fieldset>
+                <p:fieldset legend="Loan Repayment" rendered="false" style="position: relative; left:2%; float: left; width: 45%;">
+                    <h:outputText style="position:relative;left:35%;color:green;" value="This Member Has No Loans"/>
+                    <br/> <br/> <br/> <br/> 
+                </p:fieldset>
+                <div style="clear: both"/>
+                <br/>
+                <br/>
+                <h:panelGrid columns="2" cellpadding="5" style="position: relative; left: 35%;" rendered="#{membersController.dbMemberFound}">
+                    <p:commandButton value="Complete Transaction"  actionListener="#{membersController.prepareContributionAdd()}" oncomplete="addDLG.show();" update=":contDLG, :quesFRM:contributionMessages"  />
+                    <p:commandButton value="Cancel" ajax="false" action="tellerIndex.xhtml"/>
+                </h:panelGrid>
+
+                <br/>
+            </h:form>
+
+        </ui:define>
+    </ui:composition>
+</html>
+

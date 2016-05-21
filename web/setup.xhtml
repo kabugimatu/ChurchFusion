@@ -1,0 +1,86 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:f="http://java.sun.com/jsf/core">
+    <h:head>
+   
+        <title>Setup</title>
+        <link rel="shortcut icon" type="image/ico" href="images/favicon2.html" />     
+        <link rel="stylesheet" type="text/css" href="css/style.css"/>
+        <link rel="stylesheet" type="text/css" href="css/jqueryCSS.css"/>
+
+        <script type="text/javascript" src="js/jquery.cookie.js"/>
+         <script type="text/javascript">
+                function setBedCrump() {
+                    menuElement = document.getElementById("menu1");
+                    menuElement.className = "limenu select";
+
+                }
+
+            </script>
+
+    </h:head>
+    <h:body class="dashborad"  onload="setBedCrump();">
+
+        <div id="header" >
+            <h:form>
+                <div id="account_info" > 
+
+                    <div class="setting" title="system setup"><b>System setup</b> <img src="images/gear.png" class="gear"  alt="Profile Settings"/> </div>
+                   
+                </div>
+            </h:form>    
+        </div> <!--//  header -->
+        <div id="shadowhead"></div>
+        <div id="hide_panel"> 
+            <a class="butAcc" rel="0" id="show_menu"></a>
+            <a class="butAcc" rel="1" id="hide_menu"></a>
+            <a class="butAcc" rel="0" id="show_menu_icon"></a>
+            <a class="butAcc" rel="1" id="hide_menu_icon"></a>
+        </div>           
+
+        <div id="left_menu">
+            <h:form>
+                <ul id="main_menu" class="main_menu">
+                    
+                    <li class="limenu" id="menu1" ><a href="sysSetup.xhtml"><span class="ico gray shadow home" ></span><b>Setup</b></a></li>
+                    
+                  
+                </ul>
+            </h:form>
+        </div>
+
+
+        <div id="content" >
+            <div class="inner" style=" min-height: 550px;">
+                
+                <ui:insert name="topBar" class="topcolumn" >
+
+                </ui:insert>
+
+                <div class="clear"></div>
+
+                <ui:insert name="separator">
+
+                </ui:insert>
+                <ui:insert name="setupContent">
+
+                </ui:insert>
+                
+                
+                <div class="clear"></div>
+            </div> <!--// End inner -->
+            <div id="footer" > &copy;  Powered By : 
+                <span class="tip">
+                    <a  href="http://www.pearlsoftke.com" target="http://www.pearlsoftke.com" title="Web &amp; Mobile Apps Developers" >PearlSoft Technologies</a> 
+                </span> 
+            </div>
+
+        </div>
+
+    </h:body>
+</html>
+

@@ -1,0 +1,100 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:f="http://java.sun.com/jsf/core">
+
+    <ui:composition template="adminTemplate.xhtml">
+
+        <ui:define name="title">Home</ui:define>
+
+        <ui:define name="scripts">
+            <script type="text/javascript">
+                function setBedCrump() {
+                    menuElement = document.getElementById("menu1");
+                    menuElement.className = "limenu select";
+
+                }
+
+            </script>
+        </ui:define>
+        <ui:define name="separator">
+           
+            <span style="position:relative;font-weight:bold;font-size: 15px;">Member Suspension/Activation</span><br/>
+           
+        </ui:define>
+
+        <ui:define name="adminContent">
+
+ 
+            <p:tabView rendered="#{mainController.userLevelLogged.deleteMember }" id="membersTABS" style="position: relative; left: 1%; width: 85%" >
+                <p:tab title="Search Member" >
+                    <h:form id="searchAllFRM">
+                        <p:messages closable="true" />
+                        <h:panelGrid id="searchGrid" columns="3" cellpadding="5" style="position: relative; left: 4%;" >
+                            <h:outputLabel value="Member / ID   Number " for="search" />
+                            <h:inputText id="search" size="30" value="#{membersController.searchAdminMember}" />
+
+                            <p:commandButton id="cmdSearch" value="Search" actionListener="#{membersController.searchAdminMember()}" update=":membersTABS:searchAllFRM, :membersTABS:membersFRM"/>
+                            
+                        </h:panelGrid>
+                        
+                        <p:watermark value="member number or id number" for="search"/>
+                    </h:form><br/><br/>
+                    <p:blockUI trigger=":membersTABS:searchAllFRM:cmdSearch" block=":membersTABS:searchAllFRM">
+                                <p:graphicImage value="/images/ajax-loader.gif"/>
+                         </p:blockUI>
+                    <h:form id="membersFRM">
+                        <p:messages closable="true" rendered="#{membersController.adminMemberFound}"/>
+                        
+                        <p:dataTable rendered="#{membersController.adminMemberFound}" value="#{membersController.allMembersDM}" var="member" emptyMessage="No members yet" paginator="true" paginatorAlwaysVisible="false" rows="20">
+                            <p:column>
+                                <f:facet name="header">Member Number</f:facet>
+                                <h:outputText value="#{member.memberNumber}" style="position: relative;left:30%;"/>
+                            </p:column>
+                            <p:column>
+                                <f:facet name="header">Full Name</f:facet>
+                                <h:outputText value="#{member.fullName}" style="position: relative;left:10%;"/>
+                            </p:column>
+                            <p:column>
+                                <f:facet name="header">Status</f:facet>
+                                <h:outputText rendered="#{member.memberStatus}" style="position: relative;left:15%;color: green;" value="Active"/>
+                                <h:outputText rendered="#{!member.memberStatus}" style="position: relative;left:15%;color:red;" value="Suspended"/>
+
+                               
+                            </p:column>
+                           
+                            <p:column>
+                                <f:facet name="header">Action(s)</f:facet>
+                                <p:commandLink id="activate" actionListener="#{membersController.activateMemberAccount()}" value="Suspend" rendered="#{member.memberStatus}" style="color:green;position: relative;left:35%;color: red;" update=":membersTABS:membersFRM" />
+                                <p:commandLink id="suspend" actionListener="#{membersController.activateMemberAccount()}" value="Activate" rendered="#{!member.memberStatus}" style="color:green;position: relative;left:35%;color: green;" update=":membersTABS:membersFRM"/>
+                               
+                              <p:blockUI trigger="activate,suspend" block=":membersTABS:membersFRM">
+                            <p:graphicImage value="/images/ajax-loader.gif"/>
+                        </p:blockUI>
+                            </p:column>
+                            
+
+                        </p:dataTable>
+                      
+                    </h:form>
+                </p:tab>
+
+
+
+             
+
+               
+            </p:tabView>
+
+         
+            <h:outputText rendered="#{!mainController.userLevelLogged.deleteMember}"  style="font-weight: bold;font-size: 24px;color:red;position:relative;left:20%;" value="Access Denied : You do not have enough privileges to access this feature"/>
+
+
+
+        </ui:define>
+    </ui:composition>
+</html>
+

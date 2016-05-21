@@ -1,0 +1,146 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:f="http://java.sun.com/jsf/core">
+    <ui:composition template="adminTemplate.xhtml">
+        <ui:define name="title"> Loans Defaulters</ui:define>
+        <ui:define name="scripts">
+            <script type="text/javascript">
+                function setBedCrump() {
+                    menuElement = document.getElementById("menu5");
+                    menuElement.className = "limenu select";
+
+                }
+
+            </script>
+
+            <style>
+
+                .ui-growl
+                {
+
+                    top: 270px;
+                }
+                .ui-datatable thead th, .ui-datatable tbody td, .ui-datatable tfoot td 
+                {
+                    white-space: normal !important;
+                }
+            </style>
+        </ui:define>
+        <ui:define name="separator">
+
+            <span style="position:relative;font-weight:bold;font-size: 20px;">Loans Defaulters</span><br/>
+
+        </ui:define>
+        <ui:define name="adminContent">
+            <p:tabView rendered="#{mainController.userLevelLogged.loadReports}" id="defaultersTABS" style="width:95%; position: relative; left: 1%">
+
+                <p:tab title="Defaulters Summary">
+                    <h:form id="optionsFRM">
+                        <p:messages closable="true"/>
+                        <h:panelGrid columns="7" cellpadding="5">
+                            <h:outputLabel value="Select Report Type " for="filter"/>
+                            <h:selectOneMenu id="filterLoans" value="#{reportsController.defaulterType}" >
+                                <p:ajax event="change" listener="#{reportsController.onChangeDefaulters}" update=":defaultersTABS:defaultersFRM:defaultersTBL, optionsFRM" />
+                                <f:selectItem itemLabel="Select" itemValue="select"/>
+                                <f:selectItem itemLabel="Month" itemValue="month"/>                                                               
+                            </h:selectOneMenu>  
+
+                            <h:outputLabel rendered="#{reportsController.renderMonth}"   for="month" value="Month"/>
+                            <h:selectOneMenu value="#{reportsController.month}" rendered="#{reportsController.renderMonth}" id="month">
+                                <f:selectItem itemLabel="Select" />
+                                <f:selectItem itemLabel="January" itemValue="01"/>
+                                <f:selectItem itemLabel="February" itemValue="02"/>
+                                <f:selectItem itemLabel="March" itemValue="03"/>
+                                <f:selectItem itemLabel="April" itemValue="04"/>
+                                <f:selectItem itemLabel="May" itemValue="05"/>
+                                <f:selectItem itemLabel="June" itemValue="06"/>
+                                <f:selectItem itemLabel="July" itemValue="07"/>
+                                <f:selectItem itemLabel="August" itemValue="08"/>
+                                <f:selectItem itemLabel="September" itemValue="09"/>
+                                <f:selectItem itemLabel="October" itemValue="10"/>
+                                <f:selectItem itemLabel="November" itemValue="11"/>
+                                <f:selectItem itemLabel="December" itemValue="12"/>
+                            </h:selectOneMenu>
+
+                            <h:outputLabel rendered="#{reportsController.renderMonth}"   for="year" value="Select Year"/>
+                            <h:selectOneMenu value="#{reportsController.year}" rendered="#{reportsController.renderMonth}" id="year">
+                                <f:selectItem itemLabel="Year" /> 
+                                <f:selectItems var="year" value="#{reportsController.genYears()}" itemLabel="#{year}" itemValue="#{year}" />
+                            </h:selectOneMenu>
+
+                            <p:commandButton value="Generate" rendered="#{reportsController.renderMonth}" actionListener="#{reportsController.genDefaultersReport()}" update=":defaultersTABS:defaultersFRM"/>
+                        </h:panelGrid>
+
+                    </h:form>
+                    <br/>
+
+                    <h:form id="defaultersFRM">
+                        <br/>
+                        <p:dataTable id="defaultersTBL" value="#{reportsController.defaultedLoansDM}" var="loan" paginator="true"
+                                     paginatorAlwaysVisible="false" emptyMessage="No results found" rows="10">
+                            <f:facet name="header">Loans report</f:facet>
+                            <p:column>
+                                <f:facet name="header">Loan Number</f:facet>
+                                <h:outputText value="#{loan.loanNUmber}" style="position: relative; left: 20%"/>
+                            </p:column>
+
+                            <p:column>
+                                <f:facet name="header">Loan Type</f:facet>
+                                <h:outputText value="#{loan.purpose}" style="position: relative; left: 20%"/>
+                            </p:column>
+
+                            <p:column>
+                                <f:facet name="header">Member Name</f:facet>
+                                <h:outputText value="#{reportsController.findMember(loan.memberNumber).getFullName()}" style="position: relative; left: 10%"/>
+                            </p:column>
+
+                            <p:column>
+                                <f:facet name="header">Member Number</f:facet>
+                                <h:outputText value="#{loan.memberNumber}" style="position: relative; left: 25%"/>
+                            </p:column>
+
+                            <p:column>
+                                <f:facet name="header">Balance</f:facet>
+                                <h:outputText value="#{loan.balance}" style="position: relative; left: 25%">
+                                    <f:convertNumber pattern="0.00"/>
+                                </h:outputText>
+                            </p:column>
+
+                            <p:column>
+                                <f:facet name="header">Monthly Installment</f:facet>
+                                <h:outputText value="#{loan.monthlyInstallment}" style="position: relative; left: 25%">
+                                    <f:convertNumber pattern="0.00"/>
+                                </h:outputText>
+                            </p:column>
+
+                          
+
+                        </p:dataTable>
+                        <br/>
+                        <p:panel style="width:30%; position: relative; left: 35%" header="Export Report">
+                            <br/>
+                            <p:panelGrid style="position: relative; left: 10%" columns="2" >
+
+                                <p:commandLink ajax="false"  >
+                                    <h:graphicImage value="/images/excel.png"/>
+                                    <p:dataExporter target="allLoansTBL" type="xls" fileName="memberLoans"/>
+                                </p:commandLink>  
+                                <p:commandLink ajax="false">
+                                    <h:graphicImage value="/images/pdf.png"/>
+                                    <p:dataExporter target="allLoansTBL" type="pdf" fileName="memberLoans" preProcessor="#{reportsController.preProcessPDF}"/>
+                                </p:commandLink>
+                            </p:panelGrid>
+                        </p:panel>
+
+                    </h:form>
+                </p:tab>
+            </p:tabView>
+            <h:outputText rendered="#{!mainController.userLevelLogged.loadReports}"  style="font-weight: bold;font-size: 24px;color:red;position:relative;left:20%;" value="Access Denied : You do not have enough privileges to access this feature"/>
+        </ui:define>
+    </ui:composition>
+</html>
+

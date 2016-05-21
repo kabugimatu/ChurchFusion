@@ -1,0 +1,57 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:f="http://java.sun.com/jsf/core">
+    <ui:composition template="adminTemplate.xhtml">
+        <ui:define name="scripts">
+            <script type="text/javascript">
+                function setBedCrump(){
+                    menuElement = document.getElementById("menu4");
+                    menuElement.className = "limenu select";
+                    
+                }
+                
+            </script>
+        </ui:define>
+         <ui:define name="separator">
+
+            <span style="position:relative;font-weight:bold;font-size: 15px;">User Accounts | View User</span><br/><br/>
+          
+        </ui:define>
+          
+        <ui:define name="adminContent">
+        
+            <h:form id="individualFRM" rendered="#{mainController.userLevelLogged.manageUsers}" >
+               <p:commandButton value="Activate Account" update="individualFRM,userAcc" rendered="#{!mainController.indUser.userStatus}" style="position:relative;left:75%;" actionListener="#{mainController.activateAccount()}"/><p:commandButton value="De - Activate Account" rendered="#{mainController.indUser.userStatus}" style="position:relative;left:75%;" actionListener="#{mainController.activateAccount()}" update="individualFRM,userAcc"/>
+               <p:messages/> 
+               <p:fieldset legend="Basic Info" id="userAcc">
+
+                    <h:panelGrid columns="2" style="position:relative;left:20%;"  >
+                        <h:outputLabel style="font-weight:bold;font-size: 15px;" for="fName" value="Full Name"/><h:outputText id="fName" value="#{mainController.indUser.fullName}"  style="margin-left: 7px;"/>
+                        <h:outputLabel style="font-weight:bold;font-size: 15px;" for="idNumber" value="Id Number"/><h:outputText id="idNumber" value="#{mainController.indUser.idNumber}" style="margin-left: 7px;"/> 
+                        <h:outputLabel style="font-weight:bold;font-size: 15px;" for="tel" value="Telephone"/><h:outputText id="tel" value="#{mainController.indUser.telephone}" style="margin-left: 7px;"/>
+                        <h:outputLabel style="font-weight:bold;font-size: 15px;" for="email" value="Email"/><h:outputText id="email" value="#{mainController.indUser.emailAddress}" style="margin-left: 7px;"/> 
+                        <h:outputLabel style="font-weight:bold;font-size: 15px;" for="level" value="User Level"/><h:outputText id="level" value="#{mainController.indUser.userDomain}" style="margin-left: 7px;"/> 
+                        <h:outputLabel style="font-weight:bold;font-size: 15px;" for="lastLog" value="Last Login"/>
+                        <h:outputText id="lastLog" value="#{mainController.indUser.lastLogin}" style="margin-left: 7px;">
+                            <f:convertDateTime pattern="hh:mm dd/MM/yyyy"/>
+                        </h:outputText>
+                        <h:outputLabel for="accessIP" value="Access IP"/><h:outputText id="accessIP" value="#{mainController.indUser.loginMachine}"/>
+                        <h:outputLabel for="statusA" value="Account Status" rendered="#{mainController.indUser.userStatus}"/><h:outputText id="statusA" style="color: green;margin-left: 7px;" value="Active" rendered="#{mainController.indUser.userStatus}"/>
+                        <h:outputLabel for="statusD" value="Account Status" rendered="#{!mainController.indUser.userStatus}"/><h:outputText id="statusD" style="color: red; margin-left: 7px;" value="Inactive" rendered="#{!mainController.indUser.userStatus}"/>
+                    </h:panelGrid>
+                        
+
+                </p:fieldset><br/>
+                <p:commandButton value="Back To Users" ajax="false" action="viewUsers.xhtml" style="position:relative;left:45%;"/>
+            </h:form> 
+            
+            <h:outputText rendered="#{!mainController.userLevelLogged.manageUsers}"  style="font-weight: bold;font-size: 24px;color:red;position:relative;left:20%;" value="Access Denied : You do not have enough privileges to access this feature"/>
+
+        </ui:define>
+    </ui:composition>
+</html>
+

@@ -1,0 +1,231 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:f="http://java.sun.com/jsf/core">
+    <ui:composition template="adminTemplate.xhtml">
+        <ui:define name="title"> Reports</ui:define>
+        <ui:define name="scripts">
+            <script type="text/javascript">
+                function setBedCrump() {
+                    menuElement = document.getElementById("menu5");
+                    menuElement.className = "limenu select";
+
+                }
+
+            </script>
+ 
+            <style>
+
+                .ui-growl
+                {
+
+                    top: 270px;
+                }
+                .ui-datatable thead th, .ui-datatable tbody td, .ui-datatable tfoot td 
+                {
+                    white-space: normal !important;
+                }
+            </style>
+        </ui:define>
+        <ui:define name="separator">
+            
+            <span style="position:relative;font-weight:bold;font-size: 20px;">Members Reports</span><br/>
+           
+        </ui:define>
+        <ui:define name="adminContent">
+            <p:tabView rendered="#{mainController.userLevelLogged.loadReports}" id="membersReportTABS" style="width:95%; position: relative; left: 1%">
+                <p:tab title="Members">
+                    <h:form id="typeFRM">
+                        <p:messages closable="true"/>
+                        
+                            <p:blockUI trigger="allMembers,viewCMD" block=":membersReportTABS:typeFRM">
+                                    <p:graphicImage value="/images/ajax-loader.gif"/>
+                                </p:blockUI>
+                            <h:panelGrid columns="5" cellpadding="5">
+                                
+                                <p:commandButton id="allMembers" value="All Members" style="margin-right:50px;" actionListener="#{reportsController.viewAllMembers()}" update=":membersReportTABS:reportFRM, :membersReportTABS:typeFRM"/>
+
+                                <h:outputLabel value="Filter By " for="filter"/>
+                                <h:selectOneMenu id="filter" value="#{reportsController.reportType}" >
+                                    <f:selectItem itemLabel="Select" itemValue="select"/>
+                                    <f:selectItem id="filterGreat" itemLabel="Tithe greater than" itemValue="depositsgreaterthan"/>
+                                    <f:selectItem id="filterShares" itemLabel="Thanksgiving greater than" itemValue="sharesgreaterthan"/>
+                                    <f:selectItem id="filterDepLess" itemLabel="Tithe less than" itemValue="depositslessthan"/>
+                                    <f:selectItem id="filterSharesLess" itemLabel="Thanksgiving less than" itemValue="shareslessthan"/>
+
+                                    <f:selectItem itemLabel="Membership greater than" itemValue="membershipgreaterthan"/>
+                                    <f:selectItem itemLabel="Membership less than" itemValue="membershiplessthan"/>
+                                </h:selectOneMenu>
+
+                                <h:inputText size="10" value="#{reportsController.filterValue}" >
+                                    <f:convertNumber pattern="0.00"/>
+                                </h:inputText>
+
+                                <p:commandButton id="viewCMD" value="View" actionListener="#{reportsController.filterMembers()}" update=":membersReportTABS:reportFRM, :membersReportTABS:typeFRM"/>
+
+                            </h:panelGrid>
+                     
+                    </h:form>
+                    <br/>
+                    <h:form id="reportFRM">
+
+                        
+                        <br/>
+                      
+
+                        <p:dataTable id="membersTBL" value="#{reportsController.membersDM}" var="member" paginator="true" 
+                                     paginatorAlwaysVisible="true" rows="100" emptyMessage="No members found" rendered="#{reportsController.membersFound}">
+                            <f:facet name="header">Members Report</f:facet>
+
+
+
+                            <p:column  sortBy="#{member.memberNumber}">
+                                <f:facet name="header">Number</f:facet>
+                                <h:outputText value="#{member.memberNumber}" style="position: relative; left: 25%;" />                                             
+                            </p:column>
+
+                            <p:column sortBy="#{member.fullName}">
+                                <f:facet name="header">Full Name</f:facet>
+                                <h:outputText value="#{member.fullName}" style="position: relative; left: 10%;"/>
+                            </p:column>
+                            
+                            <p:column style="width: 15%;"  sortBy="#{member.registrationDate}" >
+                                <f:facet name="header">Registration Date</f:facet>
+                                <h:outputText value="#{member.registrationDate}" style="position: relative; left: 25%;" >
+                                    <f:convertDateTime pattern="dd-MM-yyyy"/> 
+                                </h:outputText>
+
+                            </p:column>
+                            
+                            <p:column style="width: 10%;" >
+                                <f:facet name="header">Membership(Months)</f:facet>
+                                <h:outputText value="#{reportsController.computeMembershipPeriod(member.memberNumber)}" style="position: relative; left: 35%;" >
+                                    <f:convertNumber pattern="0"/> 
+                                </h:outputText>
+
+                            </p:column>
+
+                            <p:column  sortBy="#{reportsController.findMemberAccount(member.memberNumber).getDeposit()}">
+                                <f:facet name="header">Tithe</f:facet>
+                                <h:outputText value="#{reportsController.findMemberAccount(member.memberNumber).getDeposit()}" style="position: relative; left: 15%;">
+                                    <f:convertNumber pattern="0.00"/>
+                                </h:outputText>
+                            </p:column>
+
+                            <p:column sortBy="#{reportsController.findMemberAccount(member.memberNumber).getShares()}" >
+                                <f:facet name="header">Thanks Giving</f:facet>
+                                <h:outputText value="#{reportsController.findMemberAccount(member.memberNumber).getShares()}" style="position: relative; left: 15%;" >
+                                    <f:convertNumber pattern="0.00"/>
+                                </h:outputText>
+                            </p:column>
+                             <p:column  >
+                                <f:facet name="header">Total</f:facet>
+                                <h:outputText value="#{reportsController.findMemberAccount(member.memberNumber).getShares() + reportsController.findMemberAccount(member.memberNumber).getDeposit()}" style="position: relative; left: 25%;" >
+                                    <f:convertNumber pattern="0.00"/>
+                                </h:outputText>
+                            </p:column>
+                            
+                        </p:dataTable>
+                        <br/>
+                        <p:panel style="width:30%; position: relative; left: 35%" header="Export Report" rendered="#{reportsController.membersFound}" >
+                        <br/>
+                            <p:panelGrid style="position: relative; left: 10%" columns="2">
+                            
+                            <p:commandLink ajax="false"  >
+                                <h:graphicImage value="/images/excel.png"/>
+                                <p:dataExporter target="membersTBL" type="xls" fileName="members"/>
+                            </p:commandLink>  
+                                <p:commandLink rendered="false" ajax="false">
+                                <h:graphicImage value="/images/pdf.png"/>
+                                <p:dataExporter target="membersTBL" type="pdf" fileName="members" preProcessor="#{reportsController.preProcessPDF}"/>
+                            </p:commandLink>
+                         </p:panelGrid>
+                            </p:panel>
+
+                        
+                        <br/>
+
+                        <p:dataTable id="filteredMembersTBL" value="#{reportsController.reportMemberAccountsDM}" var="saccoMember" paginator="true"
+                                     paginatorAlwaysVisible="false" emptyMessage="No results found" rows="20" rendered="#{reportsController.showFilterReport}">
+                            <f:facet name="header">Members Report</f:facet>
+
+                            <p:column >
+                                <f:facet name="header">Number</f:facet>
+                                <h:outputText value="#{saccoMember.memberNumber}" style="position: relative; left: 25%;" />
+                            </p:column>
+
+                            <p:column >
+                                <f:facet name="header">Full Name</f:facet>
+                                <h:outputText value="#{reportsController.findMember(saccoMember.memberNumber).getFullName()}" style="position: relative; left: 25%;" />
+                            </p:column>
+                            
+                            <p:column>
+                                <f:facet name="header">Registration Date</f:facet>
+                                <h:outputText value="#{reportsController.findMember(saccoMember.memberNumber).registrationDate}" style="position: relative; left: 25%;" >
+                                    <f:convertDateTime pattern="dd-MM-yyyy"/> 
+                                </h:outputText>
+
+                            </p:column>
+
+                            <p:column >
+                                <f:facet name="header">Membership(Months)</f:facet>
+                                <h:outputText value="#{reportsController.computeMembershipPeriod(saccoMember.memberNumber)}" style="position: relative; left: 25%;">
+                                    <f:convertNumber pattern="0"/> 
+                                </h:outputText>
+
+                            </p:column>
+
+                            <p:column>
+                                <f:facet name="header">Deposits</f:facet>
+                                <h:outputText value="#{saccoMember.deposit}" style="position: relative; left: 15%;" >
+                                    <f:convertNumber pattern="0.00"/>
+                                </h:outputText>
+                            </p:column>
+
+                            <p:column>
+                                <f:facet name="header">Shares</f:facet>
+                                <h:outputText value="#{saccoMember.shares}" style="position: relative; left: 15%;" >
+                                    <f:convertNumber pattern="0.00"/>
+                                </h:outputText>
+                            </p:column>
+                            
+                             <p:column>
+                                <f:facet name="header">Total</f:facet>
+                                <h:outputText value="#{saccoMember.shares + saccoMember.deposit}" style="position: relative; left: 15%;" >
+                                    <f:convertNumber pattern="0.00"/>
+                                </h:outputText>
+                            </p:column>
+                        </p:dataTable>
+                        
+                        <br/>
+                        <p:panel style="width:30%; position: relative; left: 35%" header="Export Report" rendered="#{reportsController.showFilterReport}">
+                        <br/>
+                            <p:panelGrid style="position: relative; left: 10%" columns="2" rendered="#{reportsController.showFilterReport}">
+                            
+                            <p:commandLink ajax="false"  >
+                                <h:graphicImage value="/images/excel.png"/>
+                                <p:dataExporter target="filteredMembersTBL" type="xls" fileName="members"/>
+                            </p:commandLink>  
+                            <p:commandLink ajax="false">
+                                <h:graphicImage value="/images/pdf.png"/>
+                                <p:dataExporter target="filteredMembersTBL" type="pdf" fileName="members" preProcessor="#{reportsController.preProcessPDF}"/>
+                            </p:commandLink>
+                         </p:panelGrid>
+                            </p:panel>
+                    </h:form>
+                </p:tab>
+
+               
+              
+
+            </p:tabView>
+            
+            <h:outputText rendered="#{!mainController.userLevelLogged.loadReports}"  style="font-weight: bold;font-size: 24px;color:red;position:relative;left:20%;" value="Access Denied : You do not have enough privileges to access this feature"/>
+
+        </ui:define>
+    </ui:composition>
+</html>
+

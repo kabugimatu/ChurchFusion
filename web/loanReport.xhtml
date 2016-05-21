@@ -1,0 +1,156 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:f="http://java.sun.com/jsf/core">
+    <ui:composition template="adminTemplate.xhtml">
+        <ui:define name="title"> Loan Reports</ui:define>
+        <ui:define name="scripts">
+            <script type="text/javascript">
+                function setBedCrump() {
+                    menuElement = document.getElementById("menu5");
+                    menuElement.className = "limenu select";
+
+                }
+
+            </script>
+ 
+            <style>
+
+                .ui-growl
+                {
+
+                    top: 270px;
+                }
+                .ui-datatable thead th, .ui-datatable tbody td, .ui-datatable tfoot td 
+                {
+                    white-space: normal !important;
+                }
+            </style>
+        </ui:define>
+        <ui:define name="separator">
+            
+            <span style="position:relative;font-weight:bold;font-size: 20px;">Loan Report</span><br/>
+           
+        </ui:define>
+        <ui:define name="adminContent">
+            <p:tabView rendered="#{mainController.userLevelLogged.loadReports}" id="membersReportTABS" style="width:95%; position: relative; left: 1%">
+           
+                <p:tab title="Loans">
+                    <h:form id="optionsFRM">
+                        <p:messages closable="true"/>
+                           <h:panelGrid columns="5" cellpadding="5">
+
+
+                                <h:outputLabel value="Select Report Type " for="filter"/>
+                                <h:selectOneMenu id="filterLoans" value="#{reportsController.loansReportType}" >
+                                    <p:ajax event="change" listener="#{reportsController.changeReportType}" update=":membersReportTABS:optionsFRM" />
+
+                                    <f:selectItem itemLabel="Select" itemValue="select"/>
+                                    <f:selectItem itemLabel="All Loans" itemValue="allloans"/>                                   
+                                    <f:selectItem itemLabel="All Unsettled" itemValue="unsettled"/>
+                                    <f:selectItem itemLabel="Balance Greater Than" itemValue="balancegreaterthan"/>
+                                    <f:selectItem itemLabel="Balance Less than" itemValue="balancelessthan"/>
+
+
+                                </h:selectOneMenu>
+
+                                <h:inputText size="10" value="#{reportsController.filterValue}" rendered="#{reportsController.showFilterValue}" >
+                                    <f:convertNumber pattern="0.00"/>
+                                </h:inputText>
+
+                                <p:commandButton value="View" actionListener="#{reportsController.filterLoans()}" update=":membersReportTABS:loansReportFRM, :membersReportTABS:optionsFRM"/>
+
+                            </h:panelGrid>
+                       
+                    </h:form>
+                    <br/>
+
+
+                    <h:form id="loansReportFRM">
+                        
+                        <br/>
+                     
+
+                        <p:dataTable id="allLoansTBL" value="#{reportsController.reportLoansDM}" var="loan" paginator="true"
+                                     paginatorAlwaysVisible="false" emptyMessage="No results found" rows="10" rendered="#{reportsController.showAllLoans}">
+                            <f:facet name="header">Loans report</f:facet>
+
+                            <p:column>
+                                <f:facet name="header">Loan Number</f:facet>
+                                <h:outputText value="#{loan.loanNUmber}" style="position: relative; left: 20%"/>
+                            </p:column>
+                            
+                             <p:column>
+                                <f:facet name="header">Loan Type</f:facet>
+                                <h:outputText value="#{loan.purpose}" style="position: relative; left: 20%"/>
+                            </p:column>
+
+                            <p:column>
+                                <f:facet name="header">Member Name</f:facet>
+                                <h:outputText value="#{reportsController.findMember(loan.memberNumber).getFullName()}" style="position: relative; left: 10%"/>
+                            </p:column>
+
+                            <p:column>
+                                <f:facet name="header">Member Number</f:facet>
+                                <h:outputText value="#{loan.memberNumber}" style="position: relative; left: 25%"/>
+                            </p:column>
+
+                            <p:column sortBy="#{loan.approvedAmount}">
+                                <f:facet name="header">Loan Value</f:facet>
+                                <h:outputText value="#{loan.approvedAmount}" style="position: relative; left: 25%">
+                                    <f:convertNumber pattern="0.00"/>
+                                </h:outputText>
+                            </p:column>
+
+                            <p:column>
+                                <f:facet name="header">Amount Paid</f:facet>
+                                <h:outputText value="#{loan.principalPaid + loan.interestPaid}" style="position: relative; left: 25%">
+                                    <f:convertNumber pattern="0.00"/>
+                                </h:outputText>
+                            </p:column>
+
+                            <p:column sortBy="#{loan.balance}">
+                                <f:facet name="header">Balance</f:facet>
+                                <h:outputText value="#{loan.balance}" style="position: relative; left: 25%">
+                                    <f:convertNumber pattern="0.00"/>
+                                </h:outputText>
+                            </p:column>
+                            <p:columnGroup type="footer">
+                                <p:row>
+                                    <p:column colspan="6" footerText="Total" style="text-align: left"/>
+                                    <p:column footerText="#{reportsController.totalLoanBalance}" />
+                                </p:row>
+                            </p:columnGroup>
+                        </p:dataTable>
+                        <p:panel style="width:30%; position: relative; left: 35%" header="Export Report" rendered="#{reportsController.showAllLoans}">
+                        <br/>
+                            <p:panelGrid style="position: relative; left: 10%" columns="2" >
+                            
+                            <p:commandLink ajax="false"  >
+                                <h:graphicImage value="/images/excel.png"/>
+                                <p:dataExporter target="allLoansTBL" type="xls" fileName="memberLoans"/>
+                            </p:commandLink>  
+                            <p:commandLink ajax="false">
+                                <h:graphicImage value="/images/pdf.png"/>
+                                <p:dataExporter target="allLoansTBL" type="pdf" fileName="memberLoans" preProcessor="#{reportsController.preProcessPDF}"/>
+                            </p:commandLink>
+                         </p:panelGrid>
+                            </p:panel>
+
+                    </h:form>
+                </p:tab>
+   
+               
+              
+
+            </p:tabView>
+            
+            <h:outputText rendered="#{!mainController.userLevelLogged.loadReports}"  style="font-weight: bold;font-size: 24px;color:red;position:relative;left:20%;" value="Access Denied : You do not have enough privileges to access this feature"/>
+
+        </ui:define>
+    </ui:composition>
+</html>
+

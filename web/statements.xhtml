@@ -1,0 +1,332 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:f="http://java.sun.com/jsf/core">
+    <ui:composition template="adminTemplate.xhtml">
+
+        <ui:define name="title">Statements</ui:define>
+        <ui:define name="scripts">
+             
+            <style type="text/css">
+                .ui-growl
+                {
+                    top: 100px;
+                }
+            </style>
+        </ui:define>
+        <ui:define name="separator">
+           
+             <span style="position:relative;font-weight:bold;font-size: 18px;">Member Statements</span>
+            
+        </ui:define>
+        <ui:define name="adminContent">
+           
+            <p:tabView id="statementsTABS">
+                <p:tab title="Tithes &amp; Thanks giving">
+                    <h:form id="searchFRM" >
+                        <p:messages  closable="true" />
+                        <h:panelGrid columns="5" cellpadding="5"  >
+                            <h:outputLabel value="Search member " for="search" style="font-weight: bold; font-size: 20px; "/>
+                            <p:inputText id="search" size="30" value="#{reportsController.searchCriteria}"/>
+
+                            <p:commandButton id="cmdSearch" value="Search" actionListener="#{reportsController.searchMember()}" update=":statementsTABS:searchFRM, :statementsTABS:contributionFRM"/>
+                        </h:panelGrid>
+                        <p:watermark value="member number , id number or tel" for="search"/>
+                        <p:blockUI trigger="cmdSearch" block=":statementsTABS:searchFRM">
+                            <p:graphicImage value="/images/ajax-loader.gif"/>
+                        </p:blockUI>
+                    </h:form>
+
+                    <h:form id="contributionFRM"  >                       
+                        <h:panelGrid columns="5" cellpadding="3" rendered="#{reportsController.dbMemberFound}" style="font-size: 14px;" >
+                            <p:growl life="8000"/>
+                            <h:outputLabel value="Member Name  " for="name"/>
+                            <h:outputText id="name" value="#{reportsController.dbMember.fullName}" />
+
+                            <h:outputLabel value="Member Number  " for="mNumber" style="margin-left:30px;"/>
+                            <h:outputText id="mNumber" value="#{reportsController.dbMember.memberNumber}" />
+                        </h:panelGrid> 
+
+                        <h:panelGrid columns="10" id="reportOptionsPNL" rendered="#{reportsController.dbMemberFound}" cellpadding="5" >
+                            <h:outputLabel value="Report Type" for="reportType"/>
+                            <h:selectOneMenu id="reportType" value="#{reportsController.filterReportType}">
+                                <p:ajax event="change" listener="#{reportsController.onChangeReportType()}" update="reportOptionsPNL"/>
+                                <f:selectItem itemLabel="Select" itemValue="select"/>
+                                <f:selectItem itemLabel="Monthly" itemValue="monthly"/>
+                                <f:selectItem itemLabel="Date Range" itemValue="daterange"/>
+                            </h:selectOneMenu>
+
+                            <h:outputLabel rendered="#{reportsController.showMonthlyReport eq true}"  for="monthMenu" value="Select Month"/>
+                            <h:selectOneMenu rendered="#{reportsController.showMonthlyReport eq true}"  id="monthMenu" value="#{reportsController.month}" >
+                                <f:selectItem itemLabel="Select Month" itemValue="0"/>
+                                <f:selectItem itemLabel="January" itemValue="01"/>
+                                <f:selectItem itemLabel="February" itemValue="02"/>
+                                <f:selectItem itemLabel="March" itemValue="03"/>
+                                <f:selectItem itemLabel="April" itemValue="04"/>
+                                <f:selectItem itemLabel="May" itemValue="05"/>
+                                <f:selectItem itemLabel="June" itemValue="06"/>
+                                <f:selectItem itemLabel="July" itemValue="07"/>
+                                <f:selectItem itemLabel="August" itemValue="08"/>
+                                <f:selectItem itemLabel="September" itemValue="09"/>
+                                <f:selectItem itemLabel="October" itemValue="10"/>
+                                <f:selectItem itemLabel="November" itemValue="11"/>
+                                <f:selectItem itemLabel="December" itemValue="12"/>
+                            </h:selectOneMenu>
+
+                            <h:outputLabel rendered="#{reportsController.showMonthlyReport eq true}" for="yearMenu" value="Select Year"/>
+                            <h:selectOneMenu rendered="#{reportsController.showMonthlyReport eq true}" id="yearMenu" value="#{reportsController.year}" >
+                                <f:selectItems value="#{reportsController.genYears()}" var="year" itemLabel="#{year}" itemValue="#{year}"/>
+                            </h:selectOneMenu>
+
+                            <h:outputLabel rendered="#{reportsController.showDateRangeReport eq true}" value="From" for="rptFrom"/>
+                            <p:calendar rendered="#{reportsController.showDateRangeReport eq true}" id="rptFrom" value="#{reportsController.statementFromDate}" pattern="dd-MM-yyyy"/>
+
+                            <h:outputLabel rendered="#{reportsController.showDateRangeReport eq true}" value="To" for="rptTo"/>
+                            <p:calendar rendered="#{reportsController.showDateRangeReport eq true}" id="rptTo" value="#{reportsController.statementToDate}" pattern="dd-MM-yyyy"/>
+
+
+
+                            <p:commandButton id="genCont" value="Generate"   actionListener="#{reportsController.generateStatement()}" update=":statementsTABS:contributionFRM, :statementsTABS:contributionFRM:contributionsTBL"/>
+                            <p:blockUI trigger="genCont" block=":statementsTABS:contributionFRM">
+                                <p:graphicImage value="/images/ajax-loader.gif"/>
+                            </p:blockUI>
+                        </h:panelGrid>
+
+                        <div style="clear: both"/>
+
+                        <p:commandButton ajax="false" value="Print Report"  style="position: relative; left: 88%" rendered="#{reportsController.contributionsDM.rowCount>0}">
+                        <p:dataExporter target="contributionsTBL" type="xls" fileName="#{reportsController.dbMember.fullName}_Statement"/>
+                        </p:commandButton>
+                        <br/>
+                        
+                        <br/>
+                        <p:dataTable id="contributionsTBL" value="#{reportsController.contributionsDM}" var="contribution" rendered="#{reportsController.dbMemberFound}" paginator="true" rows="15" paginatorAlwaysVisible="false" emptyMessage="No contributions">
+                            <f:facet name="header">Contribution</f:facet>
+
+                            
+
+                            <p:column >
+                                <f:facet name="header">Date</f:facet>
+                                <h:outputText value="#{contribution.contributionDate}" style="position: relative; left: 25%;">
+                                    <f:convertDateTime pattern="dd-MM-yyyy hh:mm"/>
+                                </h:outputText>
+                            </p:column>
+
+                            <p:column >
+                                 <f:facet name="header">Tithe</f:facet>
+                                <h:outputText value="#{contribution.deposit}" style="position: relative; left: 30%;">
+                                    <f:convertNumber pattern="0.00"/> 
+                                </h:outputText>
+                            </p:column>
+
+                            <p:column >
+                                 <f:facet name="header">Thanks Giving</f:facet>
+                                <h:outputText value="#{contribution.shares}" style="position: relative; left: 30%;">
+                                    <f:convertNumber pattern="0.00"/>
+                                </h:outputText>
+                            </p:column>
+
+                          
+                            <p:column >
+                                 <f:facet name="header">Total</f:facet>
+                                <h:outputText value="#{contribution.shares + contribution.deposit + contribution.benevolent}" style="position: relative; left: 30%;">
+                                    <f:convertNumber pattern="0.00"/>
+                                </h:outputText>
+                            </p:column>
+
+                            <p:column exportable="false" headerText="Operations" style="width:10%" >
+                                <p:commandLink value="Print" style="margin-left: 20%; color: green; font-weight: bold;" 
+                                               actionListener="#{reportsController.selectContribution()}" oncomplete="reprintDLG.show()" update=":statementsTABS:reprintFRM"/>
+                            </p:column>
+                            
+                            <p:columnGroup type="footer">
+                                <p:row>
+                                    <p:column footerText="Total" colspan="1" style="text-align: left;"/>
+                                    <p:column footerText="#{reportsController.depositTotal}" />                                      
+                                    <p:column footerText="#{reportsController.shareTotal}" />                                                                                                                                               
+                                    <p:column footerText="#{reportsController.grandTotal}" />                                                                            
+                                    <p:column/>
+                                </p:row>
+                            </p:columnGroup>
+                        </p:dataTable>
+                        <br/>
+                        
+                        <p:blockUI trigger="contributionsTBL" block=":statementsTABS:contributionFRM:contributionsTBL">
+                            <p:graphicImage value="/images/ajax-loader.gif"/>
+                        </p:blockUI>
+                    </h:form>    
+
+
+                    <p:dialog widgetVar="printersDLG" id="printers" modal="true" header="Select printer" resizable="false">
+                        <h:form id="printersFRM">
+                            <h:panelGrid columns="2" cellpadding="5" style="position:relative;left:0%;" >
+                                <h:outputLabel value="Select Printer" for="printers" />
+                                <h:selectOneMenu id="printers" value="#{reportsController.serviceName}">                          
+                                    <f:selectItems value="#{reportsController.printServices}" var="pService" itemLabel="#{pService.name}" itemValue="#{pService}"/>
+                                </h:selectOneMenu>                                
+                            </h:panelGrid>
+                            <br/>
+                            <h:panelGrid columns="2" cellpadding="5" style="position:relative;left:30%;" >
+                                <p:commandButton id="printCMD" value="Print" actionListener="#{reportsController.printStatements()}" oncomplete="printersDLG.hide()" style="margin-right:15px;"/>
+                                <p:commandButton value="Cancel" onclick="printersDLG.hide();"/>
+                            </h:panelGrid>
+
+                            <p:blockUI trigger="printCMD" block="printersFRM">
+                                <p:graphicImage value="/images/ajax-loader.gif"/>
+
+                            </p:blockUI>
+                        </h:form>
+                    </p:dialog>
+
+
+                    <p:dialog widgetVar="reprintDLG"  modal="true" header="Select printer" resizable="false">
+                        <h:form id="reprintFRM">
+                            <h:panelGrid columns="2" cellpadding="5" style="position:relative;left:0%;" >
+                                <h:outputLabel value="Select Printer" for="printers" />
+                                <h:selectOneMenu id="printers" value="#{reportsController.serviceName}">                          
+                                    <f:selectItems value="#{reportsController.printServices}" var="pService" itemLabel="#{pService.name}" itemValue="#{pService}"/>
+                                </h:selectOneMenu>                                
+                            </h:panelGrid>
+                            <br/>
+                            <h:panelGrid columns="2" cellpadding="5" style="position:relative;left:30%;" >
+                                <p:commandButton id="printCMD" value="Print" actionListener="#{reportsController.reprintStatement()}" oncomplete="reprintDLG.hide()" style="margin-right:15px;"/>
+                                <p:commandButton value="Cancel" onclick="reprintDLG.hide();"/>
+                            </h:panelGrid>
+
+                            <p:blockUI trigger="printCMD" block="reprintFRM">
+                                <p:graphicImage value="/images/ajax-loader.gif"/>
+
+                            </p:blockUI>
+                        </h:form>
+                    </p:dialog>
+
+                </p:tab>
+
+                <p:tab rendered="false" title="Loans">
+                    <h:form id="searchLoan">
+                        <p:messages closable="true" />
+                        <h:panelGrid columns="4" cellpadding="5"  >
+                            <h:outputLabel value="Search member " for="search" style="font-weight: bold; font-size: 20px; "/>
+
+                            <p:inputText id="search" size="30" value="#{reportsController.searchCriteria}" />
+
+                            <p:commandButton value="Search" actionListener="#{reportsController.searchMemberLoans()}" update=":statementsTABS:searchLoan, :statementsTABS:loansFRM, :statementsTABS:loansFRM:loanContributionsTBL"/>
+                            <p:blockUI trigger="search" block=":statementsTABS:searchLoan">
+                                <p:graphicImage value="/images/ajax-loader.gif"/>
+                            </p:blockUI>
+
+                        </h:panelGrid>
+                        <p:watermark value="member number , id number or tel" for="search"/>
+                    </h:form>
+
+                    <h:form id="loansFRM"  >
+                        <br/>
+                        <h:panelGrid columns="5" cellpadding="5" rendered="#{reportsController.dbMemberFound}" style="float: left; font-size: 14px;" >
+                            <p:growl life="8000"/> 
+                            <h:outputLabel value="Name  " for="name"/>
+                            <h:outputText id="name" value="#{reportsController.dbMember.fullName}"/>
+
+                            <h:outputLabel value="Number  " for="mNumber"/>
+                            <h:outputText id="mNumber" value="#{reportsController.dbMember.memberNumber}"/>
+                        </h:panelGrid> 
+                        <br/>
+                        <div style="clear: both"/>
+                        <br/>
+                        <h:panelGrid columns="3" style="position: relative; left: 2%;" rendered="#{reportsController.memberLoans.size() > 1 and reportsController.dbMemberFound}">
+                            <h:outputLabel value="Select Loan" for="loans"/>
+                            <h:selectOneMenu id="loans" value="#{reportsController.loanNumber}">
+                                <p:ajax event="change" listener="#{reportsController.onSelectLoan()}" update=":statementsTABS:loansFRM:loanContributionsTBL"/>
+                                <f:selectItem itemLabel="Select" itemValue="select"/>
+                                <f:selectItems value="#{reportsController.memberLoans}" var="loan" id="loanChange" itemLabel="#{loan.loanNUmber}" itemValue="#{loan.loanNUmber}"/>
+                            </h:selectOneMenu>
+                            <p:blockUI trigger="loanChange" block=":statementsTABS:loansFRM:loanContributionsTBL">
+                                <p:graphicImage value="/images/ajax-loader.gif"/>
+                            </p:blockUI>
+                        </h:panelGrid>
+
+                        <p:commandButton value="Print" onclick="printersDLGLoan.show();" rendered="#{reportsController.loanContributionDM.rowCount>0}" style="position: relative; left: 80%"/>
+                        <br/><br/>
+                        <p:dataTable id="loanContributionsTBL" value="#{reportsController.loanContributionDM}" var="contribution" rendered="#{reportsController.dbMemberFound}" paginator="true" rows="24" paginatorAlwaysVisible="false" emptyMessage="No contributions">
+                            <f:facet name="header">#{reportsController.loanNumber} ::  Applied Amount -- #{reportsController.currentLoan.appliedAmount} </f:facet>
+                            <p:column sortBy="#{contribution.contributionDate}" headerText="Date">
+                                <h:outputText value="#{contribution.contributionDate}" style="position: relative; left: 25%;">
+                                    <f:convertDateTime pattern="yyyy-MM-dd"/>
+                                </h:outputText>
+                            </p:column>
+
+                            <p:column headerText="Loan Balance" >
+                                <h:outputText value="#{contribution.previousBalance}" style="position: relative; left: 35%;">
+                                    <f:convertNumber pattern="00.00"/> 
+                                </h:outputText>
+                            </p:column>
+                            <p:column headerText="Amount Paid" >
+                                <h:outputText value="#{contribution.loanInterest + contribution.loanPrincipal }" style="position: relative; left: 35%;">
+                                    <f:convertNumber pattern="00.00"/> 
+                                </h:outputText>
+                            </p:column>
+
+                            <p:column headerText="Principal" rendered="#{reportsController.dbMember.memberLoans.size()>0}">
+                                <h:outputText value="#{contribution.loanPrincipal}" style="position: relative; left: 35%;">
+                                    <f:convertNumber pattern="00.00"/> 
+                                </h:outputText>
+                            </p:column>
+
+                            <p:column headerText="Interest" rendered="#{reportsController.dbMember.memberLoans.size()>0}">
+                                <h:outputText value="#{contribution.loanInterest}" style="position: relative; left: 35%;">
+                                    <f:convertNumber pattern="00.00"/>
+                                </h:outputText>
+                            </p:column>
+
+
+                            <p:column  headerText="Balance">
+                                <h:outputText  value="#{contribution.previousBalance  - (contribution.loanPrincipal + contribution.loanInterest) }"  style="position: relative; left: 35%;">
+                                    <f:convertNumber pattern="00.00"/>
+                                </h:outputText>
+                            </p:column>
+
+
+
+                            <p:columnGroup type="footer">
+                                <p:row>
+                                    <p:column colspan="3" footerText="Totals"/>
+                                    <p:column colspan="1" footerText="#{reportsController.principalTotal}"/>    
+                                    <p:column colspan="1" footerText="#{reportsController.interestTotal}" />
+                                    <p:column colspan="1" footerText=""/>
+                                </p:row>
+                            </p:columnGroup>  
+
+
+                        </p:dataTable>
+                    </h:form>
+
+                    <p:dialog widgetVar="printersDLGLoan" id="printersLoan" modal="true" header="Select printer" resizable="false">
+                        <h:form id="printersFRMLoan">
+                            <h:panelGrid columns="2" cellpadding="5" style="position:relative;left:0%;" >
+                                <h:outputLabel value="Select Printer" for="printers" />
+                                <h:selectOneMenu id="printers" value="#{reportsController.serviceName}">                          
+                                    <f:selectItems value="#{reportsController.printServices}" var="pService" itemLabel="#{pService.name}" itemValue="#{pService}"/>
+                                </h:selectOneMenu>                                
+                            </h:panelGrid>
+                            <br/>
+                            <h:panelGrid columns="2" cellpadding="5" style="position:relative;left:30%;" >
+                                <p:commandButton id="printCMDLoan" value="Print" actionListener="#{reportsController.printLoanStatements()}" oncomplete="printersDLGLoan.hide()" style="margin-right:15px;"/>
+                                <p:commandButton value="Cancel" onclick="printersDLGLoan.hide();"/>
+                            </h:panelGrid>
+
+                            <p:blockUI trigger="printCMDLoan" block="printersFRMLoan">
+                                <p:graphicImage value="/images/ajax-loader.gif"/>
+
+                            </p:blockUI>
+                        </h:form>
+                    </p:dialog>
+
+
+                </p:tab>
+            </p:tabView>
+        </ui:define>
+    </ui:composition>
+</html>
+

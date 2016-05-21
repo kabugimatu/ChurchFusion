@@ -1,0 +1,142 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:f="http://java.sun.com/jsf/core">
+    <h:head>
+         
+        <title>
+            SACCO FUSION - SYSTEM ACTIVATION
+        </title>
+
+        <link rel="shortcut icon" type="image/ico" href="images/favicon2.html" />     
+        <link rel="stylesheet" type="text/css" href="css/style.css"/>
+        <link rel="stylesheet" type="text/css" href="css/jqueryCSS.css"/>
+
+        <script type="text/javascript" src="js/jquery.cookie.js"/>
+
+        <script type="text/javascript">
+            function  setBedCrump(){
+                 function setBedCrump() {
+                    menuElement = document.getElementById("menu1");
+                    menuElement.className = "limenu select";
+
+                }
+            }
+        </script>
+
+    </h:head>
+    <h:body class="dashborad"  onload="setBedCrump();">
+
+        <div id="header" >
+
+        </div> <!--//  header -->
+        <div id="shadowhead"></div>
+        <div id="hide_panel"> 
+            <a class="butAcc" rel="0" id="show_menu"></a>
+            <a class="butAcc" rel="1" id="hide_menu"></a>
+            <a class="butAcc" rel="0" id="show_menu_icon"></a>
+            <a class="butAcc" rel="1" id="hide_menu_icon"></a>
+        </div>           
+
+        <div id="left_menu">
+            <h:form>
+                <ul id="main_menu" class="main_menu">
+
+
+
+                    <li class="limenu" id="menu1" >
+                        <a href="activation.xhtml"><span class="ico gray shadow stats_lines"></span><b>System Activation</b> </a>
+
+                    </li>
+
+
+
+                </ul>
+            </h:form>
+        </div>
+
+
+        <div id="content" >
+            <div class="inner" style=" min-height: 550px;">
+             
+
+
+
+
+
+                <div class="clear"></div>
+                <br/><br/>
+                <span style="position:relative;font-weight:bold;font-size: 15px;">Activate Sacco Fusion</span><br/><br/>
+            <p:separator id="separator"/> <br/>
+           
+             <p:dialog width="400" id="genDLG" widgetVar="codeDLG" resizable="false" modal="true" header="Enter Service Code">
+                <h:form id="actFRM">
+                    <p:messages/>
+                    
+                    <h:panelGrid columns="2" cellpadding="5" rendered="#{settingsController.activated}">
+                       <br/>
+                        <h:outputText value="Your copy of Sacco Fusion has been activated. Click on the OKAY button to start using the Sacco Fusion"/>
+                        <br/>
+                        <p:commandButton value="OKAY" style="position: relative; left: 35%;" action="index.xhtml" ajax="false"/>
+                    </h:panelGrid>
+                    
+                    
+                    <h:outputText rendered="#{!settingsController.activated}" value="Please enter your service code. Call 0710631237 or 0717166609 to get this code." />
+                    <br/><br/>
+                    <h:panelGrid rendered="#{!settingsController.activated}" columns="2" >
+                        <h:outputLabel for="servCode" value="SERVICE CODE"/><h:inputText id="servCode" value="#{settingsController.inputCode}" required="true" requiredMessage="Input service code." size="35"/>
+                    </h:panelGrid><br/>
+                    
+                    <p:commandButton rendered="#{!settingsController.activated}" style="position: relative;left: 35%;" id="cmdComplete" value="COMPLETE ACTIVATION" actionListener="#{settingsController.activateSystem()}" process="@form" update="actFRM,:activateFRM"/><br/><br/>
+               <p:blockUI trigger="cmdComplete" block="actFRM">
+                    <p:graphicImage value="/images/ajax-loader.gif"/>
+                </p:blockUI>
+                
+                </h:form>
+                
+            </p:dialog>
+            
+            
+            <p style="font-size: 15px;font-weight: bold;">Please make sure you are connected to the Internet before activating Sacco Fusion. Reload after connection.</p>   
+            <h:form id="activateFRM" style="margin-left: 0%;font-size: 15px;">
+                <p:fieldset legend="Sacco Details">
+                    <h:panelGrid columns="2" cellpadding="5" style="margin-left: 10%;">
+                    <h:outputLabel for="sName" value="Sacco Name"/><h:outputText id="sName" value="#{settingsController.saccoDetails.name}"/>
+                    <h:outputLabel for="address" value="Address"/><h:outputText id="address" value="P.O BOX #{settingsController.saccoDetails.address}"/>
+                    <h:outputLabel for="email" value="E-Mail"/><h:outputText id="email" value="#{settingsController.saccoDetails.email}"/>
+                    <h:outputLabel for="tel" value="Telephone"/><h:outputText id="tel" value="#{settingsController.saccoDetails.telephone}"/>
+                    
+                </h:panelGrid>   
+                </p:fieldset><br/>
+                <p:fieldset legend="License Status">
+                    
+                    <h:panelGrid columns="2" cellpadding="5" style="margin-left: 10%;">
+                        <h:outputLabel for="status" value="Status"/>
+                        <h:outputText style="color: red;" id="status" value="NOT ACTIVATED" rendered="#{!settingsController.activationStatus}"/>  
+                        <h:outputText value="ACTIVATED" style="color: green" rendered="#{settingsController.activationStatus}"/>
+                    </h:panelGrid><br/>
+                    <p:commandButton disabled="#{settingsController.activationStatus}" id="cmdActivate" style="position: relative;left:20%;" value="ACTIVATE NOW" actionListener="#{settingsController.generateServiceCode()}" update=":genDLG" oncomplete="codeDLG.show();"/>
+                    
+                </p:fieldset>
+                <p:blockUI trigger="cmdActivate" block="activateFRM">
+                    <p:graphicImage value="/images/ajax-loader.gif"/>
+                </p:blockUI>
+                    
+             </h:form>
+           
+                      
+            </div> <!--// End inner -->
+            <div id="footer" > &copy; Copyright 2013 #{settingsController.saccoDetails.name}. Powered By : 
+                <span class="tip">
+                    <a  href="http://www.pearltechnologies.co.ke" target="http://www.pearltechnologies.co.ke" title="Web &amp; Mobile Apps Developers" >PearlSoft  Technologies</a> 
+                </span> 
+            </div>
+
+        </div>
+
+    </h:body>
+</html>
+

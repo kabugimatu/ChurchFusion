@@ -1,0 +1,84 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:f="http://java.sun.com/jsf/core">
+
+    <ui:composition template="adminTemplate.xhtml">
+        <ui:define name="scripts">
+            <script type="text/javascript">
+                function setBedCrump() {
+                    menuElement = document.getElementById("menu1");
+                    menuElement.className = "limenu select";
+
+                }
+
+            </script>
+
+            <style>                 
+
+                .ui-datatable thead th, .ui-datatable tbody td, .ui-datatable tfoot td 
+                {
+                    white-space: normal !important;
+                }
+            </style>
+
+        </ui:define>
+
+        <ui:define name="topBar">
+
+        </ui:define>
+        <ui:define name="separator">
+            <span style="position:relative;font-weight:bold;font-size: 18px;">Member Contribution</span>
+        </ui:define>
+        <ui:define name="adminContent">
+            <h:form rendered="#{mainController.userLevelLogged.makeContribution}" id="searchAllFRM" >
+                <p:messages closable="true" />
+                <h:panelGrid id="searchGrid" columns="4" cellpadding="5" >
+                    <h:outputLabel value="Member / ID   Number " for="search" />
+                    <h:inputText id="search" size="30" value="#{membersController.searchAdminMember}" />
+                    <p:commandButton value="Search" process="@form" actionListener="#{membersController.searchTellerMember()}" update=":allMembersFRM,searchAllFRM"/>
+                </h:panelGrid>
+                <p:watermark value="member number or id number" for="search"/>
+            </h:form>
+            <h:form rendered="#{mainController.userLevelLogged.makeContribution}" id="allMembersFRM">
+                <br/>
+                <p:dataTable rendered="#{membersController.tellerMemberFound}" value="#{membersController.tellerMembersDM}" var="member" emptyMessage="No members yet" paginator="true" paginatorAlwaysVisible="false" rows="20">
+                    <p:column>
+                        <f:facet name="header">Member Number</f:facet>
+                        <h:outputText value="#{member.memberNumber}" style="position: relative;left:30%;"/>
+                    </p:column>
+                    <p:column>
+                        <f:facet name="header">Full Name</f:facet>
+                        <h:outputText value="#{member.fullName}" style="position: relative;left:10%; text-transform: uppercase;"/>
+                    </p:column>
+                    <p:column>
+                        <f:facet name="header">Thanksgiving(Total)</f:facet>
+                        <h:outputText style="position: relative;left:17%;" value="#{membersController.getmemberAccount(member.memberNumber).getShares()}">
+                            <f:convertNumber pattern="0.00"/>
+                        </h:outputText>
+                    </p:column>
+                    <p:column>
+                        <f:facet name="header">Tithe(Total)</f:facet>
+                        <h:outputText style="position: relative;left:20%;" value="#{membersController.getmemberAccount(member.memberNumber).getDeposit()}">
+                            <f:convertNumber pattern="0.00"/>
+                        </h:outputText>
+                    </p:column>
+                    <p:column>
+                        <f:facet name="header">Actions</f:facet>
+                        <h:outputText value="Suspended" style="color:red;position:relative;left:5%; font-weight: bold;" rendered="#{!member.memberStatus}"/>
+                        <p:commandLink   rendered="#{member.memberStatus}" ajax="false" action="#{membersController.memberContribution()}" value="Make Contribution" style="color:blue;position: relative;left:25%; font-weight: bold;"/>
+                        <p:commandLink ajax="false" action="#{membersController.viewMember()}" value="View Member" style="color:green;position: relative;left:30%; font-weight: bold; "/>
+
+                    </p:column>
+
+                </p:dataTable>
+            </h:form>
+            <h:outputText rendered="#{!mainController.userLevelLogged.makeContribution}"  style="font-weight: bold;font-size: 24px;color:red;position:relative;left:20%;" value="Access Denied : You do not have enough privileges to access this feature"/>
+
+        </ui:define>
+    </ui:composition>
+</html>
+

@@ -1,0 +1,76 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+      xmlns:f="http://java.sun.com/jsf/core"
+      xmlns:p="http://primefaces.org/ui">
+    <ui:composition template="adminTemplate.xhtml">
+         
+        <ui:define name="title">
+            Add Users
+        </ui:define>
+        <ui:define name="scripts">
+            <script type="text/javascript">
+                function setBedCrump(){
+                    menuElement = document.getElementById("menu4");
+                    menuElement.className = "limenu select";
+                    
+                }
+                
+            </script>
+        </ui:define>
+         <ui:define name="separator">
+            
+            <span style="position:relative;font-weight:bold;font-size: 15px;">Add Users</span><br/>
+           
+        </ui:define>
+        
+         <ui:define name="adminContent">
+              <h:form rendered="#{mainController.userLevelLogged.manageUsers}" style="position:relative;left:15%; width: 80%;" id="regFRM">
+                  <h:panelGrid > 
+                  <p:messages id="messages" />
+                  </h:panelGrid>
+                <h:panelGrid columns="2" cellpadding="5">
+                    <h:outputLabel for="fName" value="First Name *"/>
+                    <p:inputText size="30" id="fName" value="#{mainController.sysUser.fullName}" required="true" requiredMessage="Enter Full Name" />
+
+
+                    <h:outputLabel value="Gender *"/>
+                    <h:selectOneMenu value="#{mainController.sysUser.gender}" >                         
+                        <f:selectItem itemLabel="Select Gender" itemValue="select"/>
+                        <f:selectItem itemLabel="Male" itemValue="Male"/>
+                        <f:selectItem itemLabel="Female" itemValue="Female"/>
+                    </h:selectOneMenu>
+                    <h:outputLabel value="User Level *"/>
+                    <h:selectOneMenu value="#{mainController.sysUser.userLevelID}" >                         
+                        <f:selectItem itemLabel="Select Level" itemValue=""/>
+                       
+                        <f:selectItems value="#{mainController.userLevels}" var="uLevel" itemLabel="#{uLevel.levelname}" itemValue="#{uLevel.levelid}"/> 
+                        
+                    </h:selectOneMenu>
+                   <h:outputLabel for="idNum" value="ID Number *"/>
+                    <p:inputText size="30" id="idNum" value="#{mainController.sysUser.idNumber}" required="true" requiredMessage="Please enter ID number"  />
+                    <h:outputLabel for="tel" value="Phone Number *"/>
+                    <p:inputText size="30" id="tel" value="#{mainController.sysUser.telephone}" required="true" requiredMessage="Please enter phone number"/>
+                    <h:outputLabel for="email" value="Email Address *"/>
+                    <p:inputText size="30" id="email" value="#{mainController.sysUser.emailAddress}" required="true" requiredMessage="email address"/>
+         
+                    <h:outputLabel for="uName" value="User Name *"/><p:inputText size="30" id="uName" value="#{mainController.sysUser.userName}" required="true" requiredMessage="Please choose user name" />
+                    <h:outputLabel for="pwd" value="Password *"/><p:inputText size="30" id="pwd" type="password"  value="#{mainController.sysUser.password}" required="true" requiredMessage="Please enter password" validatorMessage="password must be at least 8 characters!"  >
+                        <f:validateLength minimum="8" />
+                        <p:ajax event="keyup" update=":regFRM:messages" />
+                    </p:inputText>
+                    <h:outputLabel for="cpwd" value="Confirm Password *"/><p:inputText size="30" id="cpwd" type="password" value="#{mainController.confirmPassword}" required="true" requiredMessage="Please repeat password"/>
+                </h:panelGrid><br/><br/>
+                <p:commandButton value="Add User" style="position:relative;left:10%;" actionListener="#{mainController.addUser()}"  process="@form" ajax="false" /> 
+                <p:commandButton value="Clear Fields" style="position:relative;left:15%;" type="reset"/>
+            </h:form> 
+             <h:outputText rendered="#{!mainController.userLevelLogged.manageUsers}"  style="font-weight: bold;font-size: 24px;color:red;position:relative;left:20%;" value="Access Denied : You do not have enough privileges to access this feature"/>
+
+            
+        </ui:define>
+        
+    </ui:composition>
+</html>
+

@@ -1,0 +1,74 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:f="http://java.sun.com/jsf/core">
+
+    <ui:composition template="adminTemplate.xhtml">
+
+        <ui:define name="title">Home</ui:define>
+
+        <ui:define name="scripts">
+            <script type="text/javascript">
+                function setBedCrump() {
+                    menuElement = document.getElementById("menu1");
+                    menuElement.className = "limenu select";
+
+                }
+
+            </script>
+        </ui:define>
+        <ui:define name="separator">
+           
+            <span style="position:relative;font-weight:bold;font-size: 15px;">Sacco Fusion - Data Import</span><br/>
+           
+        </ui:define>
+
+        <ui:define name="adminContent">
+
+      <f:event type="preRenderView" listener="#{mainController.checkMaintenance()}" />
+      
+      <p:dialog resizable="false" widgetVar="importDLG" header="Select Import File" >
+          <h:form id="importFRM" enctype="multipart/form-data">
+              <h:panelGrid cellpadding="5" columns="2">
+                  <h:outputLabel for="bImport" value="Select House"/>
+                  <h:selectOneMenu id="bImport" value="#{settingsController.branchImportID}" >
+                      <f:selectItem itemLabel="Select" itemValue=""/>
+                      <f:selectItems value="#{settingsController.allBranches}" var="branch" itemLabel="#{branch.branchname}" itemValue="#{branch.id}"/>
+                  </h:selectOneMenu>
+                  <h:outputLabel for="fileSelect" value="Select File"/><p:fileUpload allowTypes=".xls" value="#{settingsController.file}"  id="fileSelect" mode="simple"/>
+              </h:panelGrid>
+           
+              <br/>
+              <h:panelGrid style="position:relative;left:35%;" cellpadding="5" columns="2">
+                  <h:commandButton  id="cmdImport" action="#{settingsController.importMembersData()}" value="Import"/><p:commandButton type="button" onclick="importDLG.hide();" value="Cancel"/>
+              </h:panelGrid>
+              
+          </h:form>
+          
+      </p:dialog>
+      <h:form id="dataFRM">
+          <p:accordionPanel id="dataAccordion" >
+              <p:tab title="Members">
+                  <h:panelGrid columns="2">
+                      <p:commandButton type="button" ajax="false" onclick="importDLG.show();" value="Import Members"/>
+                  </h:panelGrid>
+              </p:tab>
+              
+               <p:tab title="Ledger Accounts">
+                   <p:commandButton value="Generate Ledger Accounts" update=":adminGrowl" actionListener="#{settingsController.createSaccoAccounts()}"/>
+              </p:tab>
+              
+          </p:accordionPanel>
+          
+          
+      </h:form>
+      
+      
+
+        </ui:define>
+    </ui:composition>
+</html>
+

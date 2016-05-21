@@ -1,0 +1,74 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+      xmlns:f="http://java.sun.com/jsf/core">
+    <ui:composition template="adminTemplate.xhtml">
+        
+    
+           
+        <!-- Main content -->
+       
+            
+                    <ui:define name="separator">
+                    <h1>
+                     #{props.appname}
+                        <small>Dashboard</small>
+                    </h1>
+                    </ui:define>
+                 <!--   <ol class="breadcrumb">
+                        <li><a href="#"><i class="fa fa-dashboard"></i> Home</a></li>
+                        <li class="active">Dashboard</li>
+                    </ol>-->
+                <ui:define name="adminContent">
+                    <!-- Small boxes (Stat box) -->
+                    <div class="row">
+            <div class="col-md-3 col-sm-6 col-xs-12">
+              <div class="info-box">
+                <span class="info-box-icon bg-aqua"><i class="fa fa-users"></i></span>
+                <div class="info-box-content">
+                  <span class="info-box-text">Total Members</span>
+                  <span class="info-box-number"> #{reportsController.dbMembers.size()}</span>
+                </div><!-- /.info-box-content -->
+              </div><!-- /.info-box -->
+            </div><!-- /.col -->
+            <div class="col-md-3 col-sm-6 col-xs-12">
+              <div class="info-box">
+                <span class="info-box-icon bg-green"><i class="fa fa-money"></i></span>
+                <div class="info-box-content">
+                  <span class="info-box-text">Total ThanksGiving</span>
+                  <span class="info-box-number"> 
+                      <h:outputText  value="#{reportsController.dashboardSharesTotal}">
+                       <f:convertNumber pattern="###,###,###,###,###,###" /> 
+                      </h:outputText>
+ </span>
+                </div><!-- /.info-box-content -->
+              </div><!-- /.info-box -->
+            </div><!-- /.col -->
+            <div class="col-md-3 col-sm-6 col-xs-12">
+              <div class="info-box">
+                <span class="info-box-icon bg-yellow"><i class="fa  fa-leaf"></i></span>
+                <div class="info-box-content">
+                  <span class="info-box-text">Total Tithe</span>
+                  <span class="info-box-number"> 
+                      <h:outputText   value="#{reportsController.dashboardDepositsTotal}">
+                        <f:convertNumber pattern="###,###,###,###,###,###" /> 
+                      </h:outputText>
+                  </span>
+                </div><!-- /.info-box-content -->
+              </div><!-- /.info-box -->
+            </div><!-- /.col -->
+            
+            
+          </div><!-- /.row -->  
+                    
+                    
+                   
+            
+           
+        </ui:define>
+    </ui:composition>
+   
+</html>
+

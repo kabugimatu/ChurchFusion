@@ -1,0 +1,100 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:f="http://java.sun.com/jsf/core">
+    <ui:composition template="adminTemplate.xhtml">
+         <ui:define name="scripts">
+            <script type="text/javascript">
+                function setBedCrump(){
+                    menuElement = document.getElementById("menu4");
+                    menuElement.className = "limenu select";
+                    
+                } 
+                
+            </script>
+        </ui:define>
+        <ui:define name="separator">
+
+            
+            <span style="position:relative;font-weight:bold;font-size: 15px;">All Users</span><br/>
+           
+        </ui:define>
+        <ui:define name="adminContent">
+            <p:dialog id="changePWD" widgetVar="pwdDLG" header="#{mainController.indUser.userName} | Change Password" resizable="false">
+                <h:form id="pwdFRM">
+                    <p:messages id="message"/>
+                    <h:panelGrid columns="2">
+                        <h:outputLabel for="oldPWD" value="Old Password"/><p:inputText id="oldPWD" type="password" value="#{mainController.oldPassword}" required="true" requiredMessage="Enter old password!"/>
+                        <h:outputLabel for="newPWD" value="New Password"/><p:inputText type="password" id="newPWD" value="#{mainController.newPassword}" validatorMessage="Short password" required="true" requiredMessage="Enter new password!">
+                        <f:validateLength minimum="8" />
+                        <p:ajax event="keyup" update="message" />
+                        </p:inputText>
+                    </h:panelGrid><br/>
+                    <p:commandButton value="Cancel" ajax="false" type="button" onclick="pwdDLD.hide();" />&nbsp;&nbsp;<p:commandButton value="Change Password" actionListener="#{mainController.changePassword()}" update="pwdFRM,:allUsers:messageView" oncomplete="pwdDLG.hide()"/>
+                </h:form>
+            </p:dialog>
+            <p:dialog resizable="false" id="removeDLG" widgetVar="dlgRemove" header="Alert | User Delete">
+                <h:form rendered="#{!mainController.acceptRemove}">
+                    <p:messages/>
+                </h:form>
+                 <h:form rendered="#{mainController.acceptRemove}">
+                <h:outputText value="Are you sure you want to delete this user?"/><br/><br/>
+                
+                <p:commandButton value="No" ajax="false" type="button" onclick="dlgRemove.hide()"/>&nbsp;&nbsp;<p:commandButton value="Yes" actionListener="#{mainController.removeUser()}" oncomplete="dlgRemove.hide()" update=":allUsers"/>
+                </h:form>
+            </p:dialog>
+            <p:dialog id="userEditDlg"  header="Edit User" resizable="false" modal="true" widgetVar="dlgEditUser">
+                <h:form id="editUserFRM">
+                    <h:panelGrid cellpadding="5" cellspacing="5" columns="2"   >
+                    <h:outputLabel style="font-weight:bold;font-size: 15px;" for="fName" value="Full Name"/><p:inputText id="fName" value="#{mainController.editUser.fullName}" required="true" requiredMessage="Enter Fullname"  style="margin-left: 7px;"/>
+                    <h:outputLabel style="font-weight:bold;font-size: 15px;" for="idNumber" value="Id Number"/><p:inputText id="idNumber" value="#{mainController.editUser.idNumber}" required="true" requiredMessage="Enter ID Number" style="margin-left: 7px;"/> 
+                    <h:outputLabel style="font-weight:bold;font-size: 15px;" for="tel" value="Telephone"/><p:inputText id="tel" value="#{mainController.editUser.telephone}" required="true" requiredMessage="Enter Telephone" style="margin-left: 7px;"/>
+                    <h:outputLabel style="font-weight:bold;font-size: 15px;" for="email" value="Email"/><p:inputText id="email" value="#{mainController.editUser.emailAddress}" required="true" requiredMessage="Enter email address" style="margin-left: 7px;"/> 
+                    <h:outputLabel value="User Level *"/>
+                    <h:selectOneMenu value="#{mainController.editUser.userLevelID}" >                         
+                        <f:selectItem itemLabel="Select Level" itemValue=""/>
+                        
+                        <f:selectItems value="#{mainController.userLevels}" var="uLevel" itemLabel="#{uLevel.levelname}" itemValue="#{uLevel.levelid}"/> 
+                        
+                    </h:selectOneMenu>   
+                </h:panelGrid>
+                <br/>
+                <h:panelGrid cellpadding="5" style="position: relative;left:25%;" columns="2">
+                    <p:commandButton value="Update" actionListener="#{mainController.updateUser()}" update="editUserFRM,:allUsers"/>
+                    <p:commandButton value="Cancel" type="button" ajax="false" onclick="dlgEditUser.hide()"/>
+                </h:panelGrid>
+                </h:form>
+            </p:dialog>
+            <h:form rendered="#{mainController.userLevelLogged.manageUsers}" id="allUsers">
+                <p:messages id="messageView"/>
+                <p:dataTable emptyMessage="No Users added yet!" value="#{mainController.sysUsersDM}" var="sysUser" resizableColumns="true" paginator="true" paginatorAlwaysVisible="false" rows="7">
+                <p:column headerText="User Name">
+                    <h:outputText value="#{sysUser.userName}"/>
+                </p:column>
+                <p:column headerText="Full Name">
+                    <h:outputText value="#{sysUser.fullName}"/>
+                </p:column>
+                <p:column headerText="Telephone">
+                    <h:outputText value="#{sysUser.telephone}"/>
+                </p:column>
+                  <p:column headerText="User Level">
+                      <h:outputText value="#{sysUser.userDomain}"/>
+                </p:column>
+               
+                <p:column headerText="Actions" style="width:45%;">
+                    <p:commandLink value="More Details" style="color: green;position: relative;left:15%;" ajax="false" action="#{mainController.viewUser()}"/>
+                    <p:commandLink value="Edit User" style="color: blue;;position: relative;left:20%;"  actionListener="#{mainController.loadEditUser()}"/>
+                    <p:commandLink  value="Change Password" style="color: violet;position: relative;left:25%;" oncomplete="pwdDLG.show()" actionListener="#{mainController.changePasswordDLG()}" update=":changePWD"/>
+                    <p:commandLink value="Remove " style="color: red;position: relative;left:30%;" rendered="#{mainController.userLogged.userName != sysUser.userName}" actionListener="#{mainController.removeDLG()}" update=":removeDLG" oncomplete="dlgRemove.show()"/>
+                </p:column>
+            </p:dataTable>
+            </h:form>
+            <h:outputText rendered="#{!mainController.userLevelLogged.manageUsers}"  style="font-weight: bold;font-size: 24px;color:red;position:relative;left:20%;" value="Access Denied : You do not have enough privileges to access this feature"/>
+
+        </ui:define>
+    </ui:composition>
+</html>
+

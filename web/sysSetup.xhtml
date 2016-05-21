@@ -1,0 +1,106 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+      xmlns:f="http://java.sun.com/jsf/core">
+    <ui:composition template="setup.xhtml">
+        <ui:define name="separator">
+             <br/>
+            <br/>
+            <span style="position:relative;font-weight:bold;font-size: 15px;">System Setup - Church Details</span><br/><br/>
+            <p:separator id="separator"/> <br/>
+        </ui:define>
+        <ui:define name="setupContent">
+            <p:dialog header="System Setup" resizable="false" modal="true" id="confirmDLG" widgetVar="dlgConfirm">
+                <h:form id="saccoFRM">
+                    <p:messages />
+                    <h:panelGrid columns="2" style="position:relative;left:1%;">
+                        <h:outputLabel rendered="#{settingsController.clientAdd and !settingsController.alreadyAuth}" for="servCode" value="Service Code"/>
+                        <h:inputText id="servCode" value="#{settingsController.inputCode}" size="35" requiredMessage="Please enter service Code." required="true" rendered="#{settingsController.clientAdd and !settingsController.alreadyAuth}"/>
+                    </h:panelGrid><br/>
+                    <p:commandButton id="cmdAuth" rendered="#{settingsController.clientAdd and !settingsController.alreadyAuth}" style="position:relative;left:30%;" value="Authenticate"  actionListener="#{settingsController.saveSyncSaccoDetails()}" update="saccoFRM"/>
+                    <p:commandButton rendered="#{!settingsController.alreadyAuth}" style="position:relative;left:35%;" value="Cancel" type="button" ajax="false" onclick="dlgConfirm.hide();"/>
+                    <p:commandButton rendered="#{settingsController.alreadyAuth}" action="#{settingsController.skipAuthentication()}" style="position:relative;left:35%;" value="Continue" ajax="false"/>
+                    <p:blockUI trigger="cmdAuth" block="saccoFRM">
+                        <p:graphicImage value="/images/ajax-loader.gif"/>
+                    </p:blockUI>
+                </h:form>
+                  
+            </p:dialog>
+            <h:form style="position:relative;left:10%;width: 80%;margin-top: 5%;" id="setupFRM" enctype="multipart/form-data" >
+                        <p:messages   id="messages" closable="true" />
+                        <h:panelGrid columns="2" cellpadding="5" style="margin-left: 150px;">
+                            <h:outputLabel value="Church Name *" for="saccoName"/>
+                            <h:inputText id="saccoName" value="#{settingsController.newSacco.name}" size="30" required="true"  requiredMessage="Enter Church Name" label="Sacco name">
+                                <p:ajax event="keyup" process="@this, saccoName" listener="#{settingsController.validateSaccoName(settingsController.newSacco.name)}" update=":setupFRM:messages"/>
+                            </h:inputText>
+                            
+                            <h:outputLabel value="Address *" for="address"/>
+                            <h:inputText id="address" value="#{settingsController.newSacco.address}" required="true" requiredMessage="Enter Church Address" />
+                            
+                            <h:outputLabel value="Telephone *" for="tel"/>
+                            <h:inputText id="tel" value="#{settingsController.newSacco.telephone}" required="true" requiredMessage="Enter Sacco telephone" label="Telephone" >
+                                <p:ajax event="keyup" process="@this, tel" listener="#{settingsController.validateTel(settingsController.newSacco.telephone)}" update=":setupFRM:messages"/>
+                            </h:inputText>
+                            
+                            <h:outputLabel value="Email Address *" for="email"/>
+                            <h:inputText id="email" size="35" value="#{settingsController.newSacco.email}" required="true" requiredMessage="Enter email address"/>
+                            
+                           <h:outputLabel for="county" value="County"/>
+                     <h:selectOneMenu id="county" style="margin-left: 10px;" value="#{settingsController.newSacco.county}" required="true" requiredMessage="Enter county">
+                        <f:selectItem itemLabel="Select County" itemValue="select"/>                       
+                        <f:selectItem itemLabel="Bungoma" itemValue="Bungoma" />
+                        <f:selectItem itemLabel="Busia" itemValue="Busia" />
+                        <f:selectItem itemLabel="Bomet" itemValue="Bomet"/>
+                        <f:selectItem itemLabel="Elgeyo Marakwet" itemValue="Elgeyo Marakwet"/>
+                        <f:selectItem itemLabel="Embu" itemValue="Embu"/>
+                        <f:selectItem itemLabel="Garrisa" itemValue="Garrisa"/>
+                        <f:selectItem itemLabel="Isiolo" itemValue="Isiolo"/>
+                        <f:selectItem itemLabel="Homabay" itemValue="Homabay"/>
+                        <f:selectItem itemLabel="Kajiado" itemValue="Kajiado"/>
+                        <f:selectItem itemLabel="Kakamega" itemValue="Kakamega"/>
+                        <f:selectItem itemLabel="Kericho" itemValue="Kericho"/>
+                        <f:selectItem itemLabel="Kiambu" itemValue="Kiambu"/>
+                        <f:selectItem itemLabel="Kilifi" itemValue="Kilifi"/>
+                        <f:selectItem itemLabel="Kisii" itemValue="Kisii"/>
+                        <f:selectItem itemLabel="Kisumu" itemValue="Kisumu"/>
+                        <f:selectItem itemLabel="Kirinyaga" itemValue="Kirinyaga"/>
+                        <f:selectItem itemLabel="Kitui" itemValue="Kitui"/>
+                        <f:selectItem itemLabel="Kwale" itemValue="Kwale"/>
+                        <f:selectItem itemLabel="Lamu" itemValue="Lamu"/>
+                        <f:selectItem itemLabel="Laikipia" itemValue="Laikipia"/>
+                        <f:selectItem itemLabel="Machakos" itemValue="Machakos"/>
+                        <f:selectItem itemLabel="Makueni" itemValue="Makueni"/>
+                        <f:selectItem itemLabel="Mandera" itemValue="Mandera"/>
+                        <f:selectItem itemLabel="Marsabit" itemValue="Marsabit"/>
+                        <f:selectItem itemLabel="Meru" itemValue="Meru"/>
+                        <f:selectItem itemLabel="Mombasa" itemValue="Mombasa"/>
+                        <f:selectItem itemLabel="Muranga" itemValue="Muranga"/>
+                        <f:selectItem itemLabel="Nairobi" itemValue="Nairobi"/>
+                        <f:selectItem itemLabel="Nakuru" itemValue="Nakuru"/>
+                        <f:selectItem itemLabel="Nandi" itemValue="Nandi"/>
+                        <f:selectItem itemLabel="Narok" itemValue="Narok"/>
+                        <f:selectItem itemLabel="Nyamira" itemValue="Nyamira"/>
+                        <f:selectItem itemLabel="Nyandarua" itemValue="Nyandarua"/>
+                        <f:selectItem itemLabel="Nyeri" itemValue="Nyeri"/>
+                        <f:selectItem itemLabel="Siaya" itemValue="Siaya"/>
+                    </h:selectOneMenu>
+                            </h:panelGrid>
+                        <br/>
+                            <h:panelGrid columns="2"  style="position: relative;left:25%;">   
+                                <p:commandButton id="cmdSubmit" value="Submit"  actionListener="#{settingsController.generateClientCode()}" update="setupFRM,:confirmDLG" oncomplete="dlgConfirm.show();"  />
+                            
+                                <p:commandButton style="margin-left: 10px;" value="Cancel" type="reset" />
+                                <p:blockUI block="setupFRM" trigger="cmdSubmit" >
+                                    <p:graphicImage value="/images/ajax-loader.gif"/>
+                                    
+                                </p:blockUI>
+                        </h:panelGrid>
+                    </h:form>
+            
+        </ui:define>
+    </ui:composition>
+</html>
+

@@ -1,0 +1,101 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:f="http://java.sun.com/jsf/core">
+    <ui:composition template="adminTemplate.xhtml">
+        <ui:define name="scripts">
+            <script type="text/javascript">
+                function setBedCrump(){
+                    menuElement = document.getElementById("menu4");
+                    menuElement.className = "limenu select";
+                    
+                }
+                
+            </script>
+        </ui:define>
+         <ui:define name="separator">
+
+            <span style="position:relative;font-weight:bold;font-size: 15px;">User Account | My Profile</span><br/><br/>
+          
+        </ui:define>
+          
+        <ui:define name="adminContent">
+        
+           <h:form id="individualFRM" >
+               
+               <p:messages/> 
+              
+               <p:accordionPanel>
+                   <p:tab title="Basic Info">
+                       
+                       <h:panelGrid style="position:relative;left:20%;" columns="2" cellspacing="2" cellpadding="5">
+                     
+                           
+                           <h:panelGrid cellpadding="5" cellspacing="5" columns="2"   >
+                        <h:outputLabel style="font-weight:bold;font-size: 15px;" for="fName" value="Full Name"/><h:outputText id="fName" value="#{mainController.userLogged.fullName}"  style="margin-left: 7px;"/>
+                        <h:outputLabel style="font-weight:bold;font-size: 15px;" for="idNumber" value="ID Number"/><h:outputText id="idNumber" value="#{mainController.userLogged.idNumber}" style="margin-left: 7px;"/> 
+                        <h:outputLabel style="font-weight:bold;font-size: 15px;" for="tel" value="Telephone"/><h:outputText id="tel" value="#{mainController.userLogged.telephone}" style="margin-left: 7px;"/>
+                        <h:outputLabel style="font-weight:bold;font-size: 15px;" for="email" value="Email"/><h:outputText id="email" value="#{mainController.userLogged.emailAddress}" style="margin-left: 7px;"/> 
+                        <h:outputLabel style="font-weight:bold;font-size: 15px;" for="level" value="User Level"/><h:outputText id="level" value="#{mainController.userLogged.userDomain}" style="margin-left: 7px;"/> 
+                        <h:outputLabel style="font-weight:bold;font-size: 15px;" for="lastLog" value="Last Login"/>
+                        <h:outputText id="lastLog" value="#{mainController.userLogged.lastLogin}" style="margin-left: 7px;">
+                            <f:convertDateTime pattern="hh:mm a dd/MM/yyyy "/>
+                        </h:outputText>
+                        <h:outputLabel for="accessIP" value="Last Access IP"/><h:outputText id="accessIP" value="#{mainController.userLogged.loginMachine}"/>
+                        <h:outputLabel for="statusA" value="Account Status" rendered="#{mainController.userLogged.userStatus}"/><h:outputText id="statusA" style="color: green;margin-left: 7px;" value="Active" rendered="#{mainController.userLogged.userStatus}"/>
+                        <h:outputLabel for="statusD" value="Account Status" rendered="#{!mainController.userLogged.userStatus}"/><h:outputText id="statusD" style="color: red; margin-left: 7px;" value="Inactive" rendered="#{!mainController.userLogged.userStatus}"/>
+                    </h:panelGrid>
+                           
+                             <h:panelGrid cellpadding="5" cellspacing="5" columns="1">
+                                 <p:graphicImage rendered="#{!mainController.userLogged.userDomain.equalsIgnoreCase('Pearl Soft Maintenenance')}" value="#{mainController.userPhotoDB}" height="200" width="200" cache="false" alt="Profile Photo"/>
+                                 <p:graphicImage rendered="#{mainController.userLogged.userDomain.equalsIgnoreCase('Pearl Soft Maintenenance')}" styleClass="img-circle" alt="User Image" value="img/avatar.png" cache="false"/>
+                            
+                                 <p:commandButton rendered="#{!mainController.userLogged.userDomain.equalsIgnoreCase('Pearl Soft Maintenenance')}" style="position:relative;left:24%;" type="button" ajax="false" onclick="changePhoto.show();" value="Add Photo"/>
+                           </h:panelGrid>
+                           
+                       </h:panelGrid>
+                   </p:tab>
+                   <p:tab rendered="#{!mainController.userLogged.userDomain.equalsIgnoreCase('Pearl Soft Maintenenance')}" title="Password">
+                       <p:commandButton  value="Change/Reset My Password" type="button" ajax="false" onclick="pwdDLG.show();"/>
+                   </p:tab>
+              
+               </p:accordionPanel>
+                   
+                 
+               
+            </h:form> 
+            
+              <p:dialog height="350" width="750" resizable="false" widgetVar="changePhoto" header="Add Photo" modal="true" >
+                   <h:form enctype="multipart/form-data">
+                    <h2>Choose file or drag drop your photos here to upload !</h2>
+                    <p:fileUpload auto="true" fileUploadListener="#{mainController.addUserProfilePhoto}" oncomplete="changePhoto.hide();"  mode="advanced" required="true" requiredMessage="Please choose your photo!" update=":individualFRM,:adminGrowl" sizeLimit="10000" allowTypes="/(\.|\/)(gif|jpe?g|png)$/" >
+
+                    </p:fileUpload> 
+
+                </h:form>
+             </p:dialog>
+            
+             <p:dialog modal="true" id="changePWD" widgetVar="pwdDLG" header="#{mainController.userLogged.userName} | Change Password" resizable="false">
+                <h:form id="pwdFRM">
+                    <p:messages closable="true" id="message"/>
+                    <h:panelGrid cellpadding="5" cellspacing="5" columns="2">
+                        <h:outputLabel for="oldPWD" value="Old Password"/><p:inputText id="oldPWD" type="password" value="#{mainController.oldPassword}" required="true" requiredMessage="Enter old password!"/>
+                        <h:outputLabel for="newPWD" value="New Password"/><p:inputText type="password" id="newPWD" value="#{mainController.newPassword}" validatorMessage="Short password" required="true" requiredMessage="Enter new password!">
+                        <f:validateLength minimum="8" />
+                        <p:ajax event="keyup" update="message" />
+                        </p:inputText>
+                    </h:panelGrid><br/>
+                    <h:panelGrid style="position:relative;left:10%;" columns="2" cellpadding="5" cellspacing="5">
+                            <p:commandButton value="Cancel" ajax="false" type="button" onclick="pwdDLG.hide();" /><p:commandButton value="Change Password" actionListener="#{mainController.changeUserPassword()}" update="pwdFRM" oncomplete="pwdDLG.hide()"/>
+                
+                    </h:panelGrid>
+                </h:form>
+            </p:dialog>
+            
+        </ui:define>
+    </ui:composition>
+</html>
+

@@ -1,0 +1,414 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:f="http://java.sun.com/jsf/core">
+
+    <ui:composition template="adminTemplate.xhtml">
+        <ui:define name="title">#{props.appname} Settings</ui:define>
+        <ui:define name="scripts">
+            <script type="text/javascript">
+                function setBedCrump() {
+                    menuElement = document.getElementById("menu5");
+                    menuElement.className = "limenu select";
+
+                }
+
+            </script>
+
+            <style>
+
+                .ui-growl
+                {
+
+                    top: 70px;
+                }
+                .ui-datatable thead th, .ui-datatable tbody td, .ui-datatable tfoot td 
+                {
+                    white-space: normal !important;
+                }
+            </style>
+        </ui:define>
+
+        <ui:define name="separator">
+
+            <span style="position:relative;font-weight:bold;font-size: 20px;">System Settings</span><br/>
+
+        </ui:define>
+
+        <ui:define name="adminContent">                       
+            <p:dialog  widgetVar="editSaccoDLG" id="editSacco" width="650" modal="true" header="Edit Church Details" resizable="false">
+                <h:form id="editSaccoFRM"> 
+                    <br/>
+                    <p:messages id="messages" closable="true"/>
+                    <div style="float:left; width: 60%; margin-right: 30px;">
+                        <h:panelGrid columns="2" cellpadding="5">
+
+                            <h:outputLabel value="#{props.cname} *" for="saccoName"/>
+                            <h:inputText id="saccoName" value="#{settingsController.editSacco.name}" required="true" requiredMessage="#{props.nameerror}" size="30" >
+                                <p:ajax event="keyup" process="@this,saccoName" listener="#{settingsController.validateSaccoName(settingsController.editSacco.name)}" update=":editSaccoFRM:messages"/>
+                            </h:inputText>
+
+                            <h:outputLabel value="Address *" for="address"/>
+                            <h:inputText id="address" value="#{settingsController.editSacco.address}" required="true" requiredMessage="#{props.addresserror}" size="30" />
+
+                            <h:outputLabel value="Telephone *" for="tel"/>
+                            <h:inputText id="tel" value="#{settingsController.editSacco.telephone}" required="true" requiredMessage="#{props.telerror}" size="30"  >
+                                <p:ajax event="keyup" process="@this, tel" listener="#{settingsController.validateTel(settingsController.editSacco.telephone)}" update=":editSaccoFRM:messages"/>
+                            </h:inputText>
+
+                            <h:outputLabel value="Email Address *" for="email"/>
+                            <h:inputText id="email" value="#{settingsController.editSacco.email}" required="true" requiredMessage="#{props.emailerror}" size="30" />
+                        </h:panelGrid>
+                    </div>
+                    <br/>
+
+                    <div style="float:left; width: 35%;">
+                        <h:panelGrid id="logoGrid" columns="1" cellpadding="3" style="position: relative;left:5%;" >
+
+                            <h:outputLabel for="saccoLogo" style="margin-left:20px; font-size: 14px;" value="Logo"/>
+                            <br/>
+                            <p:graphicImage id="saccoLogo" rendered="#{settingsController.editSacco.logoUrl!=null}" value="/ImageServlet/#{settingsController.editSacco.logoUrl}" style="width: 100px;height: 100px;"/>
+                        </h:panelGrid>
+                        <br/>
+                        <h:panelGrid columns="1" cellspacing="5">
+                            <p:commandButton value="Upload Logo" rendered="#{settingsController.editSacco.logoUrl==null}" type="button" onclick="logoDLG.show();" style="margin-left: 15px;"/>
+
+                            <p:commandButton value="Edit Logo" type="button" rendered="#{settingsController.editSacco.logoUrl!=null}" onclick="logoDLG.show();" style="margin-left: 15px;"/>
+                        </h:panelGrid>
+                    </div>
+                    <div style="clear:both"/>
+                    <h:panelGrid columns="2" cellpadding="5" style="position: relative; left: 35%;">
+                        <p:commandButton id="updateCMD" value="Update" actionListener="#{settingsController.updateSaccoDetails}" style="margin-right: 15px;" update=":settingsTabView:saccoDetailsFRM, messages"/>
+
+                        <p:commandButton  value="Close" onclick="editSaccoDLG.hide();"/>
+                    </h:panelGrid>
+                    <br/>
+
+                    <p:blockUI trigger="updateCMD" block="editSaccoFRM">
+                        <p:graphicImage value="/images/ajax-loader.gif"/>
+                    </p:blockUI>
+                </h:form>
+            </p:dialog>
+
+            <p:dialog widgetVar="logoDLG" height="300" width="650" header="Upload logo" modal="true" resizable="false" position="center" >
+                <h:form enctype="multipart/form-data">
+                    <h3>Choose or drag drop your logo here to upload !</h3>
+                    <p:fileUpload fileUploadListener="#{settingsController.uploadLogo}"  mode="advanced" required="true"
+                                  requiredMessage="Please choose sacco logo!" oncomplete="logoDLG.hide()" update=":editSaccoFRM:logoGrid" sizeLimit="1000000" allowTypes="/(\.|\/)(gif|jpe?g|png)$/" invalidFileMessage="File type not allowed" invalidSizeMessage="Size too big!"  >
+
+                    </p:fileUpload> 
+
+                </h:form>
+
+            </p:dialog>
+
+            <p:dialog rendered="false" widgetVar="editSettingsDLG" id="editSettings" modal="true" resizable="false"  header="Edit membership settings">
+                <br/>
+                <h:form id="editSettingsFRM">
+                    <p:messages id="messages" closable="true"/>
+                    <h:panelGrid columns="2" cellpadding="5">
+
+
+                        <h:outputLabel for="minDeposit" value="Minimum Deposit *"/>
+                        <h:inputText id="minDeposit" value="#{settingsController.editMemberSettings.minimumDeposit}" required="true" requiredMessage="Enter minimum monthly Deposits" validatorMessage="invalid min. monthly deposits" label="min. monthly deposits" >
+                            <f:validateDoubleRange minimum="0"/>
+                            <f:convertNumber pattern="0.00"/>
+                        </h:inputText>
+
+                        <h:outputLabel for="regFee" value="Benevolent Fee *"/>
+                        <h:inputText id="regFee" value="#{settingsController.editMemberSettings.benevolentFee}" required="true" requiredMessage="Enter benevolent fee" label="Benevolent fee" validatorMessage="inlavid benevolent fee" >
+                            <f:validateDoubleRange minimum="0"/>
+                            <f:convertNumber pattern="0.00"/>
+                        </h:inputText>
+
+                        <h:outputLabel for="minRefs" value="Minimum Referees *"/>
+                        <h:inputText id="minRefs" value="#{settingsController.editMemberSettings.maximumReferees}" required="true" requiredMessage="Enter minimum number of referees"/>
+
+                    </h:panelGrid>
+
+                    <br/>
+                    <h:panelGrid columns="2" cellpadding="5" style="position: relative; left: 40%;">
+                        <p:commandButton id="updateCMD" value="Update" actionListener="#{settingsController.updateMemberSettings()}" style="margin-right: 15px;" update=":settingsTabView:memberSettingsFRM, messages"/>
+
+                        <p:commandButton value="Close" onclick="editSettingsDLG.hide();"/>
+                    </h:panelGrid>
+                    <br/>
+
+                    <p:blockUI trigger="updateCMD" block="editSettingsFRM">
+                        <p:graphicImage value="/images/ajax-loader.gif"/>
+                    </p:blockUI>
+                </h:form>
+            </p:dialog>
+
+
+                
+                
+
+            <p:dialog widgetVar="addChargeDLG" id="addCharge" header="New Charge" modal="true" resizable="false">
+                <br/>
+                <h:form id="addChargeFRM">
+                    <p:messages id="messages" closable="true"/>
+                    <h:panelGrid columns="2" cellpadding="5">
+                        <h:outputLabel value="Name *" for="name"/>
+                        <h:inputText id="name" value="#{settingsController.charges.name}" required="true" requiredMessage="Enter charges name" label="Charge Name">
+                            <p:ajax event="keyup" process="@this, name" listener="#{settingsController.validateSaccoName(settingsController.charges.name)}" update=":addChargeFRM:messages"/>
+                        </h:inputText>
+
+                        <h:outputLabel value="Cost *" for="cost"/>
+                        <h:inputText id="cost" value="#{settingsController.charges.cost}" label="Charge cost" validatorMessage="Invalid value for cost">
+                            <f:convertNumber pattern="0.00"/>
+                            <f:validateDoubleRange minimum="0.0"/>
+                        </h:inputText>
+
+                        <h:outputLabel value="Requirement for membership *" for="mandatory"/>
+                        <h:selectOneRadio id="mandatory"  value="#{settingsController.charges.mandatory}">
+                            <f:selectItem itemLabel="Yes" itemValue="true"/>
+                            <f:selectItem itemLabel="No" itemValue="false"/>
+                        </h:selectOneRadio>
+                    </h:panelGrid>
+                    <br/>
+                    <h:panelGrid columns="2" cellpadding="5" style="position: relative; left: 35%">
+                        <p:commandButton id="saveCMD" value="Save" actionListener="#{settingsController.createCharges()}" update=":settingsTabView:chargesFRM, :addChargeFRM" style="margin-right: 20px;"/>
+                        <p:commandButton value="Close" onclick="addChargeDLG.hide();"/>
+                    </h:panelGrid>
+
+                    <p:blockUI trigger="saveCMD" block="addChargeFRM">
+                        <p:graphicImage value="/images/ajax-loader.gif"/>
+                    </p:blockUI>
+                </h:form>
+            </p:dialog>
+
+            <p:dialog widgetVar="editChargesDLG" id="editCharges"  header="Edit Charge Details" modal="true" resizable="false">
+                <p:ajax event="close" listener="#{settingsController.clearCharges()}" update=":editChargesFRM, :addChargeFRM"/>
+                <br/>
+                <h:form id="editChargesFRM">
+                    <p:messages id="messages"/>
+                    <h:panelGrid columns="2" cellpadding="5">
+                        <h:outputLabel value="Name *" for="chargeName"/>
+                        <h:inputText id="chargeName" value="#{settingsController.editCharge.name}" required="true" requiredMessage="Enter charges name" label="Charge name">
+                            <p:ajax event="keyup" process="@this, chargeName" listener="#{settingsController.validateSaccoName(settingsController.charges.name)}" update=":editChargesFRM:messages"/>
+                        </h:inputText>
+
+                        <h:outputLabel value="Cost *" for="chargeCost"/>
+                        <h:inputText id="chargeCost" value="#{settingsController.editCharge.cost}" required="true" requiredMessage="Enter Cost for this charge" label="Charge cost" validatorMessage="Invalid values for charge cost">
+                            <f:validateDoubleRange minimum="0.0"/>
+                            <f:convertNumber pattern="0.00"/>
+                        </h:inputText>
+
+                        <h:outputLabel value="Requirement for membership *" for="mandatory"/>
+                        <h:selectOneRadio id="mandatory" value="#{settingsController.editCharge.mandatory}">
+                            <f:selectItem itemLabel="Yes" itemValue="true"/>
+                            <f:selectItem itemLabel="No" itemValue="false"/>
+                        </h:selectOneRadio>
+                    </h:panelGrid>
+                    <br/>
+                    <h:panelGrid columns="2" cellpadding="5" style="position: relative; left: 35%">
+                        <p:commandButton id="updateCMD" value="Update" actionListener="#{settingsController.updateCharges()}" update=":settingsTabView:chargesFRM, :editChargesFRM:messages" style="margin-right: 20px;"/>
+                        <p:commandButton value="Close" onclick="editChargesDLG.hide();"/>
+                    </h:panelGrid>
+
+                    <p:blockUI trigger="updateCMD" block="editChargesFRM">
+                        <p:graphicImage value="/images/ajax-loader.gif"/>
+                    </p:blockUI>
+                </h:form>
+            </p:dialog>
+
+            <p:dialog widgetVar="deleteChargesDLG" id="deleteCharges" modal="true" header="Delete Charges" resizable="false">
+                <h:form>
+                    <p:growl id="growl" life="8000"  />
+                    <br/>
+                    <h:outputText value="Do you really want to delete this charge?"/><br/><br/>
+                    <h:panelGrid columns="2" cellpadding="5" style="margin-left: 50px">
+                        <p:commandButton value="NO" onclick="deleteChargesDLG.hide();" style="margin-right: 30px;"/>
+                        <p:commandButton value="YES" onclick="deleteChargesDLG.hide();" actionListener="#{settingsController.deleteCharges()}" update=":settingsTabView:chargesFRM, growl"/>
+
+                    </h:panelGrid>
+                </h:form>
+
+            </p:dialog>
+
+      
+            <p:dialog widgetVar="addBranchDLG" header="Add New House" modal="true" resizable="false" >
+                <h:form id='branchFRM'>
+                    <p:messages/>
+                    <h:panelGrid columns="2">
+                        <h:outputLabel for="branchName" value="House Name * "/>
+                        <h:inputText id="branchName" value="#{settingsController.companyBranch.branchname}" requiredMessage="House name required" required="true"  />
+                        <h:outputLabel for="address" value="Address"/>
+                        <h:inputText id="address" value="#{settingsController.companyBranch.address}"  />
+                        <h:outputLabel for="desc" value="Description"/>
+                        <h:inputText id="desc" value="#{settingsController.companyBranch.description}" />
+                    </h:panelGrid>
+                    <br/>
+                    <h:panelGrid columns="2" cellpadding="5">
+                        <p:commandButton style="position:relative;left:20%;" id="cmdSaveBranch" value="Save House" process="@form" actionListener="#{settingsController.addCompanyBranch()}" oncomplete="addBranchDLG.hide();" update="branchFRM,:settingsTabView:frmBranchTBL"/><p:commandButton value="Cancel" type="button" onclick="addBranchDLG.hide();" style="position:relative;left:25%;"/>
+                    </h:panelGrid>
+                    <p:blockUI trigger="cmdSaveBranch" block="branchFRM">
+                        <p:graphicImage value="images/ajax-loader.gif"/>
+                    </p:blockUI>
+                </h:form>
+
+
+            </p:dialog>
+            <p:accordionPanel id="settingsTabView">
+                <p:tab title="Church Details" >
+                    <h:form id="saccoDetailsFRM">
+                        <br/>
+                        <p:commandButton value="Edit Information" style="position: relative; left: 70%;" oncomplete="editSaccoDLG.show();" actionListener="#{settingsController.loadSaccoDetails()}"  update=":editSaccoFRM"/>
+
+                        <br/>
+                        <div style="float:left; width: 60%; margin-right: 3%">
+                            <h:panelGrid columns="2" cellpadding="5" style="margin-left: 20px;">
+
+                                <h:outputLabel value="#{props.cname}" for="saccoName"/>
+                                <h:inputText readonly="true" size="30" id="saccoName" value="#{settingsController.saccoDetails.name}" />
+
+                                <h:outputLabel value="Address" for="address"/>
+                                <h:inputText readonly="true" size="30" id="address" value="#{settingsController.saccoDetails.address}" />
+
+                                <h:outputLabel value="Telephone" for="tel"/>
+                                <h:inputText readonly="true" size="30" id="tel" value="#{settingsController.saccoDetails.telephone}"  />
+
+                                <h:outputLabel value="Email Address" for="email"/>
+                                <h:inputText readonly="true" size="30" id="email" value="#{settingsController.saccoDetails.email}" />
+
+                            </h:panelGrid>
+                        </div>
+                        <div style="float:left; width: 30%">
+                            <h:panelGrid id="logoGrid" columns="1" cellpadding="3" style="position: relative;left:5%;" >
+                                <br/>
+                                <h:outputLabel for="saccoLogo" value="Logo" style="margin-left:20px"/>
+                                <p:graphicImage id="saccoLogo" rendered="#{settingsController.saccoDetails.logoUrl!=null}" value="/ImageServlet/#{settingsController.saccoDetails.logoUrl}" style="width: 100px;height: 100px;"/>
+                            </h:panelGrid>
+                            <br/>
+
+                        </div>
+                        <div style="clear:both"/>
+                    </h:form>
+                </p:tab>
+                <p:tab title="House Settings">
+                    <h:form id="frmBranchTBL">
+                        <p:messages closable="true"/>
+                        <p:commandButton value="Add New House" type="button" style="position: relative; left: 85%;" onclick="addBranchDLG.show();" /><br/><br/>
+
+                        <p:dataTable  value="#{settingsController.branchesDM}" var='branch' emptyMessage="No Houses added yet , click 'Add New Branch' to add a branch" rows="7">
+                            <p:column headerText="House Name">
+                                <h:outputText value="#{branch.branchname}" style="position:relative;left:35%;"/>
+                            </p:column>
+                            <p:column headerText="Address">
+                                <h:outputText value="#{branch.address}" style="position:relative;left:35%;"/>
+                            </p:column>
+                            <p:column headerText="Description">
+                                <h:outputText value="#{branch.description}"/>
+                            </p:column>
+                            <p:column headerText="Actions">
+                                <p:commandLink style="color: blue;position:relative;left:35%;" value="Edit" actionListener="#{settingsController.loadBranch()}" update=":settingsTabView:editBranchDLG" oncomplete="branchEditDLG.show();"/><p:commandLink style="color:red;position:relative;left:40%;" value="Remove" actionListener="#{settingsController.loadBranch()}" update=":settingsTabView:delBranchDLG" oncomplete="branchDelDLG.show();"/>
+                            </p:column>
+                        </p:dataTable>
+                    </h:form>
+                    <p:dialog widgetVar="branchEditDLG" id="editBranchDLG" header="Edit House" modal="true" resizable="false">
+                        <h:form id='branchEditFRM'>
+                            <p:messages/>
+                            <h:panelGrid columns="2">
+                                <h:outputLabel for="branchName" value="House Name * "/>
+                                <h:inputText id="branchName" value="#{settingsController.editCompanyBranch.branchname}" requiredMessage="Branch name required" required="true"  />
+                                <h:outputLabel for="address" value="Address"/>
+                                <h:inputText id="address" value="#{settingsController.editCompanyBranch.address}"  />
+                                <h:outputLabel for="desc" value="Description"/>
+                                <h:inputText id="desc" value="#{settingsController.editCompanyBranch.description}" />
+                            </h:panelGrid>
+                            <br/>
+                            <h:panelGrid columns="2" cellpadding="5">
+                                <p:commandButton style="position:relative;left:20%;" id="cmdUpdateBranch" value="Update Branch" process="@form" actionListener="#{settingsController.updateBranch()}" oncomplete="branchEditDLG.hide();" update=":settingsTabView:branchEditFRM,:settingsTabView:frmBranchTBL"/><p:commandButton style="position:relative;left:25%;" value="Cancel" type="button" onclick="branchEditDLG.hide();"/>
+                            </h:panelGrid>
+                            <p:blockUI trigger="cmdUpdateBranch" block="branchEditFRM">
+                                <p:graphicImage value="images/ajax-loader.gif"/>
+                            </p:blockUI>
+                        </h:form>
+
+                    </p:dialog>
+                    <p:dialog widgetVar="branchDelDLG" id="delBranchDLG" header="Question" modal="true" resizable="false">
+                        <h:form id="delFRM">
+                            <h:outputText value="Delete ' #{settingsController.editCompanyBranch.branchname}'  House?  "/>
+                            <br/><br/>
+                            <h:panelGrid columns="2" cellpadding="5" cellspacing="5">
+                                <p:commandButton id="cmdYesDel" value="Yes" actionListener="#{settingsController.deleteBranch()}" process="@form" update="delFRM,:settingsTabView:frmBranchTBL" oncomplete="branchDelDLG.hide()"/><p:commandButton type="button" onclick="branchDelDLG.hide();" value="No"/>
+                            </h:panelGrid>
+                            <p:blockUI trigger="cmdYesDel" block="delFRM">
+                                <p:graphicImage value="images/ajax-loader.gif" />
+                            </p:blockUI>
+                        </h:form>
+
+                    </p:dialog>
+                </p:tab>
+
+
+                <p:tab rendered="false" title="Member Settings">
+                    <h:form id="memberSettingsFRM">
+                        <br/>
+                        <p:commandButton value="Edit Member Settings" style="position: relative; left: 70%;" oncomplete="editSettingsDLG.show();" actionListener="#{settingsController.loadMemberSettings()}" update=":editSettingsFRM"/>
+                        <br/>
+                        <h:panelGrid columns="2" cellpadding="5" style="margin-left: 20px;">
+
+
+                            <h:outputLabel for="minDeposit" value="Minimum Deposit"/>
+                            <h:inputText readonly="true" size="10" id="minDeposit" value="#{settingsController.memberSettings.minimumDeposit}" />
+
+                            <h:outputLabel for="beneFee" value="Benevolent Fee"/>
+                            <h:inputText readonly="true" size="10" id="beneFee" value="#{settingsController.memberSettings.benevolentFee}" />
+
+                            <h:outputLabel for="minRefs" value="Minimum Referees"/>
+                            <h:inputText readonly="true" size="10" id="minRefs" value="#{settingsController.memberSettings.maximumReferees}" />
+
+
+                        </h:panelGrid>
+                        <br/>
+
+                    </h:form>
+                </p:tab>
+
+               
+
+                <p:tab title="Charges Settings">
+                    <h:form id="chargesFRM">
+                        <br/>
+                        <p:commandButton value="New Charge"   style="position: relative; left: 80%" onclick="addChargeDLG.show();"/>
+                        <br/>
+                        <br/>
+                        <p:dataTable value="#{settingsController.chargesDM}"  var="charge" paginator="true" rows="5" emptyMessage="No charges added yet" paginatorAlwaysVisible="false">
+                            <f:facet name="header" >Charges</f:facet>
+                            <p:column headerText="Name" style="text-align:center;">
+                                <h:outputText value="#{charge.name}" />
+                            </p:column>
+
+                            <p:column headerText="Cost" style="text-align:center;">
+                                <h:outputText value="#{charge.cost}" >
+                                    <f:convertNumber pattern="0.00"/>
+                                </h:outputText>
+                            </p:column>
+
+                            <p:column headerText="Mandatory for membership" style="text-align:center;">
+                                <h:outputText value="YES" rendered="#{charge.mandatory}" />
+                                <h:outputText value="NO" rendered="#{!charge.mandatory}" />
+                            </p:column>
+
+                            <p:column headerText="Actions" >
+                                <p:commandLink value="Edit" style="position: relative; left: 10%; font-weight: bold; color: green" actionListener="#{settingsController.selectCharges()}" oncomplete="editChargesDLG.show();" update=":editChargesFRM" />
+                                <p:commandLink value="Delete" style="position: relative; left: 25%; font-weight: bold; color: red" actionListener="#{settingsController.selectCharges()}" oncomplete="deleteChargesDLG.show();"/>
+                            </p:column>
+
+                        </p:dataTable>
+                    </h:form>
+                </p:tab>
+                
+ 
+            </p:accordionPanel>
+           
+
+        </ui:define>
+    </ui:composition>
+</html>
+

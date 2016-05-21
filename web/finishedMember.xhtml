@@ -1,0 +1,207 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:f="http://java.sun.com/jsf/core">
+    <ui:composition template="adminTemplate.xhtml">
+        <ui:define name="scripts">
+            <script type="text/javascript">
+                function setBedCrump() {
+                    menuElement = document.getElementById("menu2");
+                    menuElement.className = "limenu select";
+
+                }
+                function editMember(){
+                   window.location.href="newMember.xhtml";
+                }
+
+            </script>
+        </ui:define>
+        <ui:define name="separator">
+        
+          
+            <span style="position:relative;font-weight:bold;font-size: 15px;">Confirm new Church member details</span><br/><br/>
+          
+        </ui:define>
+        <ui:define name="adminContent">
+            <p:dialog widgetVar="addDLG" closable="false" id="addMemberDLG" header="Add Member ?" resizable="false" modal="true" position="top,center" >
+                <h:form id="addFRM">
+                     <p:messages  />
+                     <h:outputText rendered="#{!membersController.addMemberSuccess}" style="font-weight: bold;size: 15px;" value="You are about to add a new member to the church. Continue ?"/>
+                   
+                   <br/>
+                   <br/>
+                  
+                   <h:panelGrid columns="2" rendered="#{!membersController.addMemberSuccess}" style="position:relative;left:40%;">
+                        
+                       
+                       <p:commandButton  value="No" ajax="false" type="button" onclick="addDLG.hide();" />
+                       <p:commandButton  id="addYes" value="Yes"  actionListener="#{membersController.addNewMember()}" update=":addFRM"/>
+                   </h:panelGrid>
+                  
+                   <p:commandButton value="Okay" ajax="false" action="#{membersController.finishMemberReg}"  rendered="#{membersController.addMemberSuccess}" style="position:relative;left:35%;" />
+                   <p:blockUI trigger="addYes" block="addFRM">
+                       <p:graphicImage value="/images/ajax-loader.gif"/>
+                       
+                   </p:blockUI>
+                </h:form>
+            </p:dialog>
+            
+            <h:form style="position: relative; left: 1%; width: 80%;">
+             <div style="float: left;width: 42%;margin-right: 2%;">
+                 <p:fieldset legend="General Information">
+                             <h:panelGrid columns="2" cellpadding="3">
+                                 <h:outputLabel for="memberPhoto" value="Passport"/>
+                                <p:graphicImage  rendered="#{membersController.newMember.memberPhoto!=null}" id="memberPhoto" value="/ImageServlet/#{membersController.newMember.memberPhoto}" style="width: 150px;height: 150px;position: relative;left:20%;"/>
+
+
+                            </h:panelGrid><br/>
+                            <h:panelGrid columns="2" cellpadding="1" >
+
+                                <h:outputLabel for="mNum" value="Number"/>
+                                <h:inputText  id="mNum" value="#{membersController.newMember.memberNumber}" size="25"  readonly="true"/>
+
+                                <h:outputLabel for="fName" value="Full Name "/>
+                                <h:inputText readonly="true" id="fName" required="true" size="25" requiredMessage="Enter Member Name" value="#{membersController.newMember.fullName}"  />
+                                <h:outputLabel for="idNum" value="ID Number "/>
+                                <h:inputText readonly="true" id="idNum" required="true" size="25" requiredMessage="Enter ID Number" value="#{membersController.newMember.idNumber}"   />
+                                 <h:outputLabel for="gender" value="Gender" />
+                                  <h:inputText id="gender" value="#{membersController.newMember.gender}" size="25" readonly="true"/>
+                               
+                                  <h:outputLabel for="spouse" value="Spouse  "/>
+                                 <h:inputText   style="text-transform: uppercase;" id="spouse"  size="25"  value="#{membersController.newMember.spouse}"  />
+                                  
+                                  <h:outputLabel for="telNum" value="Tel Number "/>
+                                <h:inputText readonly="true" id="telNum" required="true" size="25" requiredMessage="Enter Telephone Number" value="#{membersController.newMember.phoneNumber}"   />
+                                
+                                <h:outputLabel for="DOB" value="Date Of Birth "/>
+                                <p:calendar disabled="true" id="DOB" pattern="dd/MM/yyyy" required="true" size="25" requiredMessage="Select Date Of Birth" value="#{membersController.newMember.dateOfBirth}"   />
+                                 <h:outputLabel for="occupation" value="Occupation  "/>
+                                <h:inputText id="occupation"  value="#{membersController.newMember.occupation}"  />
+                                <h:outputLabel for="occupationCat" value="Occupation Category  "/>
+                                <h:inputText id="occupationCat"  value="#{membersController.newMember.occupationCategory}"  />
+                                 <h:outputLabel for="email" value="Email" />
+                                <h:inputText readonly="true" id="email" size="25" value="#{membersController.newMember.email}"   />
+                                <h:outputLabel for="county" value="County"/>
+                                <h:inputText id="county" readonly="true" size="25" value="#{membersController.newMember.county}"/>
+                                <h:outputLabel for="residence" value="Residence"/>
+                                <h:inputText readonly="true" id="residence" size="25" value="#{membersController.newMember.residence}"/>
+                               
+                            </h:panelGrid>
+                          
+                 </p:fieldset>
+                        </div>
+                        <div style="float: left;width: 55%;">
+
+                            <p:fieldset legend="Other Details">
+                                
+                            
+                          <p:dataTable id="refereesTBL"  value="#{membersController.tempRefereesDM}" var="referee" paginator="true" rows="4" emptyMessage="No referee added" paginatorAlwaysVisible="false">
+                                <f:facet name="header" >Referees</f:facet>
+                                <p:column headerText="Name">
+                                    <h:outputText value="#{referee.name}"/>
+                                </p:column>
+                                
+                                <p:column headerText="Business">
+                                    <h:outputText value="#{referee.businessName}"/>
+                                </p:column>
+                                
+                                <p:column headerText="Address">
+                                    <h:outputText value="#{referee.address}"/>
+                                </p:column>
+                                
+                                <p:column headerText="Telephone">
+                                    <h:outputText value="#{referee.telephoneNumber}"/>
+                                </p:column>
+                                
+                                
+                            </p:dataTable>
+                         
+                            <br/>
+                                <p:dataTable id="kinsTBL" value="#{membersController.kinsDM}" var="kin" paginator="true" rows="4" emptyMessage="No kin added" paginatorAlwaysVisible="false">
+                                <f:facet name="header">Next of Kin</f:facet>
+                                <p:column headerText="Name">
+                                    <h:outputText value="#{kin.name}"/>
+                                </p:column>
+                                
+                                <p:column headerText="Relationship">
+                                    <h:outputText value="#{kin.relationship}"/>
+                                </p:column>
+                                
+                                <p:column headerText="Id Number">
+                                    <h:outputText value="#{kin.idNumber}"/>
+                                </p:column>
+                                
+                               
+                                
+                                
+                                </p:dataTable><br/>
+                                 <p:dataTable id="chargesTBL" value="#{membersController.chargesDM}" var="charge" paginator="true" paginatorAlwaysVisible="false" rows="5" emptyMessage="No requirement charges added yet">
+                                <f:facet name="header">Requirements for New Membership</f:facet>
+                                
+                                <p:column headerText="Name">
+                                    <h:outputText value="#{charge.name}"/>
+                                </p:column>
+                                
+                                <p:column headerText="Cost">
+                                    <h:outputText value="#{charge.cost}">
+                                         <f:convertNumber pattern="0.00"/>
+                                </h:outputText>
+                                </p:column>
+                            </p:dataTable>
+                                <br/>
+                                <h:panelGrid columns="2" cellpadding="5" cellspacing="5">
+                                    <h:panelGrid columns="2" cellpadding="5" cellspacing="5">
+                                <h:outputLabel for="branch" value="House"/>
+                                <h:selectOneMenu id="branch" value="#{membersController.newMember.branchId}">
+                                    <f:selectItem itemLabel="Select House" itemValue="select" />
+                                    <f:selectItems value="#{membersController.allCompanyBranches}" var="branch" itemLabel="#{branch.branchname}" itemValue="#{branch.id}"/>
+                                </h:selectOneMenu>
+                                 <h:outputLabel for="dateJoined" value="Date Joined"/>
+                                 <p:calendar readonly="true"  pattern="dd/MMM/yyyy" size="25" id="dateJoined" required="true" requiredMessage="Select Date Date Joined" value="#{membersController.newMember.employmentDate}" navigator="true" maxdate="#{membersController.today}"  /> 
+                                 <h:outputLabel rendered="false" for="payRollNum" value="PayRoll No."/>
+                                 <h:inputText rendered="false" id="payRollNum" readonly="true" required="true" requiredMessage="Enter Payroll Number" value="#{membersController.newMember.payRollNumber}" />
+                                 <h:outputLabel rendered="false" for="salary" value="Monthly Salary"/>
+                                 <h:inputText rendered="false" id="salary" readonly="true" required="true" requiredMessage="Enter Monthly Salary" value="#{membersController.newMember.monthlySalary}" />
+                                    </h:panelGrid>
+                                
+                                <h:panelGrid columns="2" cellpadding="5" cellspacing="5">
+                                    <h:outputLabel rendered="false" for="Bank" value="Bank"/>
+                                    <h:selectOneMenu rendered="false" disabled="true" id="Bank" value="#{membersController.newMember.bankId}">
+                                    <p:ajax process="Bank" event="change" listener="#{membersController.onselectBank()}" update="bankBranch"/>
+                                    <f:selectItem itemLabel="Select Bank" itemValue=""/>
+                                    <f:selectItems value="#{membersController.allSaccoBanks}" var="bank" itemLabel="#{bank.bankName}" itemValue="#{bank.id}" />
+                                </h:selectOneMenu>
+                                
+                                    <h:outputLabel rendered="false" for="bankBranch" value="Branch"/>
+                                    <h:selectOneMenu rendered="false" disabled="true" id="bankBranch" value="#{membersController.newMember.bankBranchId}">
+                                    <f:selectItem itemLabel="Select Branch" itemValue=""/>
+                                    <f:selectItems value="#{membersController.bankBranches}" var="bankbranch" itemLabel="#{bankbranch.branchName}" itemValue="#{bankbranch.id}" />
+                                </h:selectOneMenu>
+                                    <h:outputLabel rendered="false" value="Account Number" for="accNumber"/>
+                                    <h:inputText rendered="false" readonly="true" value="#{membersController.newMember.bankAccountNumber}" />
+                                </h:panelGrid>
+                                
+                                
+                                
+                                
+                                </h:panelGrid>
+                        </p:fieldset>
+
+                        </div>
+                        <div style="clear: both;"/>
+                        <br/>
+                        <h:panelGrid style="position: relative;left:35%;" columns="2" cellpadding="5">
+                            <p:commandButton onclick="editMember();" value="Edit Details" ajax="false"  type="button"/>
+                            <p:commandButton value="Add Member"  onclick="addDLG.show();" />
+                </h:panelGrid>
+            
+            </h:form><br/>
+            
+            
+        </ui:define>
+    </ui:composition>
+</html>
+

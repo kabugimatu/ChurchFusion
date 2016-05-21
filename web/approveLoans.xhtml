@@ -1,0 +1,190 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:f="http://java.sun.com/jsf/core">
+
+    <ui:composition template="adminTemplate.xhtml">
+        <ui:define name="title">Loans Approval</ui:define>
+        <ui:define name="scripts">
+
+
+            <style>                 
+
+                .ui-datatable thead th, .ui-datatable tbody td, .ui-datatable tfoot td 
+                {
+                    white-space: normal !important;
+                }
+            </style>
+
+        </ui:define>
+
+        <ui:define name="topBar">
+
+        </ui:define>
+        <ui:define name="separator">
+
+            <span style="position:relative;font-weight:bold;font-size: 18px;">Manage Loans</span><br/>
+
+        </ui:define>
+
+        <ui:define name="adminContent">
+
+            <p:tabView id="loansTABS" style="font-size: 13px;">
+                <p:tab title="LOANS" id="loansTAB">
+
+                    <p:dialog widgetVar="viewLoanDLG" width="800" position="top" header="View Loan" resizable="false" modal="true">
+                        <h:form id="viewLoanFRM">
+                            <p:messages id="messages" closable="true"/>
+
+                            <h:panelGrid cellpadding="5" columns="4">
+                                <h:outputLabel value="Number" for="loanNumber"/>
+                                <h:inputText readonly="true" id="loanNumber" value="#{loansController.dbLoan.loanNUmber}"/>
+
+                                <h:outputLabel value="Type" for="loanType"/>
+                                <h:inputText readonly="true"  id="loanType" value="#{loansController.dbLoan.purpose}"/>
+
+                                <h:outputLabel value="Member number" for="memberNumber"/>
+                                <h:inputText readonly="true" id="memberNumber" value="#{loansController.dbLoan.memberNumber}"/>
+
+
+                                <h:outputLabel value="Member Name" for="membername"/>
+                                <h:inputText readonly="true"  id="membername" value="#{reportsController.findMember(loansController.dbLoan.memberNumber).getFullName()}"/>
+
+                                <h:outputLabel value="Applied Amount" for="appliedamount"/>
+                                <h:inputText readonly="true"  id="appliedamount" value="#{loansController.dbLoan.appliedAmount}"/>
+
+                                <h:outputLabel value="Approved Amount" for="approvedamount"/>
+                                <h:inputText readonly="true"  id="approvedamount" value="#{loansController.dbLoan.approvedAmount}"/>
+                            </h:panelGrid>
+                            <br/>
+                            <p:dataTable  value="#{loansController.dbLoanGuaratorsDM}" var="guarantor" rows="5" emptyMessage="No records found" paginator="true" paginatorAlwaysVisible="false">
+                                <f:facet name="header">Loan Guarantors</f:facet>
+                                <p:column headerText="Member ID">
+                                    <h:outputText value="#{guarantor.idNumber}" style="margin-left: 20%"/>
+                                </p:column>
+
+                                <p:column >
+                                    <f:facet name="header">Member Name</f:facet>
+                                    <h:outputText value="#{reportsController.findMember(guarantor.memberNumber).getFullName()}" style="margin-left: 20%"/>
+                                </p:column>
+
+                                <p:column headerText="Member Number">
+                                    <h:outputText value="#{guarantor.memberNumber}" style="margin-left: 20%"/>
+                                </p:column>
+
+                                <p:column headerText="Guarantee">
+                                    <h:outputText value="#{guarantor.savings}" style="margin-left: 20%"/>
+                                </p:column>
+                            </p:dataTable> 
+                            <br/><br/>
+                            <p:dataTable value="#{loansController.approvalsDM}" var="approval" rows="5" paginator="true" paginatorAlwaysVisible="false">
+                                <f:facet name="header">Approvers</f:facet>
+                                <p:column headerText="Full Name" >
+                                    <h:outputText value="#{approval.userID}" style="margin-left : 5%"/>
+                                </p:column>
+
+                                <p:column headerText="Status" >
+                                    <h:outputText value="#{approval.status}" style="margin-left : 5%"/>
+                                </p:column>
+
+                                <p:column headerText="Date" >
+                                    <h:outputText value="#{approval.approvalDate}" style="margin-left : 5%">
+                                        <f:convertDateTime pattern="dd-MM-yyyy"/>
+                                    </h:outputText>
+                                </p:column>
+                            </p:dataTable>
+
+                        </h:form>
+                    </p:dialog>
+
+                    <h:form id="filterLoansFRM">
+                        <p:messages id="messages" closable="true"/>
+
+                        <div style="float: left; width: 50%">
+                            <h:panelGrid columns="2" cellpadding="5" style="font-size: 15px">
+                                <h:outputLabel value="Filter Loans : " for="filterLoans"/>
+                                <h:selectOneMenu id="filterLoans" value="#{loansController.filterLoan}">
+                                    <p:ajax event="change"  listener="#{loansController.filterLoans()}" update=":loansTABS:loansFRM:loansTBL, :loansTABS:filterLoansFRM:txtSearch" />
+                                    <f:selectItem itemLabel="Select Criteria" itemValue="select"/>
+                                    <f:selectItem itemLabel="All Loans" itemValue="allloans"/>
+                                    <f:selectItem itemLabel="New Loans" itemValue="newloans"/>                                    
+                                    <f:selectItem itemLabel="Approved Loans" itemValue="approvedloans"/>
+                                    <f:selectItem itemLabel="Rejected Loans" itemValue="rejectedloans"/>
+                                </h:selectOneMenu>
+                            </h:panelGrid>
+                        </div> 
+
+                        <div style="float: left; width: 40%">
+                            <h:panelGrid columns="2" cellpadding="5" style="font-size: 15px">
+                                <h:inputText value="#{loansController.searchLoan}" id="txtSearch" required="true" requiredMessage="Enter search criteria"/>
+                                <p:commandButton value="Search" actionListener="#{loansController.fineFilterLoans()}" update=":loansTABS:loansFRM:loansTBL, :loansTABS:filterLoansFRM" />
+                            </h:panelGrid>
+                        </div> 
+
+                        <div style="clear: both"/>
+                    </h:form>
+
+                    <br/>
+                    <br/>
+
+                    <h:form id="loansFRM">
+                        <p:dataTable id="loansTBL" value="#{loansController.filterLoansDM}" var="loan" rows="20" emptyMessage="No records found" paginatorAlwaysVisible="false">
+                            <p:column headerText="Loan Number">
+                                <h:outputText value="#{loan.loanNUmber}" style="margin-left: 10%">
+                                    <f:convertNumber pattern="0.00" />
+                                </h:outputText>
+                            </p:column>      
+
+                            <p:column >
+                                <f:facet name="header">Date Applied</f:facet>
+                                <h:outputText value="#{loan.applicationDate}" style="margin-left: 5%">
+                                    <f:convertDateTime pattern="dd-MM-yyyy : hh:mm"/>
+                                </h:outputText>
+                            </p:column>
+
+                            <p:column >
+                                <f:facet name="header">Member Name</f:facet>
+                                <h:outputText value="#{reportsController.findMember(loan.memberNumber).getFullName()}" style="margin-left: 5%"/>
+                            </p:column>
+
+                            <p:column headerText="Applied Amount" >
+                                <h:outputText value="#{loan.appliedAmount}" style="margin-left: 10%">
+                                    <f:convertNumber pattern="0.00"/>
+                                </h:outputText>
+                            </p:column>
+
+                            <p:column headerText="Approved Amount" >
+                                <h:outputText value="#{loan.approvedAmount}" style="margin-left: 10%">
+                                    <f:convertNumber pattern="0.00"/>
+                                </h:outputText>
+                            </p:column>
+
+                            <p:column headerText="Payable Amount" >
+                                <h:outputText value="#{loan.amountPayable}" style="margin-left: 10%">
+                                    <f:convertNumber pattern="0.00"/>
+                                </h:outputText>
+                            </p:column>
+
+                            <p:column headerText="Status" >                                                                
+                                <h:outputText value="New" rendered="#{loan.approvalStatus eq false}" style="margin-left: 20%"/>                                   
+                                <h:outputText value="Approved" rendered="#{loan.approvalStatus eq true}" style="margin-left: 20%"/>                                   
+                                <h:outputText value="Rejected" rendered="#{loan.status.equalsIgnoreCase('rejected') }" style="margin-left: 20%"/>
+                                <h:outputText value="Cleared" rendered="#{loan.status.equalsIgnoreCase('cleared') }" style="margin-left: 20%"/>
+                                <h:outputText value="Ongoing" rendered="#{loan.status.equalsIgnoreCase('ongoing') }" style="margin-left: 20%"/>
+                            </p:column>
+
+                            <p:column headerText="Actions">
+                                <p:commandLink value="View" actionListener="#{loansController.selectLoan()}" oncomplete="viewLoanDLG.show();" update=":loansTABS:viewLoanFRM" style="margin-left: 30%; color: green; font-weight: bold;"/>
+                            </p:column>
+
+                        </p:dataTable>
+                    </h:form>
+                </p:tab>
+            </p:tabView>
+        </ui:define>
+    </ui:composition>
+</html>
+

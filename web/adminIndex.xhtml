@@ -1,0 +1,266 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:f="http://java.sun.com/jsf/core">
+
+    <ui:composition template="adminTemplate.xhtml">
+
+        <ui:define name="title">Home</ui:define>
+
+        <ui:define name="scripts">
+            <script type="text/javascript">
+                function setBedCrump() {
+                    menuElement = document.getElementById("menu1");
+                    menuElement.className = "limenu select";
+
+                }
+
+            </script>
+        </ui:define>
+        <ui:define name="separator">
+           
+            <span style="position:relative;font-weight:bold;font-size: 15px;">Member Shares</span><br/>
+           
+        </ui:define>
+
+        <ui:define name="adminContent">
+
+ 
+            <p:tabView id="membersTABS" style="position: relative; left: 1%; width: 85%" >
+                <p:tab title="Search Member" >
+                    <h:form id="searchAllFRM">
+                        <p:messages closable="true" />
+                        <h:panelGrid id="searchGrid" columns="3" cellpadding="5" style="position: relative; left: 4%;" >
+                            <h:outputLabel value="Member / ID   Number " for="search" />
+                            <h:inputText id="search" size="30" value="#{membersController.searchAdminMember}" />
+
+                            <p:commandButton id="cmdSearch" value="Search" actionListener="#{membersController.searchAdminMember()}" update=":membersTABS:searchAllFRM, :membersTABS:membersFRM"/>
+                            
+                        </h:panelGrid>
+                        
+                        <p:watermark value="member number or id number" for="search"/>
+                    </h:form><br/><br/>
+                    <p:blockUI trigger=":membersTABS:searchAllFRM:cmdSearch" block=":membersTABS:searchAllFRM">
+                                <p:graphicImage value="/images/ajax-loader.gif"/>
+                         </p:blockUI>
+                    <h:form id="membersFRM">
+                        <p:messages closable="true" rendered="#{membersController.adminMemberFound}"/>
+                        
+                        <p:dataTable rendered="#{membersController.adminMemberFound}" value="#{membersController.allMembersDM}" var="member" emptyMessage="No members yet" paginator="true" paginatorAlwaysVisible="false" rows="20">
+                            <p:column>
+                                <f:facet name="header">Member Number</f:facet>
+                                <h:outputText value="#{member.memberNumber}" style="position: relative;left:30%;"/>
+                            </p:column>
+                            <p:column>
+                                <f:facet name="header">Full Name</f:facet>
+                                <h:outputText value="#{member.fullName}" style="position: relative;left:10%;"/>
+                            </p:column>
+                            <p:column>
+                                <f:facet name="header">Status</f:facet>
+                                <h:outputText rendered="#{member.memberStatus}" style="position: relative;left:15%;color: green;" value="Active"/>
+                                <h:outputText rendered="#{!member.memberStatus}" style="position: relative;left:15%;color:red;" value="Suspended"/>
+
+                               
+                            </p:column>
+                           
+                            <p:column>
+                                <f:facet name="header">Action(s)</f:facet>
+                                <p:commandLink id="activate" actionListener="#{membersController.activateMemberAccount()}" value="Suspend" rendered="#{member.memberStatus}" style="color:green;position: relative;left:5%;color: red;" update=":membersTABS:membersFRM" />
+                                <p:commandLink id="suspend" actionListener="#{membersController.activateMemberAccount()}" value="Activate" rendered="#{!member.memberStatus}" style="color:green;position: relative;left:5%;color: green;" update=":membersTABS:membersFRM"/>
+                                <p:commandLink  action="#{membersController.adminViewMember()}" value="View Member" style="color:green;position: relative;left:23%;"/>
+                              <p:blockUI trigger="activate,suspend" block=":membersTABS:membersFRM">
+                            <p:graphicImage value="/images/ajax-loader.gif"/>
+                        </p:blockUI>
+                            </p:column>
+                            
+
+                        </p:dataTable>
+                      
+                    </h:form>
+                </p:tab>
+
+
+
+                <p:tab title="Transfer Shares" >
+                    <h:form id="searchFRM">
+                        <p:messages closable="true" />
+                        <h:panelGrid id="searchGrid" columns="3" cellpadding="5" style="position: relative; left: 4%;" >
+                            <h:outputLabel value="Member / ID   Number " for="search" />
+                            <h:inputText id="search" size="30" value="#{membersController.searchCriteria}" />
+
+                            <p:commandButton value="Search" actionListener="#{membersController.searchMember()}" update=":membersTABS:searchFRM, :membersTABS:transferFRM"/>
+                        </h:panelGrid>
+                        <p:watermark value="member number or id number" for="search"/>
+                    </h:form>
+                    <br/>
+                    <br/>
+
+                    <h:form id="transferFRM" >
+                        <p:fieldset legend="From" rendered="#{membersController.dbMemberFound}" style="float: left; width: 40%; margin-right: 10px;">
+                            <br/>
+                            <h:panelGrid columns="2" cellpadding="6">
+                                <h:outputLabel value="Name" for="memberName"/>
+                                <h:outputText id="memberName" value="#{membersController.dbMember.fullName}"/>
+
+                                <h:outputLabel value="Member Number" for="memberNumber"/>
+                                <h:outputText id="memberNumber" value="#{membersController.dbMember.memberNumber}"/>
+
+                                <h:outputLabel value="Id Number" for="idNumber"/>
+                                <h:outputText id="idNumber" value="#{membersController.dbMember.idNumber}"/>
+
+                                <h:outputLabel value="Shares" for="shares"/>
+                                <h:outputText id="shares" value="#{membersController.getmemberAccount(membersController.dbMember.memberNumber).getShares()}">
+                                    <f:convertNumber pattern="0.00"/>
+                                </h:outputText>
+                                <br/>
+                            </h:panelGrid>
+                        </p:fieldset>
+
+                        <p:fieldset legend="To" id="receiverFS" rendered="#{membersController.dbMemberFound}" style="float: left; width: 48%;">
+                            <p:messages rendered="#{!membersController.receiverFound}" closable="true"/>
+                            <h:panelGrid columns="3" cellpadding="4">
+
+                                <h:outputLabel value="Search" for="search"/>
+                                <h:inputText id="search" value="#{membersController.searchReceiver}"/>
+                                <p:commandButton value="Search" actionListener="#{membersController.findReceiver()}" process="@this, search" update=":membersTABS:transferFRM:receiverFS"/>
+                                <p:watermark for="search" value="member number, tel ,id"/>
+                            </h:panelGrid> 
+                            <h:panelGrid columns="2" cellpadding="4" rendered="#{membersController.receiverFound}">
+                                <h:outputLabel value="Name" for="receiverName"/>
+                                <h:outputText id="receiverName" value="#{membersController.receiverMember.fullName}"/>
+
+                                <h:outputLabel value="Member Number" for="receiverNumber"/>
+                                <h:outputText id="receiverNumber" value="#{membersController.receiverMember.memberNumber}"/>
+
+                                <h:outputLabel value="Id Number" for="receiveridNumber"/>
+                                <h:outputText id="receiveridNumber" value="#{membersController.receiverMember.idNumber}"/>
+
+                                <h:outputLabel value="Shares" for="receivershares"/>
+                                <h:outputText id="receivershares" value="#{membersController.getmemberAccount(membersController.receiverMember.memberNumber).getShares()}">
+                                    <f:convertNumber pattern="0.00"/>
+                                </h:outputText>
+
+                            </h:panelGrid>
+                        </p:fieldset>
+                        <div style="clear: both"/>
+                        <br/>
+                        <h:panelGrid columns="4" cellpadding="4" rendered="#{membersController.dbMemberFound}">
+                            <h:outputLabel value="Transfer Amount" for="transferAmount"/>
+                            <h:inputText id="transferAmount" value="#{membersController.transfer.amount}" >
+                                <f:convertNumber pattern="0.00" />
+                            </h:inputText>
+
+                            <h:outputLabel style="margin-left: 22px;" value="Transfer Reason" for="transferReason"/>
+                            <h:selectOneMenu id="transferReason" value="#{membersController.transfer.transferReasons}">
+                                <f:selectItem itemLabel="Select" itemValue="Select"/>
+                                <f:selectItem itemLabel="Admininstrative" itemValue="Administrative"/>
+                                <f:selectItem itemLabel="Death" itemValue="Death"/>
+                                <f:selectItem itemLabel="Sale" itemValue="Sale"/>
+                                <f:selectItem itemLabel="Voluntary" itemValue="Voluntary"/>
+                                <f:selectItem itemLabel="Other" itemValue="Other"/>
+                            </h:selectOneMenu>
+
+                        </h:panelGrid>
+                        <br/>
+                        <h:panelGrid columns="2" cellpadding="4" rendered="#{membersController.dbMemberFound}" style="position: relative;left: 25%">
+                            <p:commandButton value="Complete" oncomplete="confirmTransferDLG.show()" actionListener="#{membersController.validateTransfer()}" process="@this, transferFRM" update=":confirmFRM" style="margin-right: 50px;"/>
+
+                            <p:commandButton value="Cancel" actionListener="#{membersController.cancelTransaction()}" update=":membersTABS:transferFRM, :membersTABS:searchFRM"  />
+                        </h:panelGrid>
+
+
+                    </h:form>
+
+
+
+                </p:tab>
+                
+                <p:tab title="View Transfers">
+                    <br/>
+                    <p:dataTable id="transferTBL" value="#{membersController.transfersDM}" var="transfer" emptyMessage="No records found" paginator="true"
+                                 paginatorAlwaysVisible="false" rows="10">
+                    
+                        <f:facet name="header">Shares transfers</f:facet>
+                        <p:column>
+                            <f:facet name="header">From</f:facet>
+                            <h:outputText style="position:relative;left:35%;" value="#{reportsController.findMember(transfer.fromNumber).getFullName()}"/>
+                        </p:column>
+                        
+                         <p:column>
+                            <f:facet name="header">To</f:facet>
+                            <h:outputText style="position:relative;left:35%;" value="#{reportsController.findMember(transfer.toNumber).getFullName()}"/>
+                        </p:column>
+                        
+                         <p:column>
+                            <f:facet name="header">Date</f:facet>
+                            <h:outputText style="position:relative;left:35%;" value="#{transfer.transferDate}">
+                                <f:convertDateTime pattern="dd/MM/yyyy"/>
+                            </h:outputText>
+                        </p:column>
+                        
+                        <p:column>
+                            <f:facet name="header">Reason</f:facet>
+                            <h:outputText style="position:relative;left:35%;"  value="#{transfer.transferReasons}"/>
+                        </p:column>
+                        
+                        <p:column>
+                            <f:facet name="header">Amount</f:facet>
+                            <h:outputText style="position:relative;left:35%;"  value="#{transfer.amount}"/>
+                        </p:column>
+                        
+                        <p:column>
+                            <f:facet name="header">Served By</f:facet>
+                            <h:outputText style="position:relative;left:35%;" value="#{transfer.servedBy}"/>
+                        </p:column>
+                    </p:dataTable>
+                </p:tab>
+
+
+               
+            </p:tabView>
+
+            <p:dialog widgetVar="confirmTransferDLG" modal="true" resizable="false" header="Confirm Shares Transfer" position="top,center">
+                <h:form id="confirmFRM">
+                    <h:panelGrid cellpadding="4" rendered="#{membersController.transferSuccess}" >
+                        <p:messages/>
+                        <p:commandButton value="OKAY" onclick="confirmTransferDLG.hide();" style="position: relative; left: 30%;"/>
+                    </h:panelGrid>
+                    <h:panelGrid columns="1" cellpadding="4" rendered="#{!membersController.validTransfer and !membersController.transferSuccess}">
+                        
+
+                        <h:outputLabel value="Correct these errors before continuing"/>
+                         <p:messages />
+                        <p:commandButton value="OK" onclick="confirmTransferDLG.hide();" style="position: relative; left: 30%;"/>
+                    </h:panelGrid>
+
+                    <h:panelGrid columns="2" cellpadding="5"  rendered="#{membersController.validTransfer and !membersController.transferSuccess}" style="margin-left:20px;">
+
+                        <h:outputText value="Confirm that transfer details are correct"/><br/>
+
+                        <h:outputText value="Do you want to continue?"/><br/>
+
+                    </h:panelGrid>
+                    <br/>
+                    <h:panelGrid columns="3" cellpadding="5"  rendered="#{membersController.validTransfer and !membersController.transferSuccess}" style="position: relative; left: 15%">
+                        <p:commandButton id="yesSave" value="YES"  actionListener="#{membersController.completeTransfer}"  update="confirmFRM,:membersTABS:transferFRM,:membersTABS:searchFRM:searchGrid, :membersTABS:transferTBL" />
+
+                        <p:commandButton value="NO"   onclick="confirmTransferDLG.hide();" style="position: relative; left: 35%" />
+                    </h:panelGrid>
+                    <p:blockUI trigger="yesSave" block="confirmFRM">
+                        <p:graphicImage value="/images/ajax-loader.gif"/>
+
+                    </p:blockUI>
+
+
+                </h:form>
+            </p:dialog>
+
+
+
+        </ui:define>
+    </ui:composition>
+</html>
+

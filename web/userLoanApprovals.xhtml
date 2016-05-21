@@ -1,0 +1,324 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:f="http://java.sun.com/jsf/core">
+
+    <ui:composition template="adminTemplate.xhtml">
+        <ui:define name="title">Loans Approval</ui:define>
+        <ui:define name="scripts">
+            <style>                 
+                .ui-datatable thead th, .ui-datatable tbody td, .ui-datatable tfoot td 
+                {
+                    white-space: normal !important;
+                }
+            </style>
+        </ui:define>
+        <ui:define name="topBar">
+
+        </ui:define>
+        <ui:define name="separator">
+            <span style="position:relative;font-weight:bold;font-size: 18px;">My Approvals</span><br/>
+        </ui:define>
+
+        <ui:define name="adminContent">
+            <p:tabView id="loansTABS" style="font-size: 13px;">
+                <p:tab title="Pending Approvals" id="loansTAB">
+                    <p:dialog widgetVar="viewLoanDLG" width="1100" position="top" header="View Loan" resizable="false" modal="true">
+                        <h:form id="viewLoanFRM">
+                            <div style="float: left; width: 65%; margin-right: 2%;">
+                                <p:messages id="messages" closable="true"/>
+
+                                <h:panelGrid cellpadding="5" columns="4">
+                                    <h:outputLabel value="Number" for="loanNumber"/>
+                                    <h:inputText readonly="true" id="loanNumber" value="#{loansController.dbLoan.loanNUmber}"/>
+
+                                    <h:outputLabel value="Type" for="loanType"/>
+                                    <h:inputText readonly="true"  id="loanType" value="#{loansController.dbLoan.purpose}"/>
+
+                                    <h:outputLabel value="Member number" for="memberNumber"/>
+                                    <h:inputText readonly="true" id="memberNumber" value="#{loansController.dbLoan.memberNumber}"/>
+
+                                    <h:outputLabel value="Applied Amount" for="appliedamount"/>
+                                    <h:inputText readonly="true"  id="appliedamount" value="#{loansController.dbLoan.appliedAmount}"/>
+
+                                    <h:outputLabel value="Approved Amount" for="approvedamount"/>
+                                    <h:inputText readonly="true"  id="approvedamount" value="#{loansController.dbLoan.approvedAmount}"/>
+                                </h:panelGrid>
+                                <br/>
+                                <p:dataTable  value="#{loansController.dbLoanGuaratorsDM}" var="guarantor" rows="5" emptyMessage="No records found" paginator="true" paginatorAlwaysVisible="false">
+                                    <f:facet name="header">Loan Guarantors</f:facet>
+                                    <p:column headerText="Member ID">
+                                        <h:outputText value="#{guarantor.idNumber}" style="margin-left: 5%"/>
+                                    </p:column>
+
+
+                                    <p:column headerText="Member Number">
+                                        <h:outputText value="#{guarantor.memberNumber}" style="margin-left: 20%"/>
+                                    </p:column>
+
+                                    <p:column headerText="Guarantee">
+                                        <h:outputText value="#{guarantor.savings}" style="margin-left: 20%"/>
+                                    </p:column>
+
+                                    <p:columnGroup type="footer">
+                                        <p:row>
+                                            <p:column colspan="2" style="text-align: left;" footerText="Total " />
+                                            <p:column id="total" footerText="#{loansController.dbLoanGuarantees}"/>                                          
+                                        </p:row>
+                                    </p:columnGroup>
+                                </p:dataTable> 
+                                <br/>
+                                <p:dataTable id="approvalsTBL" value="#{loansController.approvalsDM}"  var="approval" rows="5" paginator="true" paginatorAlwaysVisible="false">
+                                    <f:facet name="header">Approvers</f:facet>
+                                    <p:column headerText="Full Name" >
+                                        <h:outputText value="#{loansController.userFacade.find(approval.userID).fullName}" style="margin-left : 5%"/>
+                                    </p:column>
+
+                                    <p:column headerText="Status" >
+                                        <h:outputText value="#{approval.status}" style="margin-left : 5%"/>
+                                    </p:column>
+
+                                    <p:column headerText="Date" >
+                                        <h:outputText value="#{approval.approvalDate}" style="margin-left : 5%">
+                                            <f:convertDateTime pattern="dd-MM-yyyy"/>
+                                        </h:outputText>
+                                    </p:column>
+                                </p:dataTable>
+                            </div>
+                            <div style="float:left; width: 30%">
+                                <p:fieldset legend="Approval Action" >
+                                    <h:panelGrid cellpadding="5">
+                                        <h:selectOneRadio layout="pageDirection"  value="#{loansController.approvalAction}" >
+                                            <p:ajax event="change" listener="#{loansController.approveLoan}" update=":loansTABS:viewLoanFRM"/>                                        
+                                            <f:selectItem itemLabel="Approve" itemDisabled="#{loansController.userApprovalStatus == 'Approved'}" itemValue="approve"/>                                        
+                                            <f:selectItem itemLabel="Reject" itemDisabled="#{loansController.userApprovalStatus == 'Rejected'}" itemValue="reject"/>
+                                        </h:selectOneRadio>
+
+                                        <h:panelGrid cellpadding="5" id="reasonPG" columns="2" rendered="#{loansController.showReason eq true}">
+                                            <h:outputLabel value="Reason" for="rejectReason"/>
+                                            <h:inputTextarea cols="30" required="true" requiredMessage="Enter loan rejection reason" rows="3" id="rejectReason" value="#{loansController.dbLoan.approvalReason}"/>
+                                        </h:panelGrid>                                    
+                                    </h:panelGrid>
+
+                                    <br/>
+                                    <h:panelGrid cellpadding="5" columns="2" style="margin-left: 30%">
+                                        <p:commandButton id="cmdComplete" value="Update"   actionListener="#{loansController.completeLoanApproval()}" update=":loansTABS:viewLoanFRM, approvalsTBL, :loansTABS:viewLoanFRM:messages, :loansTABS:loansFRM:loansTBL"/>
+                                        <p:commandButton value="Close" onclick="viewLoanDLG.hide();"/>                                       
+                                    </h:panelGrid>                                  
+                                </p:fieldset>
+
+                                <p:blockUI trigger="cmdComplete" block="viewLoanFRM">
+                                    <p:graphicImage value="/images/ajax-loader.gif"/>
+                                </p:blockUI>
+                            </div>
+                        </h:form>
+                    </p:dialog>
+
+                    <p:dialog widgetVar="viewLoanTopupDLG"  width="1100" position="top" header="View Loan" resizable="false" modal="true">
+                        <h:form id="viewLoanTopupFRM" style="font-size: 13px;">
+                            <div style="float: left; width: 65%; margin-right: 2%;">
+                                <p:messages id="messages" closable="true"/>
+
+                                <h:panelGrid cellpadding="3" columns="4">
+                                    <h:outputLabel value="Number" for="loanNumber"/>
+                                    <h:inputText readonly="true" id="loanNumber" value="#{loansController.dbLoanTopup.loanNumber}"/>
+
+                                    <h:outputLabel value="Balance" for="loanBal"/>
+                                    <h:inputText readonly="true" id="loanBal" value="#{loansController.loanFacade.findLoan(loansController.dbLoanTopup.loanNumber).balance}"/>
+
+                                    <h:outputLabel value="Type" for="loanType"/>
+                                    <h:inputText readonly="true"  id="loanType" value="#{loansController.dbLoanTopup.purpose}"/>
+
+                                    <h:outputLabel value="Member number" for="memberNumber"/>
+                                    <h:inputText readonly="true" id="memberNumber" value="#{loansController.dbLoanTopup.memberNumber}"/>
+
+                                    <h:outputLabel value="Applied Amount" for="appliedamount"/>
+                                    <h:inputText readonly="true"  id="appliedamount" value="#{loansController.dbLoanTopup.appliedAmount}"/>
+
+                                    <h:outputLabel value="Repayment Period" for="period"/>
+                                    <h:inputText readonly="true"  id="period" value="#{loansController.dbLoanTopup.repaymentPeriod}"/>
+
+
+                                </h:panelGrid>
+                                <br/>
+                                <p:dataTable  value="#{loansController.dbLoanGuaratorsDM}" var="guarantor" rows="5" emptyMessage="No records found" paginator="true" paginatorAlwaysVisible="false">
+                                    <f:facet name="header">Loan Guarantors</f:facet>
+                                    <p:column headerText="Member ID">
+                                        <h:outputText value="#{guarantor.idNumber}" style="margin-left: 20%"/>
+                                    </p:column>                                   
+
+                                    <p:column headerText="Member Number">
+                                        <h:outputText value="#{guarantor.memberNumber}" style="margin-left: 20%"/>
+                                    </p:column>
+
+                                    <p:column headerText="Guarantee">
+                                        <h:outputText value="#{guarantor.savings}" style="margin-left: 20%"/>
+                                    </p:column>
+                                </p:dataTable> 
+                                <br/><br/>
+                                <p:dataTable id="approvalsTBL" value="#{loansController.approvalsDM}" var="approval" rows="5" paginator="true" paginatorAlwaysVisible="false">
+                                    <f:facet name="header">Approvers</f:facet>
+                                    <p:column headerText="Full Name" >
+                                        <h:outputText value="#{loansController.userFacade.find(approval.userID).fullName}" style="margin-left : 5%"/>
+                                    </p:column>
+
+                                    <p:column headerText="Status" >
+                                        <h:outputText value="#{approval.status}" style="margin-left : 5%"/>
+                                    </p:column>
+
+                                    <p:column headerText="Date" >
+                                        <h:outputText value="#{approval.approvalDate}" style="margin-left : 5%">
+                                            <f:convertDateTime pattern="dd-MM-yyyy"/>
+                                        </h:outputText>
+                                    </p:column>
+                                </p:dataTable>
+                            </div>
+                            <div style="float:left; width: 30%">
+                                <p:fieldset legend="Approval Action">
+                                    <h:panelGrid cellpadding="5">
+                                        <h:selectOneRadio layout="pageDirection"  value="#{loansController.approvalAction}" >
+                                            <p:ajax event="change" listener="#{loansController.approveLoan}" update=":loansTABS:viewLoanTopupFRM"/>                                        
+                                            <f:selectItem itemLabel="Approve" itemDisabled="#{loansController.userApprovalStatus == 'Approved'}" itemValue="approve"/>                                        
+                                            <f:selectItem itemLabel="Reject" itemDisabled="#{loansController.userApprovalStatus == 'Rejected'}" itemValue="reject"/>
+                                        </h:selectOneRadio>
+
+                                        <h:panelGrid cellpadding="5" id="reasonPG" columns="2" rendered="#{loansController.showReason eq true}">
+                                            <h:outputLabel value="Reason" for="rejectReason"/>
+                                            <h:inputTextarea cols="30" required="true" requiredMessage="Enter loan rejection reason" rows="3" id="rejectReason" 
+                                                             value="#{loansController.dbLoanTopup.approvalReason}"/>
+                                        </h:panelGrid>                                    
+                                    </h:panelGrid>
+
+                                    <br/>
+                                    <h:panelGrid cellpadding="5" columns="2" style="margin-left: 30%">
+                                        <p:commandButton id="cmdComplete" value="Update" actionListener="#{loansController.completeTopupApproval()}" update=":loansTABS:viewLoanTopupFRM, approvalsTBL, :loansTABS:viewLoanTopupFRM:messages, :loansTABS:loansFRM:topupsTBL"/>
+                                        <p:commandButton value="Close" onclick="viewLoanTopupDLG.hide();"/>                                       
+                                    </h:panelGrid>
+                                </p:fieldset>
+                                <p:blockUI trigger="cmdComplete" block="viewLoanTopupFRM">
+                                    <p:graphicImage value="/images/ajax-loader.gif"/>
+                                </p:blockUI>
+                            </div>
+                        </h:form>
+                    </p:dialog>
+
+                    <h:form id="loansFRM">  
+                        <p:commandButton id="cmdUpdate" value="Update Data" actionListener="#{loansController.updateLoanApprovalData()}"/>
+                        <br/>
+                        <br/>
+                         <p:blockUI trigger="cmdUpdate" block="loansFRM">
+                                    <p:graphicImage value="/images/ajax-loader.gif"/>
+                                </p:blockUI>
+                        <p:fieldset id="filterOptionsFS" legend="Filter Options">
+                            <h:panelGrid cellpadding="5" columns="4">
+                                <h:outputLabel value="Filter" for="approvalType"/>
+                                <h:selectOneMenu id="approvalType" value="#{loansController.approvalType}">
+                                    <p:ajax event="change" process="approvalType" listener="#{loansController.filterApproval()}" update="filterOptionsFS, loansFRM, loansFRM:topupsTBL, loansFRM:loansTBL"/>
+                                    <f:selectItem itemLabel="Select" itemValue="select"/>
+                                    <f:selectItem itemLabel="Loan" itemValue="loan"/>
+                                    <f:selectItem itemLabel="Topup" itemValue="topup"/>
+                                </h:selectOneMenu>
+
+                                <h:outputLabel value="Approval Stage" rendered="#{loansController.approvalType != 'select'}" for="approvalStage"/>
+                                <h:selectOneMenu id="approvalStage" rendered="#{loansController.approvalType != 'select'}" value="#{loansController.approvalStage}">
+                                    <p:ajax event="change" process="approvalStage" listener="#{loansController.filterApprovalStage()}" update="loansFRM, loansFRM:topupsTBL, loansFRM:loansTBL"/>
+                                    <f:selectItem itemLabel="Select" itemValue="select"/>
+                                    <f:selectItem itemLabel="Review" itemValue="review"/>
+                                    <f:selectItem itemLabel="Approved" itemValue="approved"/>
+                                    <f:selectItem itemLabel="Rejected" itemValue="rejected"/>
+                                </h:selectOneMenu>                                
+                            </h:panelGrid>
+
+
+                            <p:blockUI trigger="approvalStage" block="loansFRM">
+                                <p:graphicImage value="/images/ajax-loader.gif"/>
+                            </p:blockUI>
+                        </p:fieldset>
+
+                        <br/>
+                        <br/>
+
+                        <p:dataTable id="loansTBL" value="#{loansController.userLoanApprovalsDM}" rendered="#{loansController.approvalType eq 'loan'}" paginator="true" var="loan" rows="20" emptyMessage="No records found" paginatorAlwaysVisible="false">
+                            <p:column headerText="Loan Number">
+                                <h:outputText value="#{loan.loanNUmber}" style="margin-left: 10%">
+                                    <f:convertNumber pattern="0.00" />
+                                </h:outputText>
+                            </p:column>   
+
+                            <p:column sortBy="#{loan.memberNumber}" >
+                                <f:facet name="header">Member Number</f:facet>
+                                <h:outputText value="#{loan.memberNumber}" style="margin-left: 5%"/>
+                            </p:column>
+
+                            <p:column >
+                                <f:facet name="header">Date Applied</f:facet>
+                                <h:outputText value="#{loan.applicationDate}" style="margin-left: 5%">
+                                    <f:convertDateTime pattern="dd-MM-yyyy : hh:mm"/>
+                                </h:outputText>
+                            </p:column>                         
+
+                            <p:column headerText="Applied Amount" >
+                                <h:outputText value="#{loan.appliedAmount}" style="margin-left: 10%">
+                                    <f:convertNumber pattern="0.00"/>
+                                </h:outputText>
+                            </p:column>
+
+                            <p:column headerText="Approved Amount" >
+                                <h:outputText value="#{loan.approvedAmount}" style="margin-left: 10%">
+                                    <f:convertNumber pattern="0.00"/>
+                                </h:outputText>
+                            </p:column>
+
+                            <p:column headerText="Payable Amount"  >
+                                <h:outputText value="#{loan.amountPayable}" style="margin-left: 10%">
+                                    <f:convertNumber pattern="0.00"/>
+                                </h:outputText>
+                            </p:column>
+
+
+                            <p:column headerText="Actions">
+                                <p:commandLink value="View" actionListener="#{loansController.viewLoan()}" oncomplete="viewLoanDLG.show();" update=":loansTABS:viewLoanFRM" style="margin-left: 30%; color: green; font-weight: bold;"/>
+                            </p:column>
+
+                        </p:dataTable>
+
+                        <p:dataTable id="topupsTBL" value="#{loansController.userTopupApprovalsDM}" rendered="#{loansController.approvalType eq 'topup'}" var="topup" rows="20" emptyMessage="No records found" paginatorAlwaysVisible="false">
+                            <p:column headerText="Loan Number">
+                                <h:outputText value="#{topup.loanNumber}" style="margin-left: 10%">
+                                    <f:convertNumber pattern="0.00" />
+                                </h:outputText>
+                            </p:column>   
+
+                            <p:column >
+                                <f:facet name="header">Member Name</f:facet>
+                                <h:outputText value="#{topup.memberNumber}" style="margin-left: 5%"/>
+                            </p:column>
+
+                            <p:column >
+                                <f:facet name="header">Date Applied</f:facet>
+                                <h:outputText value="#{topup.dateApplied}" style="margin-left: 5%">
+                                    <f:convertDateTime pattern="dd-MM-yyyy : hh:mm"/>
+                                </h:outputText>
+                            </p:column>
+
+                            <p:column headerText="Applied Amount" >
+                                <h:outputText value="#{topup.appliedAmount}" style="margin-left: 10%">
+                                    <f:convertNumber pattern="0.00"/>
+                                </h:outputText>
+                            </p:column>                         
+
+                            <p:column headerText="Actions">
+                                <p:commandLink value="View" actionListener="#{loansController.viewLoanTopup()}" oncomplete="viewLoanTopupDLG.show();" update=":loansTABS:viewLoanTopupFRM, :loansTABS:viewLoanTopupFRM:approvalsTBL" style="margin-left: 30%; color: green; font-weight: bold;"/>
+                            </p:column>
+
+                        </p:dataTable>
+                    </h:form>
+                </p:tab>
+            </p:tabView>
+        </ui:define>
+    </ui:composition>
+</html>
+

@@ -1,0 +1,51 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:f="http://java.sun.com/jsf/core">
+    <ui:composition template="adminTemplate.xhtml">
+        <ui:define name="title">Loan Application Status</ui:define>
+
+        <ui:define name="separator">
+
+            <span style="position:relative;font-weight:bold;font-size: 18px;">Loan Top-ups</span><br/>
+
+        </ui:define>
+
+        <ui:define name="adminContent">           
+            <br/><br/>
+            <h:form id="topupsFRM" style="font-size: 13px;" >
+                <br/>
+                <p:commandButton value="New Top-up" action="#{loansController.navNewTopup}" ajax="false"/>
+                <br/>
+                <br/>
+                <p:dataTable paginatorAlwaysVisible="false" rows="5"  value="#{loansController.loanTopupsDM}" var="topup" paginator="true">
+                    <p:column headerText="Loan Number">
+                        <h:outputText value="#{topup.loanNumber}" style="position:relative;left:35%;"/>
+                    </p:column>
+                    <p:column headerText="Member Number">
+                        <h:outputText value="#{topup.memberNumber}"/>
+
+                    </p:column>
+
+                    <p:column headerText="Topup Amount">
+                        <h:outputText value="#{topup.appliedAmount}" style="position:relative;left:35%;"/>
+                    </p:column>  
+                    
+                    <p:column headerText="Status">
+                        <h:outputText value="#{topup.status}" style="position:relative;left:15%;"/>
+                    </p:column>
+                    
+                    <p:column headerText="Date Applied">
+                        <h:outputText  value="#{topup.dateApplied}" style="position:relative;left:20%;" >
+                            <f:convertDateTime pattern="dd-MM-YYYY"/>
+                        </h:outputText>
+                    </p:column>                 
+                </p:dataTable>
+            </h:form>
+        </ui:define>
+    </ui:composition>
+</html>
+

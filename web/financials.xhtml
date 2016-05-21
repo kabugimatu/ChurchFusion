@@ -1,0 +1,301 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:f="http://java.sun.com/jsf/core"> 
+    <ui:composition template="adminTemplate.xhtml">
+        <ui:define name="title">Sacco Fusion - Accounts</ui:define>
+        <ui:define name="scripts">
+            <script type="text/javascript">
+                function setBedCrump() {
+                    menuElement = document.getElementById("menu6");
+                    menuElement.className = "limenu select";
+
+                }
+
+            </script>
+            <style>                 
+
+                .ui-datatable thead th, .ui-datatable tbody td, .ui-datatable tfoot td 
+                {
+                    white-space: normal !important;
+                }
+            </style>
+        </ui:define>
+
+        <ui:define name="separator">
+            
+            <span style="position:relative;font-weight:bold;font-size: 18px;">Accounts | Financial Statements</span>
+          
+        </ui:define>
+
+        <ui:define name="adminContent">
+
+          
+            <p:tabView rendered="#{mainController.userLevelLogged.loadFinacialStatements}" id="accReportTabs">
+                
+                <p:tab title="Statements ">
+                    <h:form id="accReportFRM">
+                        <p:messages closable="true"/>
+                        
+                            <h:panelGrid id="accGrid" columns="2" cellpadding="10">
+                                <h:outputLabel value="Report Type " for="accFilter"/>
+                                <h:selectOneMenu id="accFilter" value="#{accountingController.reportType}" >
+                                    <f:selectItem itemLabel="Select" itemValue="select"/>
+                                    <f:selectItem itemLabel="Trial Balance" itemValue="trialbalance"/>
+                                    <f:selectItem itemLabel="Balance Sheet" itemValue="balancesheet"/>
+                                    <f:selectItem itemLabel="Profit and Loss" itemValue="profitandloss"/>
+                                </h:selectOneMenu>
+                            </h:panelGrid>
+                        <h:panelGrid id="accGrid2" cellpadding="10" columns="7">
+                                <h:outputLabel value="Select Period" for="period"/>
+                                <h:selectOneMenu id="period" value="#{accountingController.reportPeriod}">
+                                    <p:ajax event="change" listener="#{accountingController.onSelectPeriod()}" update=":accReportTabs:accReportFRM:accGrid2"/>
+                                    <f:selectItem itemLabel="Select" itemValue="select"/>
+                                    <f:selectItem itemLabel="Month" itemValue="month"/>
+                                    <f:selectItem itemLabel="Year" itemValue="year"/>
+                                    <f:selectItem itemLabel="Date Range" itemValue="daterange"/>
+                                </h:selectOneMenu>
+                                <h:outputLabel value="From" for="from" rendered="#{accountingController.showDateRange}"/>
+                                <p:calendar id="from" value="#{accountingController.fromReportDate}" size="18" rendered="#{accountingController.showDateRange}" pattern="dd/MMM/yyyy" navigator="true" maxdate="#{accountingController.today}"/>
+
+                                <h:outputLabel value="to" for="to" rendered="#{accountingController.showDateRange}"/>
+                                <p:calendar showButtonPanel="true" showOtherMonths="true"   id="to" size="18" value="#{accountingController.toReportDate}" rendered="#{accountingController.showDateRange}" pattern="dd/MMM/yyyy" navigator="true" maxdate="#{accountingController.today}"/>
+
+                                <h:outputLabel  for="monthMenu" value="Month" rendered="#{accountingController.showMonthMenu}"/>
+                                <h:selectOneMenu  id="monthMenu" value="#{accountingController.month}" rendered="#{accountingController.showMonthMenu}" >
+                                    <f:selectItem itemLabel="Select Month" itemValue="0"/>
+                                    <f:selectItem itemLabel="January" itemValue="01"/>
+                                    <f:selectItem itemLabel="February" itemValue="02"/>
+                                    <f:selectItem itemLabel="March" itemValue="03"/>
+                                    <f:selectItem itemLabel="April" itemValue="04"/>
+                                    <f:selectItem itemLabel="May" itemValue="05"/>
+                                    <f:selectItem itemLabel="June" itemValue="06"/>
+                                    <f:selectItem itemLabel="July" itemValue="07"/>
+                                    <f:selectItem itemLabel="August" itemValue="08"/>
+                                    <f:selectItem itemLabel="September" itemValue="09"/>
+                                    <f:selectItem itemLabel="October" itemValue="10"/>
+                                    <f:selectItem itemLabel="November" itemValue="11"/>
+                                    <f:selectItem itemLabel="December" itemValue="12"/>
+
+                                </h:selectOneMenu>
+                                <h:outputLabel  for="yearMenu" value="Year" rendered="#{accountingController.showYearMenu}"/>
+                                <h:selectOneMenu id="yearMenu" value="#{accountingController.year}" rendered="#{accountingController.showYearMenu}" >
+                                    <f:selectItems value="#{accountingController.genYears()}" var="year" itemLabel="#{year}" itemValue="#{year}"/>
+                                </h:selectOneMenu>
+                                <p:commandButton id="genTrial" value="Generate" actionListener="#{accountingController.generateTrialBalance()}" update=":accReportTabs:accReportFRM, :accReportTabs:trialBalance"/>
+                            </h:panelGrid>
+
+                       
+                    </h:form>
+                    <br/><br/>
+                    <p:dialog widgetVar="printDLG" header="Select Printer" modal="true" resizable="false">
+                        <h:form id="printerFRM">
+                            <h:panelGrid  columns="2" cellpadding="5" style="position:relative;left:0%;" >
+                                <h:outputLabel value="Select Printer" for="printers" />
+                                <h:selectOneMenu id="printers" value="#{accountingController.serviceName}">
+                                    <f:selectItems value="#{accountingController.printServices}" var="pService" itemLabel="#{pService.name}" itemValue="#{pService}"/>
+                                </h:selectOneMenu>
+                            </h:panelGrid>
+                            <h:panelGrid columns="1" cellpadding="5" style="position:relative;left:30%;" >
+                                <p:commandButton id="yesSave" value="Print" actionListener="#{accountingController.printReport()}" 
+                                                 oncomplete="printDLG.hide()" />
+                            </h:panelGrid>   
+                            <p:blockUI trigger="yesSave" block="printerFRM">
+                                <p:graphicImage value="/images/ajax-loader.gif"/>
+                            </p:blockUI>
+                        </h:form>
+                    </p:dialog>
+
+                    <h:form id="trialBalance"  >
+                        <p:commandButton value="Print" type="button" onclick="printDLG.show();" style="color:blue;position:relative;left:80%;"/><br/><br/>
+                        <p:fieldset rendered="#{accountingController.showTrialBalance eq true}">
+                            <h:outputText style="font-weight: bold;" value="ASSETS"/><br/>
+                            <p:dataTable  value="#{accountingController.assetSupportDM}" var="asset">
+                                <p:column style="width:30%;"  >
+                                    <h:outputText value="#{asset.subAccount}"/>
+                                </p:column>
+
+                                <p:column style="width:20%;"  >
+                                    <f:facet name="header">Debit</f:facet>
+                                    <h:outputText style="position:relative;left:45%;" value="#{asset.debit}"/>
+                                </p:column>
+                                <p:column style="width:20%;" >
+                                    <f:facet name="header">Credit</f:facet>
+                                    <h:outputText style="position:relative;left:45%;" value="#{asset.credit}"/>
+                                </p:column>
+                            </p:dataTable><br/>
+                            <h:outputText style="font-weight: bold;" value="LIABILITIES"/><br/>
+                            <p:dataTable  value="#{accountingController.liabilitySupportDM}" var="liab">
+
+                                <p:column style="width:30%;"  >
+                                    <h:outputText value="#{liab.subAccount}"/>
+                                </p:column>
+
+                                <p:column style="width:20%;" >
+                                    <h:outputText style="position:relative;left:45%;" value="#{liab.debit}"/>
+                                </p:column>
+                                <p:column style="width:20%;" >
+                                    <h:outputText style="position:relative;left:45%;" value="#{liab.credit}"/>
+                                </p:column>
+                            </p:dataTable><br/>
+                            <h:outputText  style="font-weight: bold;" value="INCOME"/><br/>
+                            <p:dataTable  value="#{accountingController.incomeSupportDM}" var="income">
+                                <p:column style="width:30%;"  >
+                                    <h:outputText value="#{income.subAccount}"/>
+                                </p:column>
+
+                                <p:column style="width:20%;" >
+                                    <h:outputText style="position:relative;left:45%;" value="#{income.debit}"/>
+                                </p:column>
+                                <p:column style="width:20%;" >
+                                    <h:outputText style="position:relative;left:45%;" value="#{income.credit}"/>
+                                </p:column>
+                            </p:dataTable>
+                            <br/>
+                            <h:outputText style="font-weight: bold;" value="EXPENSES"/><br/>
+                            <p:dataTable  value="#{accountingController.expensesSupportDM}" var="expense">
+                                <p:column style="width:30%;" >
+                                    <h:outputText  value="#{expense.subAccount}"/>
+                                </p:column>
+                                <p:column  style="width:20%;" >
+                                    <h:outputText style="position:relative;left:45%;" value="#{expense.debit}"/>
+                                </p:column >
+                                <p:column style="width:20%;" >
+                                    <h:outputText style="position:relative;left:45%;" value="#{expense.credit}"/>
+                                </p:column>
+                            </p:dataTable>
+                            <br/>
+                            <h:outputText style="font-weight: bold;" value="Equity"/><br/>
+                            <p:dataTable  value="#{accountingController.equitySupportDM}" var="equity">
+                                <p:column style="width:30%;"  >
+                                    <h:outputText value="#{equity.subAccount}"/>
+                                </p:column>
+
+                                <p:column style="width:20%;" >
+                                    <h:outputText style="position:relative;left:45%;" value="#{equity.debit}"/>
+                                </p:column>
+                                <p:column style="width:20%;" >
+                                    <h:outputText style="position:relative;left:45%;" value="#{equity.credit}"/>
+                                </p:column>
+
+                                <p:columnGroup type="footer" >
+                                    <p:row>
+                                        <p:column footerText="" colspan="1" style="text-align: left;"/>
+                                        <p:column style="font-weight: bold;font-size: 16px;" footerText="Kshs #{accountingController.totalDebits}"/>
+                                        <p:column style="font-weight: bold;font-size: 16px;" footerText="Kshs #{accountingController.totalCredit}"/>
+                                    </p:row>
+                                </p:columnGroup>
+
+                            </p:dataTable>
+                        </p:fieldset>
+                        
+                        <p:fieldset rendered="#{accountingController.showBalanceSheet eq true}">
+                            <h:outputText style="font-weight: bold;" value="ASSETS"/><br/>
+                            <p:dataTable  value="#{accountingController.assetSupportDM}" var="asset">
+                                <p:column style="width:30%;"  >
+                                    <h:outputText value="#{asset.subAccount}"/>
+                                </p:column>
+                             
+                                <p:column style="width:20%;" >                                    
+                                    <h:outputText style="position:relative;left:45%;" value="#{asset.debit}"/>
+                                </p:column>
+                                
+                                 <p:columnGroup type="footer" >
+                                    <p:row>                                        
+                                        <p:column style="font-weight: bold;font-size: 16px;" footerText="Total Assets"/>
+                                        <p:column style="font-weight: bold;font-size: 16px;" footerText="Kshs #{accountingController.assetBalance}"/>
+                                    </p:row>
+                                </p:columnGroup>
+                            </p:dataTable><br/>
+                            <h:outputText style="font-weight: bold;" value="LIABILITIES"/><br/>
+                            <p:dataTable  value="#{accountingController.liabilitySupportDM}" var="liab">
+
+                                <p:column style="width:30%;"  >
+                                    <h:outputText value="#{liab.subAccount}"/>
+                                </p:column>
+
+                                <p:column style="width:20%;" >
+                                    <h:outputText style="position:relative;left:45%;" value="#{liab.credit}"/>
+                                </p:column>  
+                                
+                                 <p:columnGroup type="footer" >
+                                    <p:row>                                        
+                                        <p:column style="font-weight: bold;font-size: 16px;" footerText="Total Liabilities"/>
+                                        <p:column style="font-weight: bold;font-size: 16px;" footerText="Kshs #{accountingController.liabilityBalance}"/>
+                                    </p:row>
+                                </p:columnGroup>
+                            </p:dataTable><br/>                           
+                            <br/>                            
+                            <h:outputText style="font-weight: bold;" value="Equity"/><br/>
+                            <p:dataTable  value="#{accountingController.equitySupportDM}" var="equity">
+                                <p:column style="width:30%;"  >
+                                    <h:outputText value="#{equity.subAccount}"/>
+                                </p:column>
+                              
+                                <p:column style="width:20%;" >
+                                    <h:outputText style="position:relative;left:45%;" value="#{equity.credit}"/>
+                                </p:column>
+
+                                <p:columnGroup type="footer" >
+                                    <p:row>                                        
+                                        <p:column style="font-weight: bold;font-size: 16px;" footerText="Total Equity"/>
+                                        <p:column style="font-weight: bold;font-size: 16px;" footerText="Kshs #{accountingController.equityBalance}"/>
+                                    </p:row>
+                                </p:columnGroup>
+
+                            </p:dataTable>
+                        </p:fieldset>
+                        
+                     <p:fieldset rendered="#{accountingController.showPnL eq true}">                           
+                            <h:outputText  style="font-weight: bold;" value="INCOME"/><br/>
+                            <p:dataTable  value="#{accountingController.incomeSupportDM}" var="income">
+                                <p:column style="width:30%;"  >
+                                    <h:outputText value="#{income.subAccount}"/>
+                                </p:column>                              
+                                <p:column style="width:20%;" >
+                                    <h:outputText style="position:relative;left:45%;" value="#{income.credit}"/>
+                                </p:column>
+                                 <p:columnGroup type="footer" >
+                                    <p:row>                                        
+                                        <p:column style="font-weight: bold;font-size: 16px;" footerText="Total Income"/>
+                                        <p:column style="font-weight: bold;font-size: 16px;" footerText="Kshs #{accountingController.incomeBalance}"/>
+                                    </p:row>
+                                </p:columnGroup>
+                            </p:dataTable>
+                            <br/>
+                            <h:outputText style="font-weight: bold;" value="EXPENSES"/><br/>
+                            <p:dataTable  value="#{accountingController.expensesSupportDM}" var="expense">
+                                <p:column style="width:30%;" >
+                                    <h:outputText  value="#{expense.subAccount}"/>
+                                </p:column>
+                                <p:column  style="width:20%;" >
+                                    <h:outputText style="position:relative;left:45%;" value="#{expense.debit}"/>
+                                </p:column > 
+                                 <p:columnGroup type="footer" >
+                                    <p:row>                                        
+                                        <p:column style="font-weight: bold;font-size: 16px;" footerText="Total Expenses"/>
+                                        <p:column style="font-weight: bold;font-size: 16px;" footerText="Kshs #{accountingController.expensesBalance}"/>
+                                    </p:row>
+                                </p:columnGroup>
+                            </p:dataTable>                           
+                        </p:fieldset>
+                    </h:form>
+                </p:tab>
+            </p:tabView>
+
+
+            <h:outputText rendered="#{!mainController.userLevelLogged.loadFinacialStatements}"  style="font-weight: bold;font-size: 24px;color:red;position:relative;left:20%;" value="Access Denied : You do not have enough privileges to access this feature"/>
+
+
+
+
+
+        </ui:define>
+
+
+    </ui:composition>
+</html>
+

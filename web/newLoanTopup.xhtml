@@ -1,0 +1,412 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:f="http://java.sun.com/jsf/core">
+    <ui:composition template="adminTemplate.xhtml">
+        <ui:define name="title">Loan Application</ui:define>
+        <ui:define name="scripts">
+            <script type="text/javascript">
+                function setBedCrump() {
+                    menuElement = document.getElementById("menu3");
+                    menuElement.className = "limenu select";
+
+                }
+
+
+            </script>
+
+            <style>
+
+                .ui-growl
+                {
+
+                    top: 270px;
+                }
+                .ui-datatable thead th, .ui-datatable tbody td, .ui-datatable tfoot td 
+                {
+                    white-space: normal !important;
+                }
+            </style>
+        </ui:define>
+        <ui:define name="separator">
+
+            <span style="position:relative;font-weight:bold;font-size: 18px;">Loan Top - up</span>
+
+        </ui:define>
+
+        <ui:define name="adminContent">
+            <p:dialog widgetVar="confirmLoanDLG" id="confirmLoan" header="Complete Loan Top-up Application" modal="true" resizable="false">
+                <h:form id="confirmLoanFRM">
+
+                    <h:panelGrid columns="1" cellpadding="5"  rendered="#{!loansController.validData}">
+
+                        <h:outputText value="Correct these errors to continue" style="margin-left: 60px; font-weight: bold;"/>
+                        <p:messages/>
+                        <p:commandButton value="OK" onclick="confirmLoanDLG.hide();" style="position: relative; left: 35%" />
+
+                    </h:panelGrid>
+
+                    <h:panelGrid columns="2" cellpadding="5"  rendered="#{loansController.validData}" style="margin-left:20px;">
+
+                        <h:outputText value="Confirm that loan details are correct"/><br/>
+
+                        <h:outputText value="Send for approval ?"/><br/>
+
+                    </h:panelGrid>
+                    <br/>
+                    <h:panelGrid columns="3" cellpadding="5"  rendered="#{loansController.validData}" style="position: relative; left: 15%">
+                        <p:commandButton id="yesSave" value="YES" ajax="false" action="#{loansController.saveLoanTopup}" oncomplete="confirmLoanDLG.hide();" update=":loanFRM,:searchFRM"/>
+
+                        <p:commandButton value="NO" onclick="confirmLoanDLG.hide();" style="position: relative; left: 35%" />
+
+                        <p:blockUI trigger="yesSave" block="confirmLoanFRM">
+                            <p:graphicImage value="/images/ajax-loader.gif"/>
+                        </p:blockUI>
+                    </h:panelGrid>
+                </h:form>
+            </p:dialog>
+
+            <p:dialog widgetVar="finishLoan" header="Topup Application" modal="true" resizable="false">
+                <h:form>
+                    <h:panelGrid columns="2">
+                        <h:outputText value="Transaction Complete"/>
+                    </h:panelGrid><br/>
+                    <p:commandButton value="Okay" type="button" ajax="false" onclick="window.location.href = loanTopups.xhtml;"/>
+                </h:form>
+            </p:dialog>
+
+            <p:dialog widgetVar="addGuarantorDLG" header="Add Guarantor" position="center" resizable="false" modal="true">
+
+                <p:ajax event="close" listener="#{loansController.clearGuarantor()}" update=":addGuarantorFRM, searchGuarantor"/>  
+
+                <h:outputText value="Search member " style="font-weight: bold; font-size: 15px;"/>
+
+                <h:form id="searchGuarantor">
+                    <p:messages id="searchMSGS"  closable="true"/>
+                    <h:panelGrid columns="3" cellpadding="5" style="position: relative; left: 0%;" >
+                        <h:outputLabel value="Member / ID   Number " for="search" />
+                        <h:inputText id="search" size="30" value="#{loansController.searchString}" required="true" requiredMessage="Enter member number/id/telephone number"/>
+
+                        <p:commandButton value="Search" actionListener="#{loansController.searchGuarantor()}" update=":searchGuarantor:searchMSGS, :addGuarantorFRM"/>
+                    </h:panelGrid>
+                    <p:watermark value="member number , id number or tel" for="search"/>
+                </h:form>
+
+                <h:form id="addGuarantorFRM">                  
+                    <h:panelGrid columns="2" cellpadding="5" style="position: relative; left: 5%;" rendered="#{loansController.guarantorFound}">
+
+                        <h:outputLabel value="Member Number" for="memberNumber"/>
+                        <h:inputText id="memberNumber" readonly="true" value="#{loansController.guarantor.memberNumber}" size="25" required="true" requiredMessage="Enter security description"/>
+
+                        <h:outputLabel value="Name" for="name"/>
+                        <h:inputText id="name" readonly="true" value="#{loansController.guarantor.name}" size="25" style="text-transform: uppercase;" required="true" requiredMessage="Enter security model / make"/>
+
+                        <h:outputLabel value="Available Guarantee" for="aguarantee"/>
+                        <h:inputText id="aguarantee" readonly="true" size="25" value="#{(reportsController.findMemberAccount(loansController.guarantor.memberNumber).getDeposit() - loansController.guarantor.guarantees)}" required="true" requiredMessage="Enter security name">
+                        <f:convertNumber pattern="0.00"/>
+                        </h:inputText>
+
+
+                        <h:outputLabel value="Guarantee" for="guarantee"/>
+                        <h:inputText id="guarantee" value="#{loansController.guarantor.savings}" required="true" requiredMessage="Enter price/value of this security">
+                            <f:convertNumber pattern="0.00"/>
+                        </h:inputText>
+
+                        <p:commandButton value="Use" actionListener="#{loansController.addGuarantor()}" update=":addGuarantorFRM, :loanFRM:guarantorsTBL, :searchGuarantor" style="position: relative; left:100%; margin-top: 20px;"/>
+                        <p:commandButton value="Close" onclick="addGuarantorDLG.hide();" style="position: relative; left:50%;  margin-top: 20px;"/>
+                    </h:panelGrid>
+                </h:form>
+            </p:dialog>
+
+
+            <p:dialog widgetVar="addSecurityDLG" header="Add Loan Security" resizable="false" modal="true">
+                <p:ajax event="close" listener="#{loansController.clearSecurity()}" update=":addSecurityFRM"/>
+                <h:form id="addSecurityFRM">
+                    <p:messages closable="true"/>
+                    <h:panelGrid columns="2" cellpadding="5">
+                        <h:outputLabel value="Name" for="secuName"/>
+                        <h:inputText id="secuName" value="#{loansController.security.name}" required="true" requiredMessage="Enter security name"/>
+
+                        <h:outputLabel value="Description" for="description"/>
+                        <h:inputText id="description" value="#{loansController.security.description}" required="true" requiredMessage="Enter security description"/>
+
+                        <h:outputLabel value="Serial No. / Title" for="serial"/>
+                        <h:inputText id="serial" value="#{loansController.security.model}" required="true" requiredMessage="Enter security model / make"/>
+
+                        <h:outputLabel value="Price / Value" for="price"/>
+                        <h:inputText id="price" value="#{loansController.security.price}" required="true" requiredMessage="Enter price/value of this security" label="Price">
+                            <f:convertNumber pattern="0.00"/>
+                        </h:inputText>
+
+                    </h:panelGrid>
+                    <h:panelGrid columns="2" cellpadding="5" style="position: relative; left: 35%">
+                        <p:commandButton value="Add" actionListener="#{loansController.addSecurity()}" update=":addSecurityFRM, :loanFRM:securitiesTBL" style="margin-right: 20px;"/>
+                        <p:commandButton value="Close" onclick="addSecurityDLG.hide();"/>
+                    </h:panelGrid>
+                </h:form>
+            </p:dialog>
+
+            <h:form id="searchFRM">
+                <p:messages closable="true"/>             
+                <h:panelGrid columns="4" cellpadding="5"  >
+
+                    <h:outputLabel value="Loan Number" for="loanNumber" style="font-weight: bold; font-size: 15px;"/>
+                    <h:inputText id="loanNumber" size="30" value="#{loansController.searchCriteria}" required="true" requiredMessage="Enter Loan Number "/>
+
+                    <p:commandButton id="cmdSearch" value="Search" actionListener="#{loansController.searchMemberLoan()}" update=":searchFRM, :loanFRM"/>
+                </h:panelGrid>
+                <p:blockUI trigger="cmdSearch" block="searchFRM">
+                    <p:graphicImage value="/images/ajax-loader.gif"/>
+                </p:blockUI>
+                <p:watermark value="Loan number " for="loanNumber"/>
+            </h:form>
+            <br/>
+
+
+            <h:form id="loanFRM" >
+                <p:messages id="loanMessages" rendered="#{loansController.dbLoanFound}" />
+                <p:fieldset legend ="Member Information" rendered="#{loansController.dbLoanFound}">
+
+                    <h:panelGrid columns="2" cellpadding="5"  rendered="#{loansController.dbLoanFound}" style="float: left;  margin-right: 4%;width: 50%;">
+                        <h:outputLabel value="Loan Number " for="loanNum"/>
+                        <h:inputText id="loanNum" readonly="true" value="#{loansController.memberLoan.loanNUmber}"/> 
+
+                        <h:outputLabel value="Member Number " for="memberNum"/>
+                        <h:inputText id="memberNum" readonly="true" value="#{loansController.dbMember.memberNumber}" /> 
+
+                        <h:outputLabel value="Full Name " for="fullName"/>
+                        <h:inputText id="fullName" readonly="true" value="#{loansController.dbMember.fullName}" size="25" style="text-transform: uppercase;"/> 
+
+                        <h:outputLabel value="ID Number " for="idNum"/>
+                        <h:inputText id="idNum" readonly="true" value="#{loansController.dbMember.idNumber}" size="25"/>                         
+                    </h:panelGrid>
+
+                    <h:panelGrid columns="2" cellpadding="5"  rendered="#{loansController.dbLoanFound}" style="float: left; width: 46%;">
+                        <h:outputLabel value="Savings " for="memberSavings"/>
+                        <h:inputText id="memberSavings" readonly="true"  value="#{reportsController.findMemberAccount(loansController.dbMember.memberNumber).getDeposit()}" /> 
+
+                        <h:outputLabel value="Guarantees" for="guarantees"/>
+                        <h:inputText id="guarantees" readonly="true"  value="#{loansController.dbMember.guarantees}" >
+                           <f:convertNumber pattern="###,###,###,###,###,###" /> 
+                         </h:inputText>						
+
+                        <h:outputLabel value="Monthly Salary " for="monthlySal"/>
+                        <h:inputText id="monthlySal" readonly="true"  value="#{loansController.dbMember.monthlySalary}" /> 
+                    </h:panelGrid>
+                </p:fieldset>
+                <br/>
+                <p:fieldset legend="Loan Parameters" rendered="#{loansController.dbLoanFound}">
+                    <h:panelGrid columns="2">
+                        <h:outputLabel value="Loan Factor " for="loanFactor"/>
+                        <h:inputText id="loanFactor" readonly="true"  value="#{loansController.loanSetting.loanTimes}" /> 
+                        <h:outputLabel value="Loan Salary Ratio " for="loanSalRatio"/>
+                        <h:inputText id="loanSalRatio" readonly="true"  value="#{loansController.loanSetting.loanSalaryRatio}" /> 
+                        <h:outputLabel value="Loan Limit " for="loanLimit"/>
+                        <h:inputText id="loanLimit" readonly="true"  value="#{loansController.loanSetting.loanLimit}" /> 
+                        <h:outputLabel value="Max Repayment Period " for="period"/>
+                        <h:inputText id="period" readonly="true"  value="#{loansController.loanSetting.maxRepaymentPeriod}" /> 
+                    </h:panelGrid>
+                </p:fieldset>
+                <br/>
+                <p:fieldset legend ="Loan Re-Calculation" rendered="#{loansController.dbLoanFound}">
+                    <p:messages id="loanUpdateMessg" />
+
+                    <div style="width:30%; float:left; margin-left: 2%">
+                        <h:panelGrid cellpadding="4" columns="2">
+                            <h:outputLabel value="Loan Number" for="lNumber"/>
+                            <h:inputText id="lNumber" value="#{loansController.memberLoan.loanNUmber}"/>
+
+                            <h:outputLabel value="Principal" for="principal"/>
+                            <h:inputText id="principal" value="#{loansController.memberLoan.approvedAmount}">
+                                <f:convertNumber pattern="0.00"/>
+                            </h:inputText>
+
+                            <h:outputLabel value="Interest Interest" for="loanInterest"/>
+                            <h:inputText id="loanInterest" value="#{loansController.memberLoan.interest}">
+                                <f:convertNumber pattern="0.00"/>
+                            </h:inputText>
+
+                            <h:outputLabel value="Balance" for="balance"/>
+                            <h:inputText id="balance" value="#{loansController.memberLoan.balance}">
+                                <f:convertNumber pattern="0.00"/>
+                            </h:inputText>
+                            
+                            <h:outputLabel value="New Principal" for="newPrincipal"/>
+                            <h:inputText id="newPrincipal" value="#{loansController.grandPrincipal}">
+                                <f:convertNumber pattern="0.00"/>
+                            </h:inputText>
+                            
+                            <h:outputLabel value="New Interest" for="newInterest"/>
+                            <h:inputText id="newInterest" value="#{loansController.grandInterest}">
+                                <f:convertNumber pattern="0.00"/>
+                            </h:inputText>
+                        </h:panelGrid>
+                    </div>
+
+                    <div style="width:68%; float:left;">
+                        <h:panelGrid columns="2" cellpadding="5"  rendered="#{loansController.dbLoanFound}" style="float: left;  margin-left : 4%;">
+                            <h:outputLabel for="qualifiedAmount" value="Qualified Amount" />
+                            <h:outputText style="color:red;font-size: 16px;font-weight: bold;" id="qualifiedAmount"  value="#{loansController.qualifiedAmount}" >
+							 <f:convertNumber pattern="###,###,###,###,###,###" /> 
+							</h:outputText>
+
+                            <h:outputLabel value="Top-up Amount " for="topupAmount"/>
+                            <h:inputText id="topupAmount"  value="#{loansController.newLoanTopup.appliedAmount}" size="10" required="true" requiredMessage="Enter applied amount" label="Approved amount">
+                                <p:ajax event="keyup"  listener="#{loansController.reCalculateLoan()}" update="interest,totalLoan,insFee,loanUpdateMessg,monthInstall, newPrincipal, newInterest"/>
+                                <p:ajax event="change"  listener="#{loansController.reCalculateLoan()}" update="interest,totalLoan,insFee,loanUpdateMessg,monthInstall, newInterest, newPrincipal"/>
+                                <f:convertNumber pattern="0.00"/>
+                            </h:inputText>
+
+                            <h:outputLabel value="Installments  " for="repayperiod"/>
+                            <h:inputText id="repayperiod"  value="#{loansController.newLoanTopup.repaymentPeriod}" required="true" requiredMessage="Enter loan repayment period"  size="10">
+                                <p:ajax event="keyup" listener="#{loansController.reCalculateLoan()}" update="interest,totalLoan,insFee, loanUpdateMessg, monthInstall, newPrincipal, newInterest"/>
+                                <p:ajax event="change" listener="#{loansController.reCalculateLoan()}" update="interest,totalLoan,insFee,loanUpdateMessg,monthInstall, newPrincipal,newInterest"/>
+                            </h:inputText> 
+
+                            <h:outputLabel value="Total Interest  " for="interest"  />
+                            <h:inputText  readonly="true" id="interest"  value="#{loansController.newLoanTopup.interest}" size="10" >
+                                <f:convertNumber pattern="0.00"/>
+                            </h:inputText>
+                        </h:panelGrid>
+
+                        <h:panelGrid columns="2" cellpadding="5"  rendered="#{loansController.dbLoanFound}" style="float: left; width: 50%;">
+                            <h:outputLabel value="Date Applied" for="appDate" />
+                            <p:calendar    id="appDate" value="#{loansController.newLoanTopup.dateApplied}" pattern="dd/MMM/yyyy" maxdate="#{membersController.today}" mindate="#{loansController.dbMember.registrationDate}"  navigator="true" size="16"/>
+
+                            <h:outputLabel value="Amount Payable " for="totalLoan"  />
+                            <h:inputText  readonly="true" id="totalLoan" value="#{loansController.newLoanTopup.amountPayable}" size="16"  >
+                                <f:convertNumber pattern="0.00"/>
+                            </h:inputText>
+                            <h:outputLabel value="Monthly Installment " for="monthInstall"  />
+                            <h:inputText  readonly="true" id="monthInstall" value="#{loansController.monthlyInstallment}" size="16"  >
+                                <f:convertNumber pattern="0.00"/>
+                            </h:inputText>
+                            <h:outputLabel value="Insurance Fee " for="insFee"  />
+                            <h:inputText  id="insFee" value="#{loansController.newLoanTopup.insuranceFee}" size="10"  >
+                                <p:ajax event="keyup" listener="#{loansController.reCalculateLoan()}" update="interest,totalLoan, loanUpdateMessg, monthInstall"/>
+                                <p:ajax event="change" listener="#{loansController.reCalculateLoan()}" update="interest,totalLoan, loanUpdateMessg, monthInstall"/>
+                                <f:convertNumber pattern="0.00"/>
+                            </h:inputText>
+                        </h:panelGrid>
+                    </div>
+                </p:fieldset>
+                <br/>
+                <p:fieldset legend ="Security" rendered="#{loansController.dbLoanFound and loansController.loanSetting.securityCoverLoan}">
+                    <p:commandButton value="Add Security" onclick="addSecurityDLG.show();" style="position: relative; left: 80%"/>
+                    <br/><br/>
+                    <p:dataTable id="securitiesTBL" value="#{loansController.securitiesDM}" var="security" paginator="true" rows="5" paginatorAlwaysVisible="false" emptyMessage="No securities added yet"
+                                 rendered="#{loansController.dbMemberFound}">
+                        <f:facet name="header">Loan Security</f:facet>
+                        <p:commandButton value="Add" style="position: relative; left: 80%" onclick="addSecurityDLG.show();"/>
+                        <p:column headerText="  Name ">
+                            <h:outputText value="#{security.name}" style="position: relative; left: 35%"/>
+                        </p:column>
+
+                        <p:column headerText="Description" style="width: 30%;">
+                            <h:outputText value="#{security.description}" style="position: relative; left: 2%"/>
+                        </p:column>
+
+                        <p:column headerText="Serial No." >
+                            <h:outputText value="#{security.model}" style="position: relative; left: 25%"/>
+                        </p:column>
+
+                        <p:column headerText="Value / Price">
+                            <h:outputText value="#{security.price}" style="position: relative; left: 35%">
+                                <f:convertNumber pattern="0.00"/>
+                            </h:outputText>
+                        </p:column>
+
+                        <p:column headerText="Actions">
+                            <p:commandLink value="Remove" style="color: red; font-weight: bold;" actionListener="#{loansController.removeSecurity()}" process="@this, securitiesTBL " update="securitiesTBL"/>
+                        </p:column>
+                        <p:columnGroup type="footer">
+                            <p:row>
+                                <p:column colspan="3" style="text-align: left;" footerText="Total " />
+                                <p:column id="total" footerText="#{loansController.securityTotal}"/>
+                                <p:column footerText=""/>
+                            </p:row>
+                        </p:columnGroup>
+                    </p:dataTable>
+                </p:fieldset>
+                <br/><br/>
+                <p:fieldset id="guarantorsFS" legend ="Repayment Guarantee" rendered="#{loansController.dbLoanFound}">
+                    <p:commandButton value="Add Guarantor" onclick="addGuarantorDLG.show();" style="position: relative; left: 80%"/>
+                    <br/><br/>
+                    <p:dataTable id="guarantorsTBL" value="#{loansController.guarantorsDM}" var="guarantor" paginator="true" rows="5" paginatorAlwaysVisible="false" emptyMessage="No guarantors added yet">
+                        
+                        <p:column headerText="ID Number" >
+                            <h:outputText value="#{guarantor.idNumber}" style="position: relative; left: 15%"/>
+                        </p:column>
+
+                        <p:column headerText="Member Number" >
+                            <h:outputText value="#{guarantor.memberNumber}" style="position: relative; left: 15%"/>
+                        </p:column>
+
+                        <p:column headerText="Name" >
+                            <h:outputText value="#{guarantor.name}" style="position: relative; left: 5%; text-transform: uppercase;"/>
+                        </p:column>
+
+                        <p:column headerText="Guarantee" >
+                            <h:outputText value="#{guarantor.savings}" style="position: relative; left: 10%">
+                                <f:convertNumber pattern="0.00"/>
+                            </h:outputText>
+                        </p:column>
+
+                        <p:column headerText="Total Guarantees" >
+                            <h:outputText value="#{guarantor.guarantees}" style="position: relative; left: 35%">
+                                <f:convertNumber pattern="0.00"/>
+                            </h:outputText>
+                        </p:column>
+
+                        <p:column headerText="Actions">
+                            <p:commandLink value="Remove" style="color: red; font-weight: bold;" actionListener="#{loansController.removeGuarantor()}" process="@this, guarantorsTBL" update="guarantorsTBL"/>
+                        </p:column>
+                        <p:columnGroup type="footer">
+                            <p:row>
+                                <p:column colspan="3" style="text-align: left;" footerText="Total " />
+                                <p:column id="total" footerText="#{loansController.totalGuarantees}"/>
+                                <p:column footerText=""/>
+                                <p:column footerText=""/>
+                            </p:row>
+                        </p:columnGroup>
+                    </p:dataTable>
+                    <br/><br/>
+
+                    <h:outputText value="Witness Details" style="font-size: 15px; font-weight: bold;"/>
+                    <br/><br/>
+                    <p:messages rendered="#{!loansController.witnessfound}" closable="true"/>
+                    <h:panelGrid columns="4" cellspacing="5" id="searchWitnessPG">
+
+                        <h:outputLabel value="Enter member No./member ID/Telephone " for="witnessName"/>
+                        <h:inputText id="searchWitness" value="#{loansController.witnessDetails}" />
+
+                        <p:commandButton value="Search"  actionListener="#{loansController.searchWitness()}" process="@this, searchWitness"  update=":loanFRM:guarantorsFS"/>
+                    </h:panelGrid>
+                    <br/>
+                    <h:panelGrid columns="4" cellspacing="5" id="witnessPG" rendered="#{loansController.witnessfound}" >
+                        <h:outputLabel value="Name " for="witnessName"/>
+                        <h:inputText id="witnessName" value="#{loansController.witness.fullName}" style="text-transform: uppercase;" size="25" readonly="true"/>
+
+                        <h:outputLabel value="Telephone " for="witnessTel"/>
+                        <h:inputText id="witnessTel" value="#{loansController.witness.phoneNumber}" size="25" readonly="true"/>
+
+                        <h:outputLabel value="ID Number " for="witnessId"/>
+                        <h:inputText id="witnessId" value="#{loansController.witness.idNumber}" size="25" readonly="true"/>
+
+                        <h:outputLabel value="Member Number " for="witnessMemberNumber"/>
+                        <h:inputText id="witnessMemberNumber" value="#{loansController.witness.memberNumber}" size="25" readonly="true"/>
+                    </h:panelGrid>
+                </p:fieldset>
+              
+                <h:panelGrid columns="2" cellpadding="5" rendered="#{loansController.dbLoanFound}" style="position: relative; left: 35%;">
+                    <p:commandButton value="Complete" oncomplete="confirmLoanDLG.show();" actionListener="#{loansController.validateLoanTopup()}" process="@this, loanFRM" update=":confirmLoanFRM"/>
+                    <p:commandButton value="Cancel"  actionListener="#{loansController.resetLoanDetails()}" update=":loanFRM, :searchFRM"/>
+                </h:panelGrid>
+            </h:form>
+        </ui:define>
+    </ui:composition>
+</html>
+
