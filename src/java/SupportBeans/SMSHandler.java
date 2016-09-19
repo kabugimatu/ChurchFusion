@@ -7,6 +7,7 @@ package SupportBeans;
 import Entities.Contribution;
 import Entities.SaccoDetails;
 import Entities.SaccoMember;
+import java.text.SimpleDateFormat;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -48,20 +49,20 @@ public class SMSHandler {
       public void sendMemberContributionSMS(SaccoMember member ,SaccoDetails sDetails, Contribution contribution){
          
            String apiKey   = "MyAPIKey";
-    
+          SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy");
          String recipients = "+254711XXXYYY,+254733YYYZZZ";
          String message = "";
          if(contribution.getShares() > 0 && contribution.getDeposit() ==0){
-              message = "Hi " +member.getFullName()+ " We have received your thanksgiving of " + contribution.getShares() + " God bless you.";
+              message = "Hi " +member.getFullName()+ " We have received your thanksgiving of " + contribution.getShares() + " on "+dateFormat.format(contribution.getContributionDate())+" God bless you.";
          
          }
          else if(contribution.getDeposit() >0 && contribution.getShares() == 0){
-                message = "Hi " +member.getFullName()+ " We have received your tithe  of " + contribution.getDeposit() + "God bless you.";
+                message = "Hi " +member.getFullName()+ " We have received your tithe  of " + contribution.getDeposit() + " on "+dateFormat.format(contribution.getContributionDate())+" God bless you.";
          
          }
          
          else if(contribution.getDeposit() > 0 && contribution.getShares() > 0){
-                message = "Hi " +member.getFullName()+ " , We have received your thanksgiving of " + contribution.getShares() + " and tithe of " +contribution.getDeposit() + " God bless you.";
+                message = "Hi " +member.getFullName()+ " , We have received your thanksgiving of " + contribution.getShares() + " and tithe of " +contribution.getDeposit() + " on "+dateFormat.format(contribution.getContributionDate())+" God bless you.";
          
          }
          
