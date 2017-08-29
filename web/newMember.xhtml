@@ -34,7 +34,7 @@
         <ui:define name="separator">
             
                 
-            <span style="position:relative;font-weight:bold;font-size: 20px;">New Sacco Member</span>
+            <span style="position:relative;font-weight:bold;font-size: 20px;">New Church Member</span>
           
           
         </ui:define>
@@ -207,12 +207,27 @@
                             <h:panelGrid columns="2" cellpadding="4" >
 
                                 <h:outputLabel for="mNum" value="Member #{membersController.newMemberNumber} *"/>
-                                <h:inputText id="mNum" value="#{membersController.memberInt}"  label="Member Number *" style="text-transform: uppercase;">
+                                <h:inputText required="true" requiredMessage="Enter member number"  id="mNum" value="#{membersController.memberInt}"  label="Member Number *" style="text-transform: uppercase;">
                                     <p:ajax event="keyup" process="@this, mNum" update=":memberFRM:photoGrid,:memberFRM:idscanPG, :memberFRM:message" listener="#{membersController.prepareUploadDLG()}" />
                                    
                                     
                                 </h:inputText>
-                                
+                                <h:outputLabel for="title" value="Title * "/>
+                                <h:selectOneMenu value="#{membersController.newMember.title}">
+                               <f:selectItem itemLabel="Select Title" itemValue=""/> 
+                                        <f:selectItem itemLabel="Mr" itemValue="Mr"/> 
+                                        <f:selectItem itemLabel="Mrs" itemValue="Mrs"/>
+                                        <f:selectItem itemLabel="Mr &amp; Mrs" itemValue="Mr &amp; Mrs"/> 
+                                        <f:selectItem itemLabel="Miss" itemValue="Miss"/>
+					<f:selectItem itemLabel="Maj." itemValue="Maj."/>
+                                        <f:selectItem itemLabel="Maj &amp; Mrs" itemValue="Maj &amp; Mrs"/>
+                                        <f:selectItem itemLabel="Dr" itemValue="Dr"/>
+                                        <f:selectItem itemLabel="Prof." itemValue="Prof."/>
+					 <f:selectItem itemLabel="Rev." itemValue="Rev."/>
+                                         <f:selectItem itemLabel="Rev. &amp; Mrs" itemValue="Rev. &amp; Mrs"/>
+                                        <f:selectItem itemLabel="Hon." itemValue="Hon."/>
+
+                                </h:selectOneMenu>
 
                                 <h:outputLabel for="fName" value="Full Name * "/>
                                 <h:inputText   style="text-transform: uppercase;" id="fName" required="true" size="25" requiredMessage="Enter Member Name" value="#{membersController.newMember.fullName}" validatorMessage="Invalid full name!"  >
@@ -235,7 +250,12 @@
                                 </h:selectOneMenu>
                                  <h:outputLabel for="spouse" value="Spouse  "/>
                                  <h:inputText   style="text-transform: uppercase;" id="spouse"  size="25"  value="#{membersController.newMember.spouse}"  />
-                                  
+                                   
+                                 
+                                 <h:outputLabel for="spouseTel" value="Spouse Tel "/>
+                                 <h:inputText    id="spouseTel"  size="25"  value="#{membersController.newMember.spouseTel}"  />
+                                 <h:outputLabel for="spouseAlert" value="Spouse Alert(SMS) "/>
+                                 <p:selectBooleanButton value="#{membersController.newMember.spouseAlert}" offLabel="No" onLabel="Yes"/>
 
                                 <h:outputLabel for="DOB" value="Date Of Birth  "/>
                                 <p:calendar pattern="dd/MMM/yyyy" size="25" id="DOB"  value="#{membersController.newMember.dateOfBirth}" navigator="true" maxdate="#{membersController.maxDOB}"  />

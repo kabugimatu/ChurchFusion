@@ -101,7 +101,6 @@ public class MembersController implements Printable {
 
     @ManagedProperty(value = "#{mainController.userLogged}")
     private Users tellerLogged = new Users();
-    
     private SMSHandler smsHandler;
     //Entities
     private SaccoMember newMember;
@@ -325,7 +324,7 @@ public class MembersController implements Printable {
 
         this.dFormat = new DecimalFormat("#.00");
 
-       smsHandler = new SMSHandler();
+        smsHandler = new SMSHandler();
     }
 
     public void onselectBank() {
@@ -1012,10 +1011,14 @@ public class MembersController implements Printable {
             Random randAccNumber = new Random();
             memberAccount.setId(Long.parseLong(String.valueOf(randAccNumber.nextInt(1000))));
 
-            for (MemberAccount dbmemberAcc : memberAccountFacade.findAll()) {
-                if (dbmemberAcc.getId() == memberAccount.getId()) {
-                    memberAccount.setId(1234 + (long) (randAccNumber.nextDouble() * (4321 - 1234)));
-                }
+//            for (MemberAccount dbmemberAcc : memberAccountFacade.findAll()) {
+//                if (dbmemberAcc.getId() == memberAccount.getId()) {
+//                    memberAccount.setId(1234 + (long) (randAccNumber.nextDouble() * (4321 - 1234)));
+//                }
+//            }
+
+            while (memberAccountFacade.find(memberAccount.getId()) != null) {
+                memberAccount.setId(1234 + (long) (randAccNumber.nextDouble() * (4321 - 1234)));
             }
 
 
@@ -1085,6 +1088,7 @@ public class MembersController implements Printable {
 
 
             newMember = new SaccoMember();
+            //memberAccount = new MemberAccount();
             memberInt = new String();
             memberIdBytes = new byte[0];
             memberPhotoBytes = new byte[0];
@@ -1482,7 +1486,7 @@ public class MembersController implements Printable {
                 editMember.setBranch(branchM.getBranchname());
             }
         }
-        
+
         loansGuaranteedDM = new ListDataModel<LoanGuarantors>(guarantorFacade.memberGuarantors(editMember.getMemberNumber()));
 
         allSaccoMembers = memberFacade.findAll();
@@ -1491,13 +1495,13 @@ public class MembersController implements Printable {
 
         return page;
     }
-    
+
     // update loan number on guarantors 
-    public void updateLoans(){
+    public void updateLoans() {
         LoanGuarantors dbGuarantor = new LoanGuarantors();
-        for(MemberLoan mLoan : loanFacade.findAll()){
-            if(!mLoan.getGuarantors().isEmpty()){
-                for(LoanGuarantors lGuarantor : mLoan.getGuarantors()){
+        for (MemberLoan mLoan : loanFacade.findAll()) {
+            if (!mLoan.getGuarantors().isEmpty()) {
+                for (LoanGuarantors lGuarantor : mLoan.getGuarantors()) {
                     dbGuarantor = lGuarantor;
                     dbGuarantor.setLoanNumber(mLoan.getLoanNUmber());
                     guarantorFacade.edit(dbGuarantor);
@@ -1526,18 +1530,16 @@ public class MembersController implements Printable {
 
         } else if (editMember.getFullName().indexOf(" ") == -1) {
             ctx.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, "Please enter at least two names!", ""));
-        } 
-//        else if (validateTel(editMember.getPhoneNumber()) == false) {
-////            ctx.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, "Invalid telephone number", ""));
-////
-////        } 
-//else if (editMember.getCounty().equalsIgnoreCase("select")) {
-//            ctx.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, "Select member's county", ""));
-//        } 
-//        else if (!checkEditMember(allSaccoMembers).equalsIgnoreCase("no")) {
-//            ctx.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, checkEditMember(allSaccoMembers), ""));
-//        } 
-        
+        } //        else if (validateTel(editMember.getPhoneNumber()) == false) {
+        ////            ctx.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, "Invalid telephone number", ""));
+        ////
+        ////        } 
+        //else if (editMember.getCounty().equalsIgnoreCase("select")) {
+        //            ctx.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, "Select member's county", ""));
+        //        } 
+        //        else if (!checkEditMember(allSaccoMembers).equalsIgnoreCase("no")) {
+        //            ctx.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, checkEditMember(allSaccoMembers), ""));
+        //        } 
         else {
             if (tellerLogged != null) {
                 editMember.setLastEditedBy(tellerLogged.getFullName() + "/" + tellerLogged.getTelephone());
@@ -2274,8 +2276,8 @@ public class MembersController implements Printable {
             }
         }
     }
-    public void sendContributionSMS(SaccoMember member){
-        
+
+    public void sendContributionSMS(SaccoMember member) {
     }
 
     public void newMemberContribution() {
@@ -3190,10 +3192,10 @@ public class MembersController implements Printable {
         //              ctx.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, "Member age age exceeds the allowed limit.!", ""));
         //             step = event.getOldStep();
         //          }
-//        else if (newMember.getMemberPhoto() == null) {
-//            ctx.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, "Please upload or take photo!", ""));
-//            step = event.getOldStep();
-//        } 
+        //        else if (newMember.getMemberPhoto() == null) {
+        //            ctx.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, "Please upload or take photo!", ""));
+        //            step = event.getOldStep();
+        //        } 
         else if (memberInt.trim().equalsIgnoreCase("")) {
 
             ctx.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, "Please enter member number!", ""));
@@ -3284,7 +3286,7 @@ public class MembersController implements Printable {
 
         newMember.setMemberNumber(getNewMemberNumber() + getMemberInt());
         if (memberInt.trim().equalsIgnoreCase("")) {
-            System.out.println("empty string");
+            //  System.out.println("empty string");
             showButton = false;
         } else {
             int a = 0;
@@ -3329,10 +3331,10 @@ public class MembersController implements Printable {
 
     public void saveEmployeeInfo() {
         FacesContext ctx = FacesContext.getCurrentInstance();
-        
-            memberFacade.edit(editMember);
-            ctx.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_INFO, "Member details updated successfully ! ", ""));
-        
+
+        memberFacade.edit(editMember);
+        ctx.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_INFO, "Member details updated successfully ! ", ""));
+
 
     }
 
@@ -3720,13 +3722,12 @@ public class MembersController implements Printable {
         if (kinList.isEmpty()) {
             if (checkFullName(kin.getName()) == false) {
                 ctx.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, "invalid kin name", ""));
-            } 
-//            else if (kin.getSharesPercentage() == 0) {
-//                ctx.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, "shares % should be greater than 0", ""));
-//            } 
-//            else if (validatePercentage(kin.getSharesPercentage()) == false) {
-//                ctx.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, "Percentage value should be btw 0 and 100", ""));
-//            }
+            } //            else if (kin.getSharesPercentage() == 0) {
+            //                ctx.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, "shares % should be greater than 0", ""));
+            //            } 
+            //            else if (validatePercentage(kin.getSharesPercentage()) == false) {
+            //                ctx.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, "Percentage value should be btw 0 and 100", ""));
+            //            }
             else {
                 kinList.add(kin);
                 ctx.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_INFO, "Kin Added to list", ""));
@@ -3891,12 +3892,11 @@ public class MembersController implements Printable {
         if (kinList.isEmpty()) {
             if (checkFullName(kin.getName()) == false) {
                 ctx.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, "invalid kin name", ""));
-            }
-//            } else if (kin.getSharesPercentage() == 0) {
-//                ctx.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, "shares % should be greater than 0", ""));
-//            } else if (validatePercentage(kin.getSharesPercentage()) == false) {
-//                ctx.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, "Percentage value should be btw 0 and 100", ""));
-//            } 
+            } //            } else if (kin.getSharesPercentage() == 0) {
+            //                ctx.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, "shares % should be greater than 0", ""));
+            //            } else if (validatePercentage(kin.getSharesPercentage()) == false) {
+            //                ctx.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, "Percentage value should be btw 0 and 100", ""));
+            //            } 
             else {
                 kinList.add(kin);
                 ctx.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_INFO, "Kin Added to list", ""));
@@ -4643,8 +4643,6 @@ public class MembersController implements Printable {
     public void setLoansGuaranteedDM(DataModel<LoanGuarantors> loansGuaranteedDM) {
         this.loansGuaranteedDM = loansGuaranteedDM;
     }
-    
-    
 
     public DataModel<SaccoMember> getTellerMembersDM() {
 
@@ -4712,6 +4710,20 @@ public class MembersController implements Printable {
     }
 
     public String getMemberInt() {
+//        int memberCounter = memberFacade.findAll().size() + 1;
+//        memberInt = memberCounter + "";
+//        newMember.setMemberNumber(getNewMemberNumber() + memberInt);
+//        
+//        
+//        
+//        while (!memberFacade.checkMemberExists(newMember).equalsIgnoreCase("no")) {
+//            memberCounter++;
+//           memberInt = memberCounter + "";
+//           newMember.setMemberNumber(getNewMemberNumber() + memberInt);
+//           
+//        }
+
+
         return memberInt;
     }
 

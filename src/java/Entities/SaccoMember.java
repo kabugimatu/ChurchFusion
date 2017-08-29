@@ -45,6 +45,7 @@ public class SaccoMember implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
+    private String title;
     private String fullName;
     private String idNumber;
     private String phoneNumber;
@@ -59,6 +60,7 @@ public class SaccoMember implements Serializable {
     private String department;
     private Long branchId;
     private boolean memberStatus;
+    private boolean spouseAlert;
     private byte[] memberImage;
     private byte[] signatureImage;
     private byte[] memberScanID;
@@ -77,6 +79,7 @@ public class SaccoMember implements Serializable {
     private String bankAccountNumber;
     private String occupation;
     private String spouse;
+    private String spouseTel;
     private String maritalStatus;
     private Long bankId;
     private Long bankBranchId;
@@ -100,6 +103,17 @@ public class SaccoMember implements Serializable {
     @OneToMany
     private List<MemberLoan> memberLoans = new ArrayList<MemberLoan>();
 
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
+    
+    
+    
+
     public String getOccupationCategory() {
         return occupationCategory;
     }
@@ -108,6 +122,24 @@ public class SaccoMember implements Serializable {
         this.occupationCategory = occupationCategory;
     }
 
+    public String getSpouseTel() {
+        return spouseTel;
+    }
+
+    public void setSpouseTel(String spouseTel) {
+        this.spouseTel = spouseTel;
+    }
+
+    public boolean isSpouseAlert() {
+        return spouseAlert;
+    }
+
+    public void setSpouseAlert(boolean spouseAlert) {
+        this.spouseAlert = spouseAlert;
+    }
+    
+    
+   
     
     
     public String getOccupation() {

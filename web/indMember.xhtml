@@ -15,9 +15,9 @@
                 }
 
             </script>
-            
-             <style>                 
-                
+
+            <style>                 
+
                 .ui-datatable thead th, .ui-datatable tbody td, .ui-datatable tfoot td 
                 {
                     white-space: normal !important;
@@ -25,12 +25,12 @@
             </style>
         </ui:define>
         <ui:define name="separator">
-               
+
             <span style="position:relative;font-weight:bold;font-size: 18px;">Church Member Details</span>
-           
+
         </ui:define>
         <ui:define name="adminContent"><br/>
-             <h:outputText style="font-size: 25px;color:red;left:15px;position:relative;" value="Member suspended" rendered="#{!membersController.editMember.memberStatus}"/>
+            <h:outputText style="font-size: 25px;color:red;left:15px;position:relative;" value="Member suspended" rendered="#{!membersController.editMember.memberStatus}"/>
             <p:dialog header="EDIT NEXT OF KIN" widgetVar="dlgKin" id="kinDLG" resizable="false" modal="true">
                 <h:form id="kinFRM">
                     <p:messages id="kinMsgs" closable="true"/>
@@ -39,7 +39,7 @@
                         <h:inputText id="kinName" required="true" requiredMessage="Please enter kin's name!" value="#{membersController.editKin.name}" style="text-transform: uppercase;" size="25">
                             <p:ajax event="keyup" process="@this, kinName" listener="#{membersController.checkFullName(membersController.editKin.name)}" update=":kinFRM:kinMsgs"/>
                         </h:inputText>
-                       
+
                         <h:outputLabel for="rel" value="Relationship *"/>
                         <h:selectOneMenu id="rel" value="#{membersController.editKin.relationship}">
                             <f:selectItem itemLabel="Father" itemValue="Father"/>
@@ -53,7 +53,7 @@
                             <f:selectItem itemLabel="Cousin" itemValue="Cousin"/>
                             <f:selectItem itemLabel="Grandchild" itemValue="Grandchild"/>
                         </h:selectOneMenu>
-                      
+
                         <h:outputLabel for="shares" value="Shares (%) *"/>
                         <h:inputText id="shares" required="true" requiredMessage="Please enter %share!" value="#{membersController.editKin.sharesPercentage}">
                             <p:ajax event="keyup" process="@this, shares" listener="#{membersController.validatePercentage(membersController.editKin.sharesPercentage)}" update=":kinFRM:kinMsgs"/>
@@ -79,15 +79,15 @@
                         <h:inputText id="refName" value="#{membersController.editReferee.name}" required="true" requiredMessage="Please enter referee name" size="25" style="text-transform: uppercase;">
                             <p:ajax event="keyup" process="@this, refName" listener="#{membersController.checkFullName(membersController.editReferee.name)}" update=":refFRM:refMsgs"/>
                         </h:inputText>
-                        
+
                         <h:outputLabel for="refTel" value="Telephone *"/>
                         <h:inputText id="refTel" value="#{membersController.editReferee.telephoneNumber}" required="true" requiredMessage="Please enter referee name" size="25">
                             <p:ajax event="keyup" process="@this, refTel" listener="#{membersController.validateTel(membersController.editReferee.telephoneNumber)}" update=":refFRM:refMsgs"/>
                         </h:inputText>
-                        
+
                         <h:outputLabel for="bName" value="Place Of Work *"/>
                         <h:inputText id="bName" value="#{membersController.editReferee.businessName}" required="true" requiredMessage="Please enter referee business name!"/>
-                        
+
                         <h:outputLabel for="address" value="Address *"/>
                         <h:inputText id="address" value="#{membersController.editReferee.address}" required="true" requiredMessage="Please enter referee address!"/>
                     </h:panelGrid>
@@ -98,19 +98,19 @@
                     </h:panelGrid>
                 </h:form>
             </p:dialog>
-            
+
             <p:dialog widgetVar="editemployeeDLG" id="employeeDLG" header="EDIT MEMBER INFO" resizable="false" modal="true">
-              
-                
+
+
                 <h:form id="bizFRM">
                     <h:panelGrid cellpadding="5" cellspacing="5" columns="2">
                         <h:outputLabel for="branchEdit" value="House"/>
                         <h:selectOneMenu id="branchEdit" value="#{membersController.editMember.branch}">
                             <f:selectItems value="#{membersController.allCompanyBranches}" var='branch' itemLabel="#{branch.branchname}" itemValue="#{branch.branchname}"/>
                         </h:selectOneMenu>
-                           <h:outputLabel for="dateJoined" value="Date Joined"/>
-                           <p:calendar  pattern="dd/MMM/yyyy" size="25" id="dateJoined" required="true" requiredMessage="Select Date Date Joined" value="#{membersController.editMember.registrationDate}" navigator="true" maxdate="#{membersController.today}"  />  
-                      
+                        <h:outputLabel for="dateJoined" value="Date Joined"/>
+                        <p:calendar  pattern="dd/MMM/yyyy" size="25" id="dateJoined" required="true" requiredMessage="Select Date Date Joined" value="#{membersController.editMember.registrationDate}" navigator="true" maxdate="#{membersController.today}"  />  
+
                     </h:panelGrid>
                     <br/>
                     <h:panelGrid columns="2" cellpadding="5" style="position: relative;left:30%;">
@@ -122,31 +122,46 @@
                     </p:blockUI>
                 </h:form>             
             </p:dialog>
-            
-            
+
+
             <p:dialog widgetVar="editDLG" header="EDIT GENERAL INFO" resizable="false" modal="true">
                 <h:form id="editFRM">
                     <p:messages id="editMsgs" closable="true"/>
                     <h:panelGrid columns="2" cellpadding="5">
-                       
+                         <h:selectOneMenu value="#{membersController.editMember.title}">
+                               <f:selectItem itemLabel="Select Title" itemValue=""/> 
+                                        <f:selectItem itemLabel="Mr" itemValue="Mr"/> 
+                                        <f:selectItem itemLabel="Mrs" itemValue="Mrs"/>
+                                        <f:selectItem itemLabel="Mr &amp; Mrs" itemValue="Mr &amp; Mrs"/> 
+                                        <f:selectItem itemLabel="Miss" itemValue="Miss"/>
+					<f:selectItem itemLabel="Maj." itemValue="Maj."/>
+                                        <f:selectItem itemLabel="Maj &amp; Mrs" itemValue="Maj &amp; Mrs"/>
+                                        <f:selectItem itemLabel="Dr" itemValue="Dr"/>
+                                        <f:selectItem itemLabel="Prof." itemValue="Prof."/>
+					 <f:selectItem itemLabel="Rev." itemValue="Rev."/>
+                                         <f:selectItem itemLabel="Rev. &amp; Mrs" itemValue="Rev. &amp; Mrs"/>
+                                        <f:selectItem itemLabel="Hon." itemValue="Hon."/>
+
+                                </h:selectOneMenu>
+
                         <h:outputLabel value="Name *" for="memberName"/>
                         <h:inputText id="memberName" value="#{membersController.editMember.fullName}" size="25"  required="true" requiredMessage="Please enter full name" style="text-transform: uppercase;">
-                         <p:ajax event="keyup" process="@this, memberName" listener="#{membersController.checkFullName(membersController.editMember.fullName)}" update=":editFRM:editMsgs"/>
+                            <p:ajax event="keyup" process="@this, memberName" listener="#{membersController.checkFullName(membersController.editMember.fullName)}" update=":editFRM:editMsgs"/>
                         </h:inputText>
-                        
-                         
+
+
                         <h:outputLabel for="gender" value="Gender *"/>
                         <h:selectOneMenu id="gender" value="#{membersController.editMember.gender}">
                             <f:selectItem itemLabel="Male" itemValue="Male"/>
                             <f:selectItem itemLabel="Female" itemValue="Female"/>
-                           
+
                         </h:selectOneMenu> 
 
                         <h:outputLabel value="Telephone *" for="telNumber"/>
                         <h:inputText id="telNumber" value="#{membersController.editMember.phoneNumber}" required="true" requiredMessage="Please enter phone number">
                             <p:ajax event="keyup" process="@this, telNumber" listener="#{membersController.validateTel(membersController.editMember.phoneNumber)}" update=":editFRM:editMsgs"/>
                         </h:inputText>
-                        
+
                         <h:outputLabel for="county" value="County *"/>
                         <h:selectOneMenu id="county" value="#{membersController.editMember.county}">
                             <f:selectItem itemLabel="Select County" itemValue="select" />
@@ -203,11 +218,15 @@
                         </h:selectOneMenu>
                         <h:outputLabel value="Spouse " for="spouseEdit"/>
                         <h:inputText id="spouseEdit" value="#{membersController.editMember.spouse}" style="text-transform: uppercase;" />
-                        
+                          <h:outputLabel for="spouseTelEdit" value="Spouse Tel "/>
+                            <h:inputText   id="spouseTelEdit"  size="25"  value="#{membersController.editMember.spouseTel}"  />
+                            <h:outputLabel for="spouseAlertEdit" value="Spouse Alert(SMS) "/>
+                            <p:selectBooleanButton id="spouseAlertEdit" value="#{membersController.editMember.spouseAlert}" offLabel="No" onLabel="Yes"/>
+
                         <h:outputLabel value="Occupation " for="occupationEdit"/>
                         <h:inputText id="occupationEdit" value="#{membersController.editMember.occupation}" style="text-transform: uppercase;" />
-                      <h:outputLabel value="Occupation Category " for="occupationCatEdit"/>
-                      <h:inputText id="occupationCatEdit" value="#{membersController.editMember.occupationCategory}" style="text-transform: uppercase;" />
+                        <h:outputLabel value="Occupation Category " for="occupationCatEdit"/>
+                        <h:inputText id="occupationCatEdit" value="#{membersController.editMember.occupationCategory}" style="text-transform: uppercase;" />
 
                         <h:outputLabel value="Address *" for="address"/>
                         <h:inputText id="address" value="#{membersController.editMember.homeAddress}" required="true" requiredMessage="Please enter home address!" />
@@ -222,27 +241,27 @@
                     </h:panelGrid>
                 </h:form>
             </p:dialog>
-             <p:dialog height="350" width="750" resizable="false" widgetVar="editPhoto" header="Edit Member Photo" modal="true" >
-                   <h:form enctype="multipart/form-data">
+            <p:dialog height="350" width="750" resizable="false" widgetVar="editPhoto" header="Edit Member Photo" modal="true" >
+                <h:form enctype="multipart/form-data">
                     <h2>Choose file or drag drop your photos here to upload !</h2>
                     <p:fileUpload auto="true" fileUploadListener="#{membersController.editMemberPhoto}" oncomplete="editPhoto.hide();"  mode="advanced" required="true" requiredMessage="Please choose your photo!" update=":memberDetailsFRM:photoGrid,:messages" sizeLimit="1000000" allowTypes="/(\.|\/)(gif|jpe?g|png)$/" >
 
                     </p:fileUpload> 
 
                 </h:form>
-             </p:dialog>
-             
-                <p:dialog height="350" width="750" resizable="false" widgetVar="editID" header="Edit Member ID" modal="true" >
-                   <h:form enctype="multipart/form-data">
+            </p:dialog>
+
+            <p:dialog height="350" width="750" resizable="false" widgetVar="editID" header="Edit Member ID" modal="true" >
+                <h:form enctype="multipart/form-data">
                     <h2>Choose file or drag drop your Scanned ID here to upload !</h2>
                     <p:fileUpload auto="true" fileUploadListener="#{membersController.editMemberId}" oncomplete="editID.hide();"  mode="advanced" required="true" requiredMessage="Please choose your ID!" update=":memberDetailsFRM:idGrid,:messages" sizeLimit="1000000" allowTypes="/(\.|\/)(gif|jpe?g|png)$/" >
 
                     </p:fileUpload> 
 
                 </h:form>
-             </p:dialog>
-             
-               <p:dialog widgetVar="addKinDLG" id="addKin" modal="true" resizable="false" header="Add Next of Kin">
+            </p:dialog>
+
+            <p:dialog widgetVar="addKinDLG" id="addKin" modal="true" resizable="false" header="Add Next of Kin">
                 <p:ajax event="close" listener="#{membersController.clearKin()}" update=":addKinFRM"/>
                 <h:form id="addKinFRM">
                     <p:messages id="kinMsgs" closable="true"/>
@@ -256,7 +275,7 @@
                         <h:selectOneMenu id="kinRel" value="#{membersController.kin.relationship}" required="true" requiredMessage="Enter Relationship">
                             <f:selectItem itemLabel="Son" itemValue="son"/>
                             <f:selectItem itemLabel="Daughter" itemValue="daughter"/>
-                           
+
                             <f:selectItem itemLabel="Sister" itemValue="sister"/>
                             <f:selectItem itemLabel="Wife" itemValue="Wife"/>
                             <f:selectItem itemLabel="Husband" itemValue="Husband"/>
@@ -273,10 +292,10 @@
 
                         <h:outputLabel value="ID Number " for="kinIdNum"/>
                         <h:inputText id="kinIdNum" value="#{membersController.kin.idNumber}">
-                          <p:ajax event="keyup" process="@this, kinIdNum" listener="#{membersController.validateID(membersController.kin.idNumber)}" update=":addKinFRM:kinMsgs"/>
+                            <p:ajax event="keyup" process="@this, kinIdNum" listener="#{membersController.validateID(membersController.kin.idNumber)}" update=":addKinFRM:kinMsgs"/>
                         </h:inputText>
 
-                       
+
 
                         <h:outputLabel value="Address *" for="kinAddress"/>
                         <h:inputText id="kinAddress" value="#{membersController.kin.address}" required="true" requiredMessage="Enter Kin Address"/>
@@ -289,7 +308,7 @@
 
                 </h:form>
             </p:dialog>
-             <p:dialog widgetVar="addRefereeDLG" id="addReferee" modal="true" resizable="false" header="Add Referee">
+            <p:dialog widgetVar="addRefereeDLG" id="addReferee" modal="true" resizable="false" header="Add Referee">
                 <p:ajax event="close" listener="#{membersController.clearReferee()}" update=":addRefereeFRM"/>
                 <h:form id="addRefereeFRM">
                     <p:messages id="refmsgs" closable="true"/>
@@ -298,12 +317,12 @@
                         <p:inputText id="refSearch" required="true" value="#{membersController.searchRefMember}" requiredMessage="Enter Member Number or Id"/>
                         <p:commandButton value="Search Member" actionListener="#{membersController.searchReferee()}" update="addRefereeFRM"/>
                     </h:panelGrid>
-                    
+
                     <h:panelGrid id="refGrid" rendered="#{membersController.refFound}" columns="2" cellpadding="3">
- 
+
                         <h:outputLabel value="Name " for="refName"/>
                         <h:inputText readonly="true" id="refName" value="#{membersController.refMember.fullName}" required="true" requiredMessage="Enter Referee's Name">
-                          
+
                         </h:inputText>
 
                         <h:outputLabel value="Branch/ Work Place " for="refBusiness"/>
@@ -314,66 +333,73 @@
 
                         <h:outputLabel value="Telephone " for="refTelephone"/>
                         <h:inputText readonly="true" id="refTelephone" value="#{membersController.refMember.phoneNumber}" required="true" requiredMessage="Enter Referee's Telephone Number"/>
-                         
+
                     </h:panelGrid>
-                       <br/>
-                       <h:panelGrid rendered="#{membersController.refFound}" columns="2" cellpadding="5" style="position: relative; left: 30%;">
-                           <p:commandButton value="Add" oncomplete="addRefereeDLG.hide()" actionListener="#{membersController.addRefToMember()}" update=":memberDetailsFRM:refTBL, :addRefereeFRM ,:memberDetailsFRM:refMessage"  style="margin-right: 10px;"/>
+                    <br/>
+                    <h:panelGrid rendered="#{membersController.refFound}" columns="2" cellpadding="5" style="position: relative; left: 30%;">
+                        <p:commandButton value="Add" oncomplete="addRefereeDLG.hide()" actionListener="#{membersController.addRefToMember()}" update=":memberDetailsFRM:refTBL, :addRefereeFRM ,:memberDetailsFRM:refMessage"  style="margin-right: 10px;"/>
                         <p:commandButton value="Close" onclick="addRefereeDLG.hide();" />
                     </h:panelGrid>
 
                 </h:form>
             </p:dialog>
-             
-             
+
+
             <h:form id="messages">
                 <p:messages closable="true" id="message"/>
             </h:form>
-             <h:form rendered="#{mainController.userLevelLogged.loadMember}" id="memberDetailsFRM"  >
+            <h:form rendered="#{mainController.userLevelLogged.loadMember}" id="memberDetailsFRM"  >
                 <p:commandButton disabled="#{!membersController.editMember.memberStatus}" value="Edit General Info" type="button" ajax="false" onclick="editDLG.show();" />
                 <br/> <br/>
                 <p:fieldset  legend="Member Information" id="infoGrid" >
 
                     <h:panelGrid columns="3" cellpadding="15">
-                    <h:panelGrid columns="2"  cellpadding="2" style="position: relative;margin-right: 20px; ">
+                        <h:panelGrid columns="2"  cellpadding="2" style="position: relative;margin-right: 20px; ">
 
-                        <h:outputLabel value="Member Number " for="memberNumber"/>
-                        <h:outputText id="memberNumber" value="#{membersController.editMember.memberNumber}" />
+                            <h:outputLabel value="Member Number " for="memberNumber"/>
+                            <h:outputText id="memberNumber" value="#{membersController.editMember.memberNumber}" />
 
-                        <h:outputLabel value="Name " for='memberName'/>
-                        <h:outputText id='memberName'  value="#{membersController.editMember.fullName}"  style="text-transform: uppercase;" />
+                              <h:outputLabel value="Title " for='memTitle'/>
+                              <h:outputText id='memTitle'  value="#{membersController.editMember.title}"  style="text-transform: uppercase;" />
 
-                        <h:outputLabel value="ID Number " for="idNumber"/>
-                        <h:outputText id="idNumber" value="#{membersController.editMember.idNumber}" />
-                       
-                        <h:outputLabel for="gender" value="Gender" />
-                        <h:outputText id="gender" value="#{membersController.editMember.gender}" style="text-transform: uppercase;" />
+                            <h:outputLabel value="Name " for='memberName'/>
+                            <h:outputText id='memberName'  value="#{membersController.editMember.fullName}"  style="text-transform: uppercase;" />
 
-                        <h:outputLabel value="Telephone " for="telNumber"/>
-                        <h:outputText id="telNumber" value="#{membersController.editMember.phoneNumber}" />
-                       
-                        <h:outputLabel value="Spouse " for="spouse"/>
-                        <h:outputText id="spouse" value="#{membersController.editMember.spouse}" style="text-transform: uppercase;" />
-                        
-                        <h:outputLabel value="Occupation " for="occupation"/>
-                        <h:outputText id="occupation" value="#{membersController.editMember.occupation}" style="text-transform: uppercase;" />
-                      <h:outputLabel value="Occupation Category " for="occupationCat"/>
-                      <h:outputText id="occupationCat" value="#{membersController.editMember.occupationCategory}" style="text-transform: uppercase;" />
+                            <h:outputLabel value="ID Number " for="idNumber"/>
+                            <h:outputText id="idNumber" value="#{membersController.editMember.idNumber}" />
 
-                        <h:outputLabel value="Email " for="email"/>
-                        <h:outputText id="email" value="#{membersController.editMember.email}" />
+                            <h:outputLabel for="gender" value="Gender" />
+                            <h:outputText id="gender" value="#{membersController.editMember.gender}" style="text-transform: uppercase;" />
 
-                    </h:panelGrid>
-                    <h:panelGrid columns="1" cellpadding="5" id="photoGrid"  style="position: relative;margin-right: 20px; ">
- 
-                        <p:graphicImage cache="false" value="#{membersController.memberPhotoDB}" style="width: 200px;height: 200px;"/>
-                        <p:commandButton value="Change Photo" ajax="false" type="button" onclick="editPhoto.show();"/>
-                    </h:panelGrid>
-                    <h:panelGrid columns="1" cellpadding="5" id="idGrid"  style="position: relative;  ">
- 
-                        <p:graphicImage cache="false" value="#{membersController.memberIDScanDB}" style="width: 350px;height: 200px;"/>
-                        <p:commandButton value="Change ID" ajax="false" type="button" onclick="editID.show();"/>
-                    </h:panelGrid>
+                            <h:outputLabel value="Telephone " for="telNumber"/>
+                            <h:outputText id="telNumber" value="#{membersController.editMember.phoneNumber}" />
+
+                            <h:outputLabel value="Spouse " for="spouse"/>
+                            <h:outputText id="spouse" value="#{membersController.editMember.spouse}" style="text-transform: uppercase;" />
+                            <h:outputLabel for="spouseTel" value="Spouse Tel "/>
+                            <h:inputText  readonly="true"  id="spouseTel"  size="25"  value="#{membersController.editMember.spouseTel}"  />
+                            <h:outputLabel for="spouseAlert" value="Spouse Alert(SMS) "/>
+                            <p:selectBooleanButton disabled="true" value="#{membersController.editMember.spouseAlert}" offLabel="No" onLabel="Yes"/>
+
+                            <h:outputLabel value="Occupation " for="occupation"/>
+                            <h:outputText id="occupation" value="#{membersController.editMember.occupation}" style="text-transform: uppercase;" />
+                            <h:outputLabel value="Occupation Category " for="occupationCat"/>
+                            <h:outputText id="occupationCat" value="#{membersController.editMember.occupationCategory}" style="text-transform: uppercase;" />
+
+                            <h:outputLabel value="Email " for="email"/>
+                            <h:outputText id="email" value="#{membersController.editMember.email}" />
+
+                        </h:panelGrid>
+                        <h:panelGrid columns="1" cellpadding="5" id="photoGrid"  style="position: relative;margin-right: 20px; ">
+
+                            <p:graphicImage cache="false" value="#{membersController.memberPhotoDB}" style="width: 200px;height: 200px;"/>
+                            <p:commandButton value="Change Photo" ajax="false" type="button" onclick="editPhoto.show();"/>
+                        </h:panelGrid>
+                        <h:panelGrid columns="1" cellpadding="5" id="idGrid"  style="position: relative;  ">
+
+                            <p:graphicImage cache="false" value="#{membersController.memberIDScanDB}" style="width: 350px;height: 200px;"/>
+                            <p:commandButton value="Change ID" ajax="false" type="button" onclick="editID.show();"/>
+                        </h:panelGrid>
                     </h:panelGrid>
                 </p:fieldset>
                 <br/>
@@ -385,25 +411,25 @@
 
                 <p:fieldset legend="Member Info" id="empGrid">
                     <h:panelGrid cellpadding="10" cellspacing="10" columns="2">
-                    
-                    <h:panelGrid columns="2" cellpadding="5" cellspacing="5">
-                        <h:outputLabel for="branch" value="House"/>
-                    <h:outputText  id="branch" value="#{membersController.editMember.branch}"/>
-                    <h:outputLabel for="dateJoined" value="Date Joined"/>
-                    <h:outputText id="dateJoined" value="#{membersController.editMember.employmentDate}">
-                        <f:convertDateTime pattern="dd/MM/YYYY"/>
-                    </h:outputText>
-                   
-                        
-             
-                        
-                    </h:panelGrid>
+
+                        <h:panelGrid columns="2" cellpadding="5" cellspacing="5">
+                            <h:outputLabel for="branch" value="House"/>
+                            <h:outputText  id="branch" value="#{membersController.editMember.branch}"/>
+                            <h:outputLabel for="dateJoined" value="Date Joined"/>
+                            <h:outputText id="dateJoined" value="#{membersController.editMember.employmentDate}">
+                                <f:convertDateTime pattern="dd/MM/YYYY"/>
+                            </h:outputText>
+
+
+
+
+                        </h:panelGrid>
                     </h:panelGrid>
                 </p:fieldset>
                 <br/>
-                 
+
                 <p:commandButton ajax="false" value="Add Referee" type="button" onclick="addRefereeDLG.show();"/>
-                    <br/>
+                <br/>
                 <p:messages closable="true" id="refMessage"/>
                 <br/>
                 <p:dataTable id="refTBL" value="#{membersController.memberRefereesDM}" var="referee" paginator="true" paginatorAlwaysVisible="false" rows="5" emptyMessage="No referees">
@@ -412,17 +438,17 @@
                         <f:facet name="header">Name</f:facet>
                         <h:outputText value="#{referee.name}" style="position:relative;left:10%; text-transform: uppercase;"/>
                     </p:column>
-                    
+
                     <p:column>
                         <f:facet name="header">Member Number</f:facet>
                         <h:outputText value="#{referee.memberNumber}" style="position:relative;left:10%; text-transform: uppercase;"/>
                     </p:column>
-                    
+
                     <p:column>
                         <f:facet name="header">Telephone</f:facet>
                         <h:outputText value="#{referee.telephoneNumber}" style="position:relative;left:10%;"/>
                     </p:column>
-                    
+
                     <p:column >
                         <f:facet name="header">Branch</f:facet>
                         <h:outputText value="#{referee.branch}" style="position:relative;left:25%; text-transform: uppercase;"/>
@@ -431,19 +457,19 @@
                         <f:facet name="header">Address</f:facet>
                         <h:outputText value="#{referee.address}" style="position:relative;left:15%;"/>
                     </p:column>
-                    
-                     <p:column>
+
+                    <p:column>
                         <f:facet name="header">Actions</f:facet>
                         <p:commandLink  value="Remove Referee"   update=":memberDetailsFRM:refTBL,:memberDetailsFRM:refMessage"  style="color:red;position:relative;left:25%;" actionListener="#{membersController.removeRefereeFromMember()}" />
                     </p:column>
-                   
+
                 </p:dataTable>
 
                 <br/>
                 <p:messages closable="true" id="kinMessage"/>
                 <br/>
                 <p:commandButton ajax="false" value="Add Kin" type="button" onclick="addKinDLG.show();"/>
-                  <br/><br/>
+                <br/><br/>
                 <p:dataTable id='kinTBL' emptyMessage="No next of kin" value="#{membersController.memberKinsDM}" var="kin" paginator="true" rows="5" paginatorAlwaysVisible="false">
                     <f:facet name="header">NEXT OF KIN</f:facet>
                     <p:column>
@@ -458,7 +484,7 @@
                         <f:facet name="header">ID Number</f:facet>
                         <h:outputText value="#{kin.idNumber}" style="position:relative;left:20%;"/>
                     </p:column>
-                   
+
                     <p:column>
                         <f:facet name="header">Address</f:facet>
                         <h:outputText value="#{kin.address}" style="position:relative;left:10%; text-transform: uppercase;"/>
@@ -466,32 +492,32 @@
                     <p:column headerText="Action">
                         <p:commandLink value="Edit Kin" disabled="#{!membersController.editMember.memberStatus}" style="position:relative;left:20%; font-weight: bold; color: green;" actionListener="#{membersController.loadMemberKin()}" update=":kinDLG" oncomplete="dlgKin.show();"/>
                         <p:commandLink value="Remove Kin" disabled="#{!membersController.editMember.memberStatus}" style="position:relative;left:25%; font-weight: bold; color: red;" update=":memberDetailsFRM:kinTBL,:memberDetailsFRM:kinMessage" actionListener="#{membersController.removeMemberKin()}"/>
-                   
+
                     </p:column>
 
                 </p:dataTable>
 
-              <br/>
+                <br/>
 
 
             </h:form>
-             
-             <h:form rendered="false" id="loansGuanteed">
-                 <p:commandButton value="Update" actionListener="#{membersController.updateLoans()}"/>
-                 <br/>
-                 <p:dataTable value="#{membersController.loansGuaranteedDM}" var="guarantee" paginator="true" paginatorAlwaysVisible="false" rows="10">
-                     <f:facet name="header">LOANS GUARANTEED</f:facet>
-                     <p:column headerText="Loan Number">
-                         <h:outputText value="#{guarantee.loanNumber}" style="margin-left: 15%"/>
-                     </p:column>
-                     
-                      <p:column headerText="Amount">
-                          <h:outputText value="#{guarantee.savings}" style="margin-left: 15%"/>
-                     </p:column>                 
-                 </p:dataTable>
-             </h:form>
-  
-             <h:outputText rendered="#{!mainController.userLevelLogged.loadMember}"  style="font-weight: bold;font-size: 24px;color:red;position:relative;left:20%;" value="Access Denied : You do not have enough privileges to access this feature"/>
+
+            <h:form rendered="false" id="loansGuanteed">
+                <p:commandButton value="Update" actionListener="#{membersController.updateLoans()}"/>
+                <br/>
+                <p:dataTable value="#{membersController.loansGuaranteedDM}" var="guarantee" paginator="true" paginatorAlwaysVisible="false" rows="10">
+                    <f:facet name="header">LOANS GUARANTEED</f:facet>
+                    <p:column headerText="Loan Number">
+                        <h:outputText value="#{guarantee.loanNumber}" style="margin-left: 15%"/>
+                    </p:column>
+
+                    <p:column headerText="Amount">
+                        <h:outputText value="#{guarantee.savings}" style="margin-left: 15%"/>
+                    </p:column>                 
+                </p:dataTable>
+            </h:form>
+
+            <h:outputText rendered="#{!mainController.userLevelLogged.loadMember}"  style="font-weight: bold;font-size: 24px;color:red;position:relative;left:20%;" value="Access Denied : You do not have enough privileges to access this feature"/>
 
         </ui:define>
     </ui:composition>

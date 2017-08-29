@@ -638,10 +638,13 @@ public class SettingsController {
             messages.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, "Invalid service code . ", "failed"));
             inputCode = "";
 
-        } else if (!checkInternet()) {
-            clientAdd = false;
-            messages.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, "Please Connect to the internet . ", "failed"));
-        } else {
+        } 
+//        else if (!checkInternet()) {
+//            clientAdd = false;
+//            messages.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, "Please Connect to the internet . ", "failed"));
+//        } 
+        
+        else {
 
 
             try {
@@ -701,35 +704,17 @@ public class SettingsController {
 
 
         FacesContext ctx = FacesContext.getCurrentInstance();
-        if (checkInternet()) {
-            ctx.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, "Please connect to the internet before continuing!", ""));
-            clientAdd = false;
-        } else if (newSacco.getCounty().equalsIgnoreCase("select")) {
+//        if (checkInternet()) {
+//            ctx.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, "Please connect to the internet before continuing!", ""));
+//            clientAdd = false;
+//        } else 
+         if (newSacco.getCounty().equalsIgnoreCase("select")) {
             ctx.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, "Please select county.", ""));
             clientAdd = false;
         } else {
 //            System.out.println("generating..");
             try {
 
-
-                List<NameValuePair> params = new ArrayList<NameValuePair>();
-                params.add(new BasicNameValuePair("serverPresent", "checkServer"));
-                jsonParser = new JSONParser();
-                json = jsonParser.makeHttpRequest("http://www.pearlsoftke.com/Auth/", "GET", params);
-                if (json.getString("serverAvailable") != null && json.getString("serverAvailable").equalsIgnoreCase("yes")) {
-
-                    params = new ArrayList<NameValuePair>();
-                    params.add(new BasicNameValuePair("checkClient", newSacco.getName()));
-
-
-                    json = jsonParser.makeHttpRequest("http://www.pearlsoftke.com/Auth/", "POST", params);
-                    if (json.getString("clientReady") != null && json.getString("clientReady").equalsIgnoreCase("yes")) {
-                        clientCode = json.getString("clientCode");
-                        alreadyAuth = false;
-                        clientAdd = true;
-                        ctx.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_INFO, "Enter Service Code", ""));
-
-                    } else {
 
                         clientAdd = true;
                         alreadyAuth = false;
@@ -749,26 +734,9 @@ public class SettingsController {
                             fusionDB.setMaxisCall(newSacco.getTelephone());
                             fusionDB.setMaxisLoc(newSacco.getCounty());
                             
-                            //Send auth details before creating DB
                           
-                            params = new ArrayList<NameValuePair>();
-                            params.add(new BasicNameValuePair("addClient", fusionDB.getMaxisBapt()));
-                            params.add(new BasicNameValuePair("servCode", fusionDB.getMaxisEnc()));
-                            params.add(new BasicNameValuePair("tel", fusionDB.getMaxisCall()));
-                            params.add(new BasicNameValuePair("status", fusionDB.getMaxisCapable()));
-                            params.add(new BasicNameValuePair("count", fusionDB.getCountMaxi1() + ""));
-                            params.add(new BasicNameValuePair("county", fusionDB.getMaxisLoc() + ""));
-                            json = jsonParser.makeHttpRequest("http://www.pearlsoftke.com/Auth/", "POST", params);
-                          
-                            if (json.getString("addstatus") != null && json.getString("addstatus").equalsIgnoreCase("success")) {
-                                 ctx.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_INFO, "Please enter your service Code", ""));
-                            }
-                            else{
-                                 ctx.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, "Could not authenticate this copy of Sacco Fusion, please check your internet connection or contact PearlSoft.", ""));
-                            }
-                        }
                        
-                    }
+                    
 
                 } else {
                     clientAdd = false;
@@ -790,7 +758,7 @@ public class SettingsController {
                 ctx.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, "Could not authenticate Sacco Fusion, please check your internet connection or contact PearlSoft.", ""));
             }
 
-            // System.out.println(clientCode);
+            System.out.println(clientCode);
 
         }
 
@@ -837,6 +805,7 @@ public class SettingsController {
             newSacco = new SaccoDetails();
             ctx.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_INFO, "Sacco Fusion Authenticated successfully", ""));
         } catch (Exception ex) {
+            ex.printStackTrace();
             ctx.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, "An error occured, please contact pearlsoft", ""));
             page = "sysSetup.xhtml";
         }
